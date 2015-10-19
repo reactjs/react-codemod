@@ -3,10 +3,7 @@
   "version": "3.0.0",
   "description": "React codemod scripts",
   "license": "BSD-3-Clause",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/facebook/react"
-  },
+  "repository": "reactjs/react-codemod",
   "scripts": {
     "test": "jest"
   },

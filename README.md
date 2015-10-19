@@ -7,8 +7,8 @@ APIs.
 ### Setup & Run
 
   * `npm install -g jscodeshift`
-  * `git clone https://github.com/facebook/react.git` or download a zip file
-    from `https://github.com/facebook/react/archive/master.zip`
+  * `git clone https://github.com/reactjs/react-codemod.git` or download a zip file
+    from `https://github.com/reactjs/react-codemod/archive/master.zip`
   * `jscodeshift -t <codemod-script> <file>`
   * Use the `-d` option for a dry-run and use `-p` to print the output
     for comparison
@@ -22,7 +22,7 @@ update calls on the component instance or its refs. You can use this script to
 update most calls to `getDOMNode` and then manually go through the remaining
 calls.
 
-  * `jscodeshift -t react/packages/react-codemod/transforms/findDOMNode.js <file>`
+  * `jscodeshift -t react-codemod/transforms/findDOMNode.js <file>`
 
 `react-to-react-dom` updates code for the split of the `react` and `react-dom`
 packages (e.g., `React.render` to `ReactDOM.render`). It looks for
@@ -30,7 +30,7 @@ packages (e.g., `React.render` to `ReactDOM.render`). It looks for
 `require('react-dom')`. It does not support ES6 modules or other non-CommonJS
 systems. We recommend performing the `findDOMNode` conversion first.
 
-  * `jscodeshift -t react/packages/react-codemod/transforms/react-to-react-dom.js <file>`
+  * `jscodeshift -t react-codemod/transforms/react-to-react-dom.js <file>`
   * After running the automated codemod, you may want to run a regex-based find-and-replace to remove extra whitespace between the added requires, such as `codemod.py -m -d src --extensions js '(var React\s*=\s*require\(.react.\);)\n\n(\s*var ReactDOM)' '\1\n\2'` using https://github.com/facebook/codemod.
 
 `pure-render-mixin` removes `PureRenderMixin` and inlines
@@ -39,7 +39,7 @@ component and turn it into an ES2015 class. NOTE: This currently only works if y
 are using the master version (>0.13.1) of React as it is using
 `React.addons.shallowCompare`
 
- * `jscodeshift -t react/packages/react-codemod/transforms/pure-render-mixin.js <file>`
+ * `jscodeshift -t react-codemod/transforms/pure-render-mixin.js <file>`
  * If `--mixin-name=<name>` is specified it will look for the specified name
    instead of `PureRenderMixin`. Note that it is not possible to use a
    namespaced name for the mixin. `mixins: [React.addons.PureRenderMixin]` will
@@ -47,7 +47,7 @@ are using the master version (>0.13.1) of React as it is using
 
 `class` transforms `React.createClass` calls into ES2015 classes.
 
-  * `jscodeshift -t react/packages/react-codemod/transforms/class.js <file>`
+  * `jscodeshift -t react-codemod/transforms/class.js <file>`
   * If `--no-super-class` is specified it will not extend
     `React.Component` if `setState` and `forceUpdate` aren't being called in a
     class. We do recommend always extending from `React.Component`, especially
