@@ -4,6 +4,11 @@
   "description": "React codemod scripts",
   "license": "BSD-3-Clause",
   "repository": "reactjs/react-codemod",
+  "files": [
+    "LICENSE",
+    "PATENTS",
+    "transforms/"
+  ],
   "scripts": {
     "test": "jest"
   },
