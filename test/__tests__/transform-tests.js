@@ -53,12 +53,7 @@ describe('Transform Tests', () => {
   it('transforms the "class" tests correctly', () => {
     test('class', 'class-test');
 
-    test('class', 'class-test2', {
-      'super-class': false
-    });
-
-    test('class', 'class-test3');
-
+    test('class', 'class-test2');
   });
 
   it('transforms exports class', () => {

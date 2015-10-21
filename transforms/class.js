@@ -138,15 +138,6 @@ module.exports = (file, api, options) => {
   const findGetInitialState = specPath =>
     specPath.properties.find(createFindPropFn(GET_INITIAL_STATE_FIELD));
 
-  // This is conservative; only check for `setState` and `forceUpdate` literals
-  // instead of also checking which objects they are called on.
-  const shouldExtendReactComponent = classPath =>
-    BASE_COMPONENT_METHODS.some(name => (
-      j(classPath)
-        .find(j.Identifier, {name})
-        .size() > 0
-    ));
-
   const withComments = (to, from) => {
     to.comments = from.comments;
     return to;
@@ -281,18 +272,6 @@ module.exports = (file, api, options) => {
       )
     );
 
-  const createSuperCall = shouldAddSuperCall =>
-    !shouldAddSuperCall ?
-      [] :
-      [
-        j.expressionStatement(
-          j.callExpression(
-            j.identifier('super'),
-            [j.identifier('props'), j.identifier('context')]
-          )
-        ),
-      ];
-
   const updatePropsAccess = getInitialState =>
     getInitialState ?
       j(getInitialState)
@@ -333,20 +312,13 @@ module.exports = (file, api, options) => {
     });
   };
 
-  const createConstructorArgs = (shouldAddSuperClass, hasPropsAccess) => {
-    if (shouldAddSuperClass) {
-      return [j.identifier('props'), j.identifier('context')];
-    } else if (hasPropsAccess) {
-      return [j.identifier('props')];
-    } else {
-      return [];
-    }
+  const createConstructorArgs = (hasPropsAccess) => {
+    return [j.identifier('props'), j.identifier('context')];
   };
 
   const createConstructor = (
     getInitialState,
-    autobindFunctions,
-    shouldAddSuperClass
+    autobindFunctions
   ) => {
     if (!getInitialState && !autobindFunctions.length) {
       return [];
@@ -358,10 +330,17 @@ module.exports = (file, api, options) => {
         key: j.identifier('constructor'),
         value: j.functionExpression(
           null,
-          createConstructorArgs(shouldAddSuperClass, hasPropsAccess),
+          createConstructorArgs(hasPropsAccess),
           j.blockStatement(
             [].concat(
-              createSuperCall(shouldAddSuperClass),
+              [
+                j.expressionStatement(
+                  j.callExpression(
+                    j.identifier('super'),
+                    [j.identifier('props'), j.identifier('context')]
+                  )
+                ),
+              ],
               autobindFunctions.map(createBindAssignment),
               inlineGetInitialState(getInitialState)
             )
@@ -376,8 +355,7 @@ module.exports = (file, api, options) => {
     properties,
     getInitialState,
     autobindFunctions,
-    comments,
-    shouldAddSuperClass
+    comments
   ) =>
     withComments(j.classDeclaration(
       name ? j.identifier(name) : null,
@@ -385,17 +363,16 @@ module.exports = (file, api, options) => {
         [].concat(
           createConstructor(
             getInitialState,
-            autobindFunctions,
-            shouldAddSuperClass
+            autobindFunctions
           ),
           properties
         )
       ),
-      shouldAddSuperClass ? j.memberExpression(
+      j.memberExpression(
         j.identifier('React'),
         j.identifier('Component'),
         false
-      ) : null
+      )
     ), {comments});
 
   const createStaticAssignment = (name, staticProperty) =>
@@ -475,7 +452,7 @@ module.exports = (file, api, options) => {
       false
     );
 
-  const updateToClass = (classPath, shouldExtend, type) => {
+  const updateToClass = (classPath, type) => {
     const specPath = ReactUtils.getReactCreateClassSpec(classPath);
     const name = ReactUtils.getComponentName(classPath);
     const statics = collectStatics(specPath);
@@ -504,8 +481,7 @@ module.exports = (file, api, options) => {
         properties.concat(functions.map(createMethodDefinition)),
         getInitialState,
         autobindFunctions,
-        comments,
-        shouldExtend || shouldExtendReactComponent(classPath)
+        comments
       )
     );
 
@@ -530,11 +506,7 @@ module.exports = (file, api, options) => {
         .filter(hasMixins)
         .filter(callsDeprecatedAPIs)
         .filter(canConvertToClass)
-        .forEach(classPath => updateToClass(
-          classPath,
-          !options['super-class'],
-          type
-        ));
+        .forEach(classPath => updateToClass(classPath, type));
 
     const didTransform = (
       apply(ReactUtils.findReactCreateClass(root), 'var')

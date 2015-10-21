@@ -2,30 +2,21 @@
 
 var React = require('React');
 
-class IdontNeedAParent {
-  render() {
-    return <div />;
-  }
-}
+// Comment
+module.exports = class extends React.Component {
+  constructor(props, context) {
+    super(props, context);
 
-class ButIDo extends React.Component {
-  foo() {
-    this.setState({banana: '?'});
-  }
-
-  render() {
-    return <div />;
-  }
-}
-
-class IAccessProps {
-  constructor(props) {
     this.state = {
-      relayReleaseDate: props.soon,
+      foo: 'bar',
     };
   }
 
   render() {
-    return
+    return <div />;
   }
-}
+};
+
+module.exports.propTypes = {
+  foo: React.PropTypes.bool,
+};

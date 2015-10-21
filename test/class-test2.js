@@ -2,32 +2,19 @@
 
 var React = require('React');
 
-var IdontNeedAParent = React.createClass({
-  render: function() {
-    return <div />;
-  }
-});
-
-var ButIDo = React.createClass({
-  foo: function() {
-    this.setState({banana: '?'});
+// Comment
+module.exports = React.createClass({
+  propTypes: {
+    foo: React.PropTypes.bool,
   },
-
-  render: function() {
-    return <div />;
-  }
-});
-
-var IAccessProps = React.createClass({
 
   getInitialState: function() {
     return {
-      relayReleaseDate: this.props.soon,
+      foo: 'bar',
     };
   },
 
   render: function() {
-    return
+    return <div />;
   }
-
 });
