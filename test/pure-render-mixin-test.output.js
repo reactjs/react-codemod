@@ -9,7 +9,7 @@ var MyComponent = React.createClass({
 
   render: function() {
     return <div />;
-  }
+  },
 });
 
 var MyMixedComponent = React.createClass({
@@ -21,7 +21,7 @@ var MyMixedComponent = React.createClass({
 
   render: function() {
     return <div />;
-  }
+  },
 });
 
 var MyFooComponent = React.createClass({
@@ -37,7 +37,7 @@ var MyFooComponent = React.createClass({
 
   shouldComponentUpdate: function(nextProps, nextState) {
     return React.addons.shallowCompare(this, nextProps, nextState);
-  }
+  },
 });
 
 var MyStupidComponent = React.createClass({
