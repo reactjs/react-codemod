@@ -7,7 +7,7 @@ var MyComponent = React.createClass({
 
   render: function() {
     return <div />;
-  }
+  },
 });
 
 module.exports = MyComponent;
