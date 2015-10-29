@@ -60,4 +60,11 @@ describe('Transform Tests', () => {
     test('class', 'export-default-class-test');
   });
 
+  it('transforms the "pure-component" tests correctly', () => {
+    test('pure-component', 'pure-component-test');
+    test('pure-component', 'pure-component-test2', {
+      useArrows: true
+    });
+  });
+
 });
