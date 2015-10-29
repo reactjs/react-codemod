@@ -22,7 +22,9 @@ function findIndex(predicate, context) {
     throw new TypeError('predicate must be a function');
   }
   var list = Object(this);
+  /* eslint-disable no-bitwise */
   var length = list.length >>> 0;
+  /* eslint-enable no-bitwise */
   for (var i = 0; i < length; i++) {
     if (predicate.call(context, list[i], i, list)) {
       return i;

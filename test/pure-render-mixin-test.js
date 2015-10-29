@@ -7,7 +7,7 @@ var MyComponent = React.createClass({
 
   render: function() {
     return <div />;
-  }
+  },
 });
 
 var MyMixedComponent = React.createClass({
@@ -15,7 +15,7 @@ var MyMixedComponent = React.createClass({
 
   render: function() {
     return <div />;
-  }
+  },
 });
 
 var MyFooComponent = React.createClass({
@@ -27,7 +27,7 @@ var MyFooComponent = React.createClass({
 
   foo: function() {
 
-  }
+  },
 });
 
 var MyStupidComponent = React.createClass({
@@ -39,7 +39,7 @@ var MyStupidComponent = React.createClass({
 
   render: function() {
     return <div />;
-  }
+  },
 });
 
 module.exports = MyComponent;

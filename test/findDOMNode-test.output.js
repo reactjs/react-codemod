@@ -21,7 +21,7 @@ var Composer = React.createClass({
 
   foobar: function() {
     passThisOn(React.findDOMNode(this.refs.main.refs.list));
-  }
+  },
 });
 
 var SomeDialog = React.createClass({
@@ -30,5 +30,5 @@ var SomeDialog = React.createClass({
     return (
       <div />
     );
-  }
+  },
 });

@@ -33,8 +33,6 @@ module.exports = (file, api, options) => {
     shouldComponentUpdate: true,
   };
 
-  const BASE_COMPONENT_METHODS = ['setState', 'forceUpdate'];
-
   const DEFAULT_PROPS_FIELD = 'getDefaultProps';
   const DEFAULT_PROPS_KEY = 'defaultProps';
   const GET_INITIAL_STATE_FIELD = 'getInitialState';

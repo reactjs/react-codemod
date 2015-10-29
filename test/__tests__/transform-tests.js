@@ -8,7 +8,7 @@
  *
  */
 
-"use strict";
+'use strict';
 
 jest.autoMockOff();
 
@@ -62,8 +62,9 @@ describe('Transform Tests', () => {
 
   it('transforms the "pure-component" tests correctly', () => {
     test('pure-component', 'pure-component-test');
+
     test('pure-component', 'pure-component-test2', {
-      useArrows: true
+      useArrows: true,
     });
   });
 

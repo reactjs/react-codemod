@@ -6,7 +6,7 @@ module.exports = function(file, api, options) {
   const silenceWarnings = options.silenceWarnings || false;
   const printOptions = options.printOptions || {
     quote: 'single',
-    trailingComma: true
+    trailingComma: true,
   };
 
   const getClassName = path =>
@@ -26,11 +26,11 @@ module.exports = function(file, api, options) {
 
   const THIS_PROPS = {
     object: {
-      type: 'ThisExpression'
+      type: 'ThisExpression',
     },
     property: {
-      name: 'props'
-    }
+      name: 'props',
+    },
   };
 
   const replaceThisProps = path =>
@@ -54,7 +54,7 @@ module.exports = function(file, api, options) {
             [j.identifier('props')],
             body
           )
-        )
+        ),
       ]
     );
 
@@ -93,7 +93,7 @@ module.exports = function(file, api, options) {
     } else {
       return buildPureComponentFunction(name, renderBody);
     }
-  })
+  });
 
   return f.toSource(printOptions);
 };

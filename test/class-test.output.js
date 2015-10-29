@@ -115,7 +115,7 @@ MyComponent3.defaultProps = function() {
   foo();
   return {
     linkifyEntities: true,
-    highlightEntities: false
+    highlightEntities: false,
   };
 }();
 
@@ -126,8 +126,8 @@ MyComponent3.propTypes = {
   linkifyEntities: React.PropTypes.bool,
   text: React.PropTypes.shape({
     text: React.PropTypes.string,
-    ranges: React.PropTypes.array
-  }).isRequired
+    ranges: React.PropTypes.array,
+  }).isRequired,
 };
 
 MyComponent3.someThing = 10;
@@ -140,5 +140,5 @@ var MyComponent4 = React.createClass({
 module.exports = Relay.createContainer(MyComponent, {
   queries: {
     me: Relay.graphql`this is not graphql`,
-  }
+  },
 });

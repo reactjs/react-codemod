@@ -18,7 +18,7 @@ var MyComponent = React.createClass({
 
   foo: function() {
     this.setState({heyoo: 24});
-  }
+  },
 });
 
 // Class comment
@@ -29,7 +29,7 @@ var MyComponent2 = React.createClass({
   foo: function() {
     pass(this.foo);
     this.forceUpdate();
-  }
+  },
 });
 
 var MyComponent3 = React.createClass({
@@ -42,15 +42,15 @@ var MyComponent3 = React.createClass({
     linkifyEntities: React.PropTypes.bool,
     text: React.PropTypes.shape({
       text: React.PropTypes.string,
-      ranges: React.PropTypes.array
-    }).isRequired
+      ranges: React.PropTypes.array,
+    }).isRequired,
   },
 
   getDefaultProps: function() {
     foo();
     return {
       linkifyEntities: true,
-      highlightEntities: false
+      highlightEntities: false,
     };
   },
 
@@ -118,7 +118,7 @@ var MyComponent3 = React.createClass({
         text={content.text}
       />
     );
-  }
+  },
 });
 
 var MyComponent4 = React.createClass({
@@ -129,5 +129,5 @@ var MyComponent4 = React.createClass({
 module.exports = Relay.createContainer(MyComponent, {
   queries: {
     me: Relay.graphql`this is not graphql`,
-  }
+  },
 });
