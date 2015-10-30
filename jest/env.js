@@ -14,15 +14,20 @@ jest.autoMockOff();
 
 const fs = require('fs');
 const jscodeshift = require('jscodeshift');
+const p = require('path');
 
-const read = fileName =>
-  fs.readFileSync(__dirname + '/../test/' + fileName, 'utf8');
+const read = fileName => fs.readFileSync(
+  p.join(__dirname, global.baseDir, 'test', fileName),
+  'utf8'
+);
 
 global.test = (transformName, testFileName, options, fakeOptions) => {
   let path = testFileName + '.js';
   const source = read(testFileName + '.js');
   const output = read(testFileName + '.output.js');
-  const transform = require('../transforms/' + transformName);
+  const transform = require(
+    p.join(global.baseDir, '/transforms/', transformName)
+  );
 
   if (fakeOptions) {
     if (fakeOptions.path) {
