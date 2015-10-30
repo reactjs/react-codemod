@@ -25,6 +25,7 @@
   },
   "jest": {
     "scriptPreprocessor": "./node_modules/babel-jest",
+    "setupEnvScriptFile": "jest/env.js",
     "testPathDirs": [
       "test"
     ]
