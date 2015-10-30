@@ -15,6 +15,10 @@ APIs.
 
 ### Included Scripts
 
+`create-element-to-jsx` converts calls to `React.createElement` into JSX elements.
+
+  * `jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <file>`
+
 `findDOMNode` updates `this.getDOMNode()` or `this.refs.foo.getDOMNode()`
 calls inside of `React.createClass` components to `React.findDOMNode(foo)`. Note
 that it will only look at code inside of `React.createClass` calls and only
