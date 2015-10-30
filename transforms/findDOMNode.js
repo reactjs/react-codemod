@@ -125,7 +125,7 @@ function getDOMNodeToFindDOMNode(file, api, options) {
   };
 
   if (
-    !options['explicit-require'] ||
+    options['explicit-require'] === false ||
     ReactUtils.hasReact(root)
   ) {
     const didTransform = ReactUtils

@@ -497,7 +497,7 @@ module.exports = (file, api, options) => {
   };
 
   if (
-    !options['explicit-require'] || ReactUtils.hasReact(root)
+    options['explicit-require'] === false || ReactUtils.hasReact(root)
   ) {
     const apply = (path, type) =>
       path
