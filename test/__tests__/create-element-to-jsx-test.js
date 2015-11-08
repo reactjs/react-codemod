@@ -17,6 +17,8 @@ describe('create-element-to-jsx', () => {
 
     test('create-element-to-jsx', 'create-element-to-jsx-props');
 
+    test('create-element-to-jsx', 'create-element-to-jsx-props-array');
+
     test('create-element-to-jsx', 'create-element-to-jsx-children-literal');
 
     test('create-element-to-jsx', 'create-element-to-jsx-children');
