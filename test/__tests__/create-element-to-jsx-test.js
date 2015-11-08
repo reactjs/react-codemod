@@ -27,6 +27,8 @@ describe('create-element-to-jsx', () => {
 
     test('create-element-to-jsx', 'create-element-to-jsx-children-map');
 
+    test('create-element-to-jsx', 'create-element-to-jsx-children-mixed-empty-string');
+
     test('create-element-to-jsx', 'create-element-to-jsx-spread');
 
     test('create-element-to-jsx', 'create-element-to-jsx-no-react');
