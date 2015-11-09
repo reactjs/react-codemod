@@ -41,8 +41,8 @@ module.exports = function(file, api, options) {
     const attributes = convertObjectExpressionToJSXAttributes(props);
 
     const children = node.value.arguments.slice(2).map((child, index) => {
-      if (child.type === 'Literal') {
-        return j.literal(child.value);
+      if (child.type === 'Literal' && typeof child.value === 'string') {
+        return j.jsxText(child.value);
       } else if (child.type === 'CallExpression' &&
         child.callee.object.name === 'React' &&
         child.callee.property.name === 'createElement') {
