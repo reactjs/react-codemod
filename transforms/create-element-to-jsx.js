@@ -43,9 +43,13 @@ module.exports = function(file, api, options) {
     const children = node.value.arguments.slice(2).map((child, index) => {
       if (child.type === 'Literal') {
         return j.literal(child.value);
+      } else if (child.type === 'CallExpression' &&
+        child.callee.object.name === 'React' &&
+        child.callee.property.name === 'createElement') {
+        return convertNodeToJSX(node.get('arguments', index + 2));
+      } else {
+        return j.jsxExpressionContainer(child);
       }
-
-      return convertNodeToJSX(node.get('arguments', index + 2));
     });
 
     const openingElement = j.jsxOpeningElement(j.jsxIdentifier(elementName), attributes);
