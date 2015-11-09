@@ -15,7 +15,7 @@ module.exports = function(file, api, options) {
         const propertyValueType = property.value.type;
 
         let value;
-        if (propertyValueType === 'Literal') {
+        if (propertyValueType === 'Literal' && typeof property.value.value === 'string') {
           value = j.literal(property.value.value);
         } else {
           value = j.jsxExpressionContainer(property.value);
