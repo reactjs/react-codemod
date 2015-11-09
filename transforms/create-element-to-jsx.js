@@ -17,7 +17,7 @@ module.exports = function(file, api, options) {
         let value;
         if (propertyValueType === 'Literal') {
           value = j.literal(property.value.value);
-        } else if (propertyValueType === 'MemberExpression') {
+        } else {
           value = j.jsxExpressionContainer(property.value);
         }
 
