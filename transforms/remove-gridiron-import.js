@@ -2,7 +2,7 @@ module.exports = function(file, api) {
   var j = api.jscodeshift;
   var root = j(file.source);
 
-  return root
+  root
     .find(j.ImportDeclaration, {
       type: 'ImportDeclaration',
       source: {
@@ -10,6 +10,11 @@ module.exports = function(file, api) {
         value: '@nfl/gridiron',
       },
     })
-    .forEach(p => j(p).replaceWith())
+    .forEach(p => j(p).replaceWith());
+
+  return root.find(j.Identifier, {name: 'GridironComponent'})
+    .forEach(p => {
+      j(p).replaceWith(j.identifier('React.Component'));
+    })
     .toSource();
 };
