@@ -1,5 +1,5 @@
 import React from 'react';
-import {GridironComponent} from "@nfl/gridiron";
+import {GridironComponent} from '@nfl/gridiron';
 
 class TestComponent extends GridironComponent {
   render() {
