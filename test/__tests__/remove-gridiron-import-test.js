@@ -8,10 +8,10 @@
  *
  */
 
-'use strict';
+"use strict";
 
-describe('remove-gridiron-import', () => {
-  it('transforms correctly', () => {
-    test('remove-gridiron-import', 'remove-gridiron-import');
-  });
+describe("remove-gridiron-import", () => {
+    it("transforms correctly", () => {
+        test("remove-gridiron-import", "remove-gridiron-import");
+    });
 });
