@@ -12,7 +12,7 @@ class Article extends React.Component {
                 <span className={classNames("icon-class")} style={{width: "10px"}}></span>
 
                 // js objects will get converted to style tags
-                // and merged with Object.assign if necessary.
+                // and merged into one object
                 // Calls to the classNames module will be stripped out
                 <span className={styles.one}></span>
                 <span className={classNames(styles.one)}></span>
