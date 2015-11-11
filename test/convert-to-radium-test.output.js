@@ -14,6 +14,7 @@ class Article extends React.Component {
                 // and merged with Object.assign if necessary.
                 // Calls to the classNames module will be stripped out
                 <span style={styles.one}></span>
+                <span style={styles.one}></span>
                 <span style={Object.assign({}, styles.one, styles.two)}></span>
                 <span style={Object.assign({}, styles.one, {width: "10px"})}></span>
                 <span
@@ -22,7 +23,7 @@ class Article extends React.Component {
 
                 // conditional styles in a classNames call cannot be
                 // migrated programmatically, will stay unchanged
-                <span className={classNames("hey", {"someStyle": booleanValue})}></span>
+                <span className={classNames("icon", {"someStyle": booleanValue})}></span>
             </div>
         );
     }
