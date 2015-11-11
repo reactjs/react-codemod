@@ -1,15 +1,11 @@
 import React from "react";
 import {GridironComponent} from "@nfl/gridiron";
+import Helmet from "react-helmet";
+import classNames from "classnames";
 
 class TestComponent extends GridironComponent {
     render() {
-        return (
-            <aside className="debug">
-                <ul>
-                    <li>test</li>
-                </ul>
-            </aside>
-        );
+        return <div>test</div>;
     }
 }
 
