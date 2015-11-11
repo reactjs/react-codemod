@@ -37,14 +37,10 @@ module.exports = function (file, api) {
 
         let styleValue = null;
         if (styleObjects.length > 1) {
-            const emptyObject = j.objectExpression([]);
-            styleObjects.unshift(emptyObject);
-
-            const objectAssign = j.memberExpression(
-                j.identifier("Object"),
-                j.identifier("assign")
-            );
-            styleValue = j.callExpression(objectAssign, [...styleObjects]);
+            const spreadObjects = styleObjects.map(style => {
+                return j.spreadProperty(style);
+            });
+            styleValue = j.objectExpression(spreadObjects);
         } else {
             styleValue = styleObjects[0];
         }
