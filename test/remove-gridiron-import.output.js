@@ -1,6 +1,6 @@
 import React from 'react';
 
-class TestComponent extends GridironComponent {
+class TestComponent extends React.Component {
   render() {
     return (
       <aside className='debug'>
