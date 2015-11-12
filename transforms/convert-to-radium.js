@@ -151,8 +151,9 @@ module.exports = function (file, api) {
                 }
             }
         }).forEach(p => {
-            const identifier = j.identifier("@radium");
-            const exp = j.expressionStatement(identifier);
+            const exp = j.expressionStatement(
+                j.identifier("@radium")
+            );
             j(p).insertBefore(exp);
         });
 
