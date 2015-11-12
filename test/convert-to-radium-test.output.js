@@ -1,5 +1,6 @@
 import React from "react";
 
+@radium
 class Article extends React.Component {
     render() {
         return (

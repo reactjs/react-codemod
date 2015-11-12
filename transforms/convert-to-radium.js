@@ -10,7 +10,6 @@ module.exports = function (file, api) {
     const j = api.jscodeshift;
     const root = j(file.source);
 
-
     const getAttribute = (attrName, attributes) => {
         const attrs = attributes.filter(attribute => {
             return attribute.name.name === attrName;
@@ -26,7 +25,7 @@ module.exports = function (file, api) {
 
     const logError = (attr) => {
         const line = attr.loc.start.line;
-        console.log(`${file.path}: Could not update styles on line ${line}`);
+        console.error(`${file.path}: Could not update styles on line ${line}`);
     };
 
 
@@ -141,5 +140,21 @@ module.exports = function (file, api) {
             updateStyles(p);
         });
 
-    return root.toSource();
+    root
+        .find(j.ClassDeclaration, {
+            superClass: {
+                object: {
+                    name: "React"
+                },
+                property: {
+                    name: "Component"
+                }
+            }
+        }).forEach(p => {
+            const identifier = j.identifier("@radium");
+            const exp = j.expressionStatement(identifier);
+            j(p).insertBefore(exp);
+        });
+
+    return root.toSource().replace("@radium;\n", "\n@radium");
 };
