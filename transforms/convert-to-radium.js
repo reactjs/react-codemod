@@ -119,6 +119,25 @@ module.exports = function (file, api) {
     };
 
 
+    const radiumImport = j.importDeclaration(
+        [j.importDefaultSpecifier(
+            j.identifier("radium")
+        )],
+        j.literal("react-wildcat-radium")
+    );
+
+
+    root
+        .find(j.ImportDeclaration, {
+            source: {
+                type: "Literal",
+                value: "react"
+            }
+        }).forEach(p => {
+            j(p).insertAfter(radiumImport);
+        });
+
+
     root
         .find(j.ImportDeclaration, {
             source: {

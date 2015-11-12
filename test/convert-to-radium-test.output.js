@@ -1,4 +1,5 @@
 import React from "react";
+import radium from "react-wildcat-radium";
 
 @radium
 class Article extends React.Component {
