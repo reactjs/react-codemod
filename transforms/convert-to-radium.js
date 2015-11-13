@@ -188,7 +188,7 @@ module.exports = function (file, api) {
             }]
         }).forEach(p => {
             const styleImport = p.value.source.value;
-            const stylePath = path.join(file.fullPath, styleImport);
+            const stylePath = path.join(file.path, styleImport);
             styles = require(stylePath);
         });
 
