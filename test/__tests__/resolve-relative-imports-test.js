@@ -11,5 +11,9 @@ describe("resolve-relative-imports", () => {
         test("resolve-relative-imports", "resolve-shell-index-imports", {}, {
             path: path.resolve(__dirname, "../resolve-shell-index-imports.js")
         });
+
+        test("resolve-relative-imports", "resolve-unprefixed-imports", {}, {
+            path: path.resolve(__dirname, "../resolve-unprefixed-imports.js")
+        });
     });
 });
