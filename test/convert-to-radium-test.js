@@ -1,5 +1,6 @@
 import React from "react";
 import classNames from "classnames";
+import styles from "styles/styles.js";
 
 class Article extends React.Component {
     render() {
@@ -19,6 +20,14 @@ class Article extends React.Component {
                 <span className={classNames(styles.one, styles.two)}></span>
                 <span className={styles.one} style={{width: "10px"}}></span>
                 <span className={classNames("icon", "other-icon", styles.one, styles.two)}></span>
+
+                // nodes with interactive styles (hover state, media queries)
+                // get a "key" attribute added to them
+                <span className={styles.hover}></span>
+                <span className={styles.media1}></span>
+                <span className={styles.media2}></span>
+                <span className={styles.media3}></span>
+                <span className={styles.media4}></span>
 
                 // conditional styles in a classNames call cannot be
                 // migrated programmatically, will stay unchanged

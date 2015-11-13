@@ -6,9 +6,14 @@
  * @return {string}
  */
 
+import path from "path";
+
+const mediaQueries = ["min-width", "minWidth", "max-width", "maxWidth"];
+
 module.exports = function (file, api) {
     const j = api.jscodeshift;
     const root = j(file.source);
+    let styles = null;
 
     const getAttribute = (attrName, attributes) => {
         const attrs = attributes.filter(attribute => {
@@ -21,11 +26,49 @@ module.exports = function (file, api) {
 
     const getClassAttribute = (attributes) => getAttribute("className", attributes);
     const getStyleAttribute = (attributes) => getAttribute("style", attributes);
+    const getKeyAttribute = (attributes) => getAttribute("key", attributes);
 
 
     const logError = (attr) => {
         const line = attr.loc.start.line;
         console.error(`${file.path}: Could not update styles on line ${line}`);
+    };
+
+
+    const isInteractiveStyle = (style) => {
+        if (style[":hover"]) {
+            return true;
+        }
+
+        for (const prop in style) {
+            if (style.hasOwnProperty(prop)) {
+                for (const query of mediaQueries) {
+                    if (prop.indexOf(query) > -1) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    };
+
+
+    const getInteractiveKey = (expressions) => {
+        for (const expression of expressions) {
+            if (expression.type !== "MemberExpression") {
+                continue;
+            }
+
+            if (expression.object.name === "styles") {
+                const style = expression.property.name;
+                if (isInteractiveStyle(styles[style])) {
+                    return style;
+                }
+            }
+        }
+
+        return null;
     };
 
 
@@ -77,6 +120,15 @@ module.exports = function (file, api) {
             const classAttribute = createClassAttribute(stringArgs);
             attrs.push(classAttribute);
         }
+
+        const interactiveKey = styles && getInteractiveKey(objArgs);
+        if (interactiveKey && !getKeyAttribute(attrs)) {
+            const keyAttribute = j.jsxAttribute(
+                j.jsxIdentifier("key"),
+                j.literal(interactiveKey)
+            );
+            attrs.push(keyAttribute);
+        }
     };
 
 
@@ -125,6 +177,20 @@ module.exports = function (file, api) {
         )],
         j.literal("react-wildcat-radium")
     );
+
+
+    root
+        .find(j.ImportDeclaration, {
+            specifiers: [{
+                local: {
+                    name: "styles"
+                }
+            }]
+        }).forEach(p => {
+            const styleImport = p.value.source.value;
+            const stylePath = path.join(file.fullPath, styleImport);
+            styles = require(stylePath);
+        });
 
 
     root
