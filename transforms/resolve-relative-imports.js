@@ -63,10 +63,15 @@ module.exports = function (file, api) {
                 }
 
                 // Finally, make the import relative to the current file...
-                const relativeImportPath = path.relative(resolveOptions.basedir, absoluteImportPath);
+                let relativeImportPath = path.relative(resolveOptions.basedir, absoluteImportPath);
 
                 // ...and prepend a dot/slash so jspm is happy
-                p.node.source.value = `./${relativeImportPath}`;
+                if (!relativeImportPath.startsWith(".")) {
+                    // (...only if we need to)
+                    relativeImportPath = `./${relativeImportPath}`;
+                }
+
+                p.node.source.value = relativeImportPath;
             } catch (e) {} // eslint-disable-line no-empty
 
             // Return the mapped value
