@@ -1,5 +1,3 @@
 ---
-parser: babel-eslint
-
 extends:
-  - ./node_modules/eslint-config-nfl/.eslintrc
+  - eslint-config-nfl
