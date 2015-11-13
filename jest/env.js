@@ -29,8 +29,6 @@ global.test = (transformName, testFileName, options, fakeOptions) => {
         p.join(global.baseDir, "/transforms/", transformName)
     );
 
-    const fullPath = p.join(__dirname, global.baseDir, "test", path, "../");
-
     if (fakeOptions) {
         if (fakeOptions.path) {
             path = fakeOptions.path;
@@ -38,7 +36,7 @@ global.test = (transformName, testFileName, options, fakeOptions) => {
     }
 
     expect(
-        (transform({path, fullPath, source}, {jscodeshift}, options || {}) || "").trim()
+        (transform({path, source}, {jscodeshift}, options || {}) || "").trim()
     ).toEqual(
         output.trim()
     );
