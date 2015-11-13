@@ -12,6 +12,11 @@ module.exports = function (file, api) {
     root
         .find(j.ImportDeclaration, {
             type: "ImportDeclaration",
+            specifiers: [{
+                local: {
+                    name: "Prefetch"
+                }
+            }],
             source: {
                 type: "Literal",
                 value: "@nfl/gridiron"
