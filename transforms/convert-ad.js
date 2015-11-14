@@ -8,10 +8,10 @@ module.exports = function (file, api) {
         j,
         root,
         {
-            importName: "Prefetch",
-            importSource: "@nfl/gridiron",
-            newName: "Prefetch",
-            newSource: "react-wildcat-prefetch"
+            importName: "Ad",
+            importSource: "@nfl/gridiron/addons",
+            newName: "Ad",
+            newSource: "addons/Ad"
         }
     );
 
