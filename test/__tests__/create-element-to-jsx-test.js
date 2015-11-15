@@ -31,6 +31,8 @@ describe('create-element-to-jsx', () => {
 
     test('create-element-to-jsx', 'create-element-to-jsx-spread');
 
+    test('create-element-to-jsx', 'create-element-to-jsx-spread-props');
+
     test('create-element-to-jsx', 'create-element-to-jsx-no-react');
   });
 
