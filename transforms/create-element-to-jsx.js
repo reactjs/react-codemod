@@ -4,6 +4,10 @@ module.exports = function(file, api, options) {
   const ReactUtils = require('./utils/ReactUtils')(j);
 
   const convertObjectExpressionToJSXAttributes = (objectExpression) => {
+    if (objectExpression.type === 'Identifier') {
+      return [j.jsxSpreadAttribute(objectExpression)];
+    }
+
     if (!objectExpression.properties) {
       return [];
     }
