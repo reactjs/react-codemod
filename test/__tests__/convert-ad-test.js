@@ -1,6 +1,6 @@
 "use strict";
 
-describe("convert-prefetch", () => {
+describe("convert-ad", () => {
     it("transforms correctly", () => {
         test("convert-ad", "convert-ad");
     });
