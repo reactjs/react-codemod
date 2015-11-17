@@ -15,11 +15,11 @@ jscodeshift -t transforms/convert-ad.js --extensions js $1
 echo "\n\nConverting Prefetch imports"
 jscodeshift -t transforms/convert-prefetch.js --extensions js $1
 
-echo "\n\nConverting to Radium"
-jscodeshift -t transforms/convert-to-radium.js --extensions js $1
-
 echo "\n\nRemoving Gridiron imports"
 jscodeshift -t transforms/remove-gridiron-import.js --extensions js $1
+
+echo "\n\nConverting to Radium"
+jscodeshift -t transforms/convert-to-radium.js --extensions js $1
 
 echo "\n\nRemoving Stilr stylesheets"
 jscodeshift -t transforms/remove-stilr.js --extensions js $1

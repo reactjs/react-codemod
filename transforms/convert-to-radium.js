@@ -25,6 +25,10 @@ module.exports = function (file, api, options) {
 
     const getAttribute = (attrName, attributes) => {
         const attrs = attributes.filter(attribute => {
+            if (!attribute.name) {
+                return false;
+            }
+
             return attribute.name.name === attrName;
         });
 
