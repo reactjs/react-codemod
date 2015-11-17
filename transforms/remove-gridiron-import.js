@@ -1,4 +1,4 @@
-module.exports = function (file, api) {
+module.exports = function (file, api, options) {
     var j = api.jscodeshift;
     var root = j(file.source);
 
@@ -16,5 +16,5 @@ module.exports = function (file, api) {
         .forEach(p => {
             j(p).replaceWith(j.identifier("React.Component"));
         })
-        .toSource();
+        .toSource(options);
 };

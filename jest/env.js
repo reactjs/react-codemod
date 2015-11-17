@@ -35,8 +35,14 @@ global.test = (transformName, testFileName, options, fakeOptions) => {
         }
     }
 
+    options = options || {};
+
+    if (!options.esprima) {
+        options.esprima = require("babel-core");
+    }
+
     expect(
-        (transform({path, source}, {jscodeshift}, options || {}) || "").trim()
+        (transform({path, source}, {jscodeshift}, options) || "").trim()
     ).toEqual(
         output.trim()
     );

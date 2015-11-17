@@ -2,7 +2,7 @@ var fs = require("fs");
 var path = require("path");
 var resolve = require("resolve");
 
-module.exports = function (file, api) {
+module.exports = function (file, api, options) {
     const j = api.jscodeshift;
 
     // We use resolve to find the absolute paths of our imports
@@ -85,5 +85,5 @@ module.exports = function (file, api) {
         })
 
         // Convert AST to source
-        .toSource();
+        .toSource(options);
 };
