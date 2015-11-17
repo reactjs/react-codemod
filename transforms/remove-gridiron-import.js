@@ -1,20 +1,51 @@
-module.exports = function (file, api) {
+module.exports = function (file, api, options) {
     var j = api.jscodeshift;
     var root = j(file.source);
 
-    root
-        .find(j.ImportDeclaration, {
-            type: "ImportDeclaration",
-            source: {
-                type: "Literal",
-                value: "@nfl/gridiron"
-            }
-        })
-        .forEach(p => j(p).replaceWith());
+    const ImportDeclaration = (value) => ({
+        type: "ImportDeclaration",
+        source: {
+            type: "Literal",
+            value
+        }
+    });
 
-    return root.find(j.Identifier, {name: "GridironComponent"})
-        .forEach(p => {
-            j(p).replaceWith(j.identifier("React.Component"));
-        })
-        .toSource();
+    const importStatement = (defaultImport, source) => j.importDeclaration(
+        [j.importDefaultSpecifier(
+            j.identifier(defaultImport)
+        )],
+        j.literal(source)
+    );
+
+    const superClass = (name) => ({
+        superClass: {
+            name
+        }
+    });
+
+    const removeGridironImport = (p) => {
+        j(p).remove();
+        return p;
+    };
+
+    root.find(j.ImportDeclaration, ImportDeclaration("@nfl/gridiron"))
+        .forEach(removeGridironImport);
+
+
+    //change superclass to React.Component
+    root.find(j.ClassDeclaration, superClass("GridironComponent"))
+        .forEach(p => p.node.superClass.name = "React.Component");
+
+    //import react if there isn't one
+    root.find(j.ClassDeclaration, superClass("React.Component"))
+        .forEach(() => {
+            const reactImport = root.find(j.ImportDeclaration, ImportDeclaration("react"));
+            if (reactImport.paths().length === 0) {
+                root.find(j.ClassDeclaration)
+                    .insertBefore(importStatement("React", "react"));
+            }
+        });
+
+
+    return root.toSource(options);
 };
