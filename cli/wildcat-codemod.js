@@ -7,14 +7,18 @@ import path from "path";
 import {exec} from "child_process";
 
 const {src, all} = nomnom.options({
+    src: {
+        abbr: "s",
+        help: "Source directory to run the transforms against"
+    },
     all: {
         flag: true,
         abbr: "A",
         help: "Run all transforms in transforms folder"
     },
     single: {
-        help: "run single transform",
-        abbr: "s"
+        help: "Run single transform",
+        abbr: "o"
     }
 }).parse();
 
