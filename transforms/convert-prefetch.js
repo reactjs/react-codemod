@@ -9,7 +9,7 @@ module.exports = function (file, api, options) {
         root,
         {
             importName: "Prefetch",
-            importSource: "@nfl/gridiron",
+            importSource: "@nfl/gridiron/addons",
             newName: "Prefetch",
             newSource: "react-wildcat-prefetch"
         }
