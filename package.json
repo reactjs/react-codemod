@@ -15,7 +15,12 @@
     "eslint": "^1.7.3",
     "jest-cli": "^0.6.1",
     "jscodeshift": "^0.3.8",
-    "resolve": "^1.1.6"
+    "nomnom": "^1.8.1",
+    "resolve": "^1.1.6",
+    "shelljs": "^0.5.3"
+  },
+  "bin": {
+    "wildcat-codemod": "cli/wildcat-codemod.js"
   },
   "jest": {
     "scriptPreprocessor": "./node_modules/babel-jest",
