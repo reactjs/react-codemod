@@ -1,4 +1,4 @@
-import Ad from "addons/Ad";
+import Ad from "react-gpt";
 
 import {OtherThing} from "@nfl/gridiron/addons";
-import Ad from "addons/Ad";
+import Ad from "react-gpt";
