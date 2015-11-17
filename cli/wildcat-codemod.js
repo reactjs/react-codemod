@@ -1,13 +1,43 @@
 #! /usr/bin/env babel-node
 
-import {echo, exit, pwd} from "shelljs";
+import {echo, exit} from "shelljs";
 import nomnom from "nomnom";
+import fs from "fs";
+import path from "path";
+import {exec} from "child_process";
 
-const {src} = nomnom.parse();
+const {src, all} = nomnom.options({
+    all: {
+        flag: true,
+        abbr: "A",
+        help: "Run all transforms in transforms folder"
+    },
+    single: {
+        help: "run single transform",
+        abbr: "s"
+    }
+}).parse();
+
 
 if (!src) {
     echo("src option is required");
     exit(1);
 }
 
-console.log(pwd());
+if (all) {
+    const transformBasePath = path.join(__dirname, "..", "transforms");
+    const transforms = fs.readdirSync(transformBasePath);
+
+    transforms.map(transform => {
+        const transformFilePath = path.join(transformBasePath, transform);
+        const cmd = `jscodeshift -t ${transformFilePath} ${src}`;
+        exec(cmd, (err, stout) => {
+            echo(stout);
+        });
+    });
+}
+
+
+
+
+
