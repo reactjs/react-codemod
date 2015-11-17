@@ -2,3 +2,4 @@
 .DS_STORE
 node_modules
 npm-debug.log
+empty_indexes.txt
