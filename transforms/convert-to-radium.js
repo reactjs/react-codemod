@@ -236,10 +236,15 @@ module.exports = function (file, api, options) {
                 }
             }
         }).forEach(p => {
-            const exp = j.expressionStatement(
-                j.identifier("@radium")
+            if (!p.node.decorators) {
+                p.node.decorators = [];
+            }
+
+            p.node.decorators.push(
+                j.decorator(
+                    j.identifier("radium")
+                )
             );
-            j(p).insertBefore(exp);
         });
 
     return root.toSource(options);
