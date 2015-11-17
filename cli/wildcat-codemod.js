@@ -6,9 +6,11 @@ import fs from "fs";
 import path from "path";
 import {exec} from "child_process";
 
-const {src, all} = nomnom.options({
+
+const transformBasePath = path.join(__dirname, "..", "transforms");
+const {src, all, single} = nomnom.options({
     src: {
-        abbr: "s",
+        position: 0,
         help: "Source directory to run the transforms against"
     },
     all: {
@@ -18,7 +20,7 @@ const {src, all} = nomnom.options({
     },
     single: {
         help: "Run single transform",
-        abbr: "o"
+        abbr: "S"
     }
 }).parse();
 
@@ -29,7 +31,6 @@ if (!src) {
 }
 
 if (all) {
-    const transformBasePath = path.join(__dirname, "..", "transforms");
     const transforms = fs.readdirSync(transformBasePath);
 
     transforms.map(transform => {
@@ -41,6 +42,14 @@ if (all) {
     });
 }
 
+if (single) {
+    const transformFilePath = path.join(transformBasePath, single);
+    const cmd = `jscodeshift -t ${transformFilePath} ${src}`;
+    exec(cmd, (err, stout) => {
+        echo(err);
+        echo(stout);
+    });
+}
 
 
 
