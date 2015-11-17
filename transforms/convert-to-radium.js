@@ -232,12 +232,10 @@ module.exports = function (file, api, options) {
         });
 
     root
-        .find(j.JSXOpeningElement, {
-            attributes: [{
-                name: {
-                    name: "className"
-                }
-            }]
+        .find(j.JSXOpeningElement)
+        .filter(p => {
+            const attrs = p.value.attributes;
+            return getClassAttribute(attrs) !== null;
         }).forEach(p => {
             updateStyles(p);
         });

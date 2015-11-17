@@ -6,8 +6,14 @@ find "$1" -name "*.jsx" -exec sh -c 'mv "$1" "${1%.jsx}.js"' _ {} \;
 echo "\n\nResolving relative imports"
 jscodeshift -t transforms/resolve-relative-imports.js --extensions js $1
 
-echo "\n\nCleaning up Helmet imports"
+echo "\n\nConverting Helmet imports"
 jscodeshift -t transforms/convert-helmet-import.js --extensions js $1
+
+echo "\n\nConverting Ad imports"
+jscodeshift -t transforms/convert-ad.js --extensions js $1
+
+echo "\n\nConverting Prefetch imports"
+jscodeshift -t transforms/convert-prefetch.js --extensions js $1
 
 echo "\n\nConverting to Radium"
 jscodeshift -t transforms/convert-to-radium.js --extensions js $1
