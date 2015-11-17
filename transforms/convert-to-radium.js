@@ -236,15 +236,26 @@ module.exports = function (file, api, options) {
                 }
             }
         }).forEach(p => {
-            if (!p.node.decorators) {
-                p.node.decorators = [];
-            }
+            const hasStyles = root
+                .find(j.JSXOpeningElement, {
+                    attributes: [{
+                        name: {
+                            name: "style"
+                        }
+                    }]
+                });
 
-            p.node.decorators.push(
-                j.decorator(
-                    j.identifier("radium")
-                )
-            );
+            if (hasStyles.__paths.length) {
+                if (!p.node.decorators) {
+                    p.node.decorators = [];
+                }
+
+                p.node.decorators.push(
+                    j.decorator(
+                        j.identifier("radium")
+                    )
+                );
+            }
         });
 
     return root.toSource(options);
