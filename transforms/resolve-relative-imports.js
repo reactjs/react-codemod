@@ -2,7 +2,7 @@ var fs = require("fs");
 var path = require("path");
 var resolve = require("resolve");
 
-module.exports = function (file, api) {
+module.exports = function (file, api, options) {
     const j = api.jscodeshift;
 
     // We use resolve to find the absolute paths of our imports
@@ -50,15 +50,21 @@ module.exports = function (file, api) {
                         firstStatement.node.type === "ImportDeclaration" &&
                         lastStatement.node.type === "ExportDefaultDeclaration"
                     ) {
-                        // Then bypass the shell index file entirely
-                        // Set the import path to be the import defined in the shell index file
-                        absoluteImportPath = resolve.sync(firstStatement.node.source.value, {
-                            ...resolveOptions,
+                        const importName = firstStatement.node.specifiers[0].local.name;
+                        const exportName = lastStatement.node.declaration.name;
 
-                            // Trick the resolver to resolve from the current index file
-                            basedir: path.dirname(absoluteImportPath),
-                            moduleDirectory: path.dirname(absoluteImportPath)
-                        });
+                        // If the module this file is exporting is the module it is importing...
+                        if (exportName === importName) {
+                            // Then bypass the shell index file entirely
+                            // Set the import path to be the import defined in the shell index file
+                            absoluteImportPath = resolve.sync(firstStatement.node.source.value, {
+                                ...resolveOptions,
+
+                                // Trick the resolver to resolve from the current index file
+                                basedir: path.dirname(absoluteImportPath),
+                                moduleDirectory: path.dirname(absoluteImportPath)
+                            });
+                        }
                     }
                 }
 
@@ -79,5 +85,5 @@ module.exports = function (file, api) {
         })
 
         // Convert AST to source
-        .toSource();
+        .toSource(options);
 };

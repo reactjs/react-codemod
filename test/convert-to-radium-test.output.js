@@ -1,5 +1,6 @@
 import React from "react";
 import radium from "react-wildcat-radium";
+import styles from "styles/styles.js";
 
 @radium
 class Article extends React.Component {
@@ -32,6 +33,14 @@ class Article extends React.Component {
                         ...styles.two
                     }}
                     className="icon other-icon"></span>
+
+                // nodes with interactive styles (hover state, media queries)
+                // get a "key" attribute added to them
+                <span style={styles.hover} key="hover"></span>
+                <span style={styles.media1} key="media1"></span>
+                <span style={styles.media2} key="media2"></span>
+                <span style={styles.media3} key="media3"></span>
+                <span style={styles.media4} key="media4"></span>
 
                 // conditional styles in a classNames call cannot be
                 // migrated programmatically, will stay unchanged
