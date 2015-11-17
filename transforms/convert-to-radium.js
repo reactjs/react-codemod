@@ -7,6 +7,7 @@
  */
 
 import path from "path";
+import resolve from "resolve";
 
 const mediaQueries = ["min-width", "minWidth", "max-width", "maxWidth"];
 
@@ -14,6 +15,13 @@ module.exports = function (file, api) {
     const j = api.jscodeshift;
     const root = j(file.source);
     let styles = null;
+
+    const resolveOptions = {
+        paths: [],
+        basedir: path.dirname(file.path),
+        extensions: [".js"],
+        moduleDirectory: path.dirname(file.path)
+    };
 
     const getAttribute = (attrName, attributes) => {
         const attrs = attributes.filter(attribute => {
@@ -36,6 +44,10 @@ module.exports = function (file, api) {
 
 
     const isInteractiveStyle = (style) => {
+        if (!style) {
+            return false;
+        }
+
         if (style[":hover"]) {
             return true;
         }
@@ -188,8 +200,13 @@ module.exports = function (file, api) {
             }]
         }).forEach(p => {
             const styleImport = p.value.source.value;
-            const stylePath = path.join(file.path, styleImport);
-            styles = require(stylePath);
+            const absoluteImportPath = resolve.sync(styleImport, resolveOptions);
+
+            if (p.value.specifiers[0].type === "ImportDefaultSpecifier") {
+                styles = require(absoluteImportPath);
+            } else {
+                styles = require(absoluteImportPath).styles;
+            }
         });
 
 
