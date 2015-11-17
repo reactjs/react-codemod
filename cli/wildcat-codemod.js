@@ -30,12 +30,16 @@ if (!src) {
     exit(1);
 }
 
+const buildCMD = (filePath, src) => {
+    return `jscodeshift -t ${filePath} ${src} --extensions "jsx,js"`;
+};
+
 if (all) {
     const transforms = fs.readdirSync(transformBasePath);
 
     transforms.map(transform => {
         const transformFilePath = path.join(transformBasePath, transform);
-        const cmd = `jscodeshift -t ${transformFilePath} ${src}`;
+        const cmd = buildCMD(transformFilePath, src);
         exec(cmd, (err, stout) => {
             echo(stout);
         });
@@ -44,7 +48,7 @@ if (all) {
 
 if (single) {
     const transformFilePath = path.join(transformBasePath, single);
-    const cmd = `jscodeshift -t ${transformFilePath} ${src}`;
+    const cmd = buildCMD(transformFilePath, src);
     exec(cmd, (err, stout) => {
         echo(err);
         echo(stout);
