@@ -11,7 +11,7 @@ import resolve from "resolve";
 
 const mediaQueries = ["min-width", "minWidth", "max-width", "maxWidth"];
 
-module.exports = function (file, api) {
+module.exports = function (file, api, options) {
     const j = api.jscodeshift;
     const root = j(file.source);
     let styles = null;
@@ -253,11 +253,27 @@ module.exports = function (file, api) {
                 }
             }
         }).forEach(p => {
-            const exp = j.expressionStatement(
-                j.identifier("@radium")
-            );
-            j(p).insertBefore(exp);
+            const hasStyles = root
+                .find(j.JSXOpeningElement, {
+                    attributes: [{
+                        name: {
+                            name: "style"
+                        }
+                    }]
+                });
+
+            if (hasStyles.__paths.length) {
+                if (!p.node.decorators) {
+                    p.node.decorators = [];
+                }
+
+                p.node.decorators.push(
+                    j.decorator(
+                        j.identifier("radium")
+                    )
+                );
+            }
         });
 
-    return root.toSource().replace("@radium;\n", "\n@radium");
+    return root.toSource(options);
 };

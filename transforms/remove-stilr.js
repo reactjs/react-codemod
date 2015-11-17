@@ -1,4 +1,4 @@
-module.exports = function (file, api) {
+module.exports = function (file, api, options) {
     const j = api.jscodeshift;
     const root = j(file.source);
 
@@ -40,5 +40,5 @@ module.exports = function (file, api) {
         j(p).replaceWith(styles);
     });
 
-    return root.toSource();
+    return root.toSource(options);
 };

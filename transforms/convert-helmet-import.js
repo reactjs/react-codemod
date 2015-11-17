@@ -1,4 +1,4 @@
-module.exports = function (file, api) {
+module.exports = function (file, api, options) {
     const j = api.jscodeshift;
 
     return j(file.source)
@@ -17,5 +17,5 @@ module.exports = function (file, api) {
                 j.literal("react-helmet")
             ));
         })
-        .toSource();
+        .toSource(options);
 };
