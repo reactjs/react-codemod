@@ -10,7 +10,7 @@ import path from "path";
 
 const mediaQueries = ["min-width", "minWidth", "max-width", "maxWidth"];
 
-module.exports = function (file, api) {
+module.exports = function (file, api, options) {
     const j = api.jscodeshift;
     const root = j(file.source);
     let styles = null;
@@ -242,5 +242,5 @@ module.exports = function (file, api) {
             j(p).insertBefore(exp);
         });
 
-    return root.toSource().replace("@radium;\n", "\n@radium");
+    return root.toSource(options);
 };
