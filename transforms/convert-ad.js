@@ -11,7 +11,7 @@ module.exports = function (file, api, options) {
             importName: "Ad",
             importSource: "@nfl/gridiron/addons",
             newName: "Ad",
-            newSource: "react-gpt"
+            newSource: "addons/Ad"
         }
     );
 
