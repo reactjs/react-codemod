@@ -1,21 +1,19 @@
-module.exports = function (file, api, options) {
-    const j = api.jscodeshift;
+import updateImport from "./update-import";
 
-    return j(file.source)
-        .find(j.ImportDeclaration)
-        .filter(p => p.node.specifiers.length === 1)
-        .filter(p => p.node.source.value === "@nfl/gridiron/addons")
-        .filter(p => {
-            const name = p.node.specifiers[0].local.name;
-            return name === "Helmet";
-        })
-        .forEach(p => {
-            j(p).replaceWith(j.importDeclaration(
-                [
-                    j.importDefaultSpecifier(j.identifier("Helmet"))
-                ],
-                j.literal("react-helmet")
-            ));
-        })
-        .toSource(options);
+module.exports = function (file, api, options) {
+    var j = api.jscodeshift;
+    var root = j(file.source);
+
+    updateImport(
+        j,
+        root,
+        {
+            importName: "Helmet",
+            importSource: "@nfl/gridiron/addons",
+            newName: "Helmet",
+            newSource: "react-helmet"
+        }
+    );
+
+    return root.toSource(options);
 };
