@@ -17,6 +17,14 @@ module.exports = function (file, api, options) {
         moduleDirectory: path.dirname(file.path)
     };
 
+    const markForDeletion = (filePath) => {
+        fs.appendFile(`${__dirname}/../empty_indexes.txt`, `\n${filePath}`, function (err) {
+            if (err) {
+                console.error("Error:", err);
+            }
+        });
+    };
+
     // Feed the original code to our interpreter
     return j(file.source)
         // Find all imports in the file
@@ -55,6 +63,9 @@ module.exports = function (file, api, options) {
 
                         // If the module this file is exporting is the module it is importing...
                         if (exportName === importName) {
+                            // Mark the index file for deletion
+                            markForDeletion(absoluteImportPath);
+
                             // Then bypass the shell index file entirely
                             // Set the import path to be the import defined in the shell index file
                             absoluteImportPath = resolve.sync(firstStatement.node.source.value, {

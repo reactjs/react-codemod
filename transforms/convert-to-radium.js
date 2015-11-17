@@ -7,6 +7,7 @@
  */
 
 import path from "path";
+import resolve from "resolve";
 
 const mediaQueries = ["min-width", "minWidth", "max-width", "maxWidth"];
 
@@ -14,6 +15,13 @@ module.exports = function (file, api, options) {
     const j = api.jscodeshift;
     const root = j(file.source);
     let styles = null;
+
+    const resolveOptions = {
+        paths: [],
+        basedir: path.dirname(file.path),
+        extensions: [".js"],
+        moduleDirectory: path.dirname(file.path)
+    };
 
     const getAttribute = (attrName, attributes) => {
         const attrs = attributes.filter(attribute => {
@@ -36,6 +44,10 @@ module.exports = function (file, api, options) {
 
 
     const isInteractiveStyle = (style) => {
+        if (!style) {
+            return false;
+        }
+
         if (style[":hover"]) {
             return true;
         }
@@ -188,8 +200,13 @@ module.exports = function (file, api, options) {
             }]
         }).forEach(p => {
             const styleImport = p.value.source.value;
-            const stylePath = path.join(file.path, styleImport);
-            styles = require(stylePath);
+            const absoluteImportPath = resolve.sync(styleImport, resolveOptions);
+
+            if (p.value.specifiers[0].type === "ImportDefaultSpecifier") {
+                styles = require(absoluteImportPath);
+            } else {
+                styles = require(absoluteImportPath).styles;
+            }
         });
 
 
@@ -215,12 +232,10 @@ module.exports = function (file, api, options) {
         });
 
     root
-        .find(j.JSXOpeningElement, {
-            attributes: [{
-                name: {
-                    name: "className"
-                }
-            }]
+        .find(j.JSXOpeningElement)
+        .filter(p => {
+            const attrs = p.value.attributes;
+            return getClassAttribute(attrs) !== null;
         }).forEach(p => {
             updateStyles(p);
         });
