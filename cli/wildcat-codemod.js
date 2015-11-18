@@ -13,7 +13,7 @@ const runFirst = [
 ];
 const runLast = [
     "remove-stilr.js",
-    "convert-to-radium.js",
+    "convert-to-radium.js"
 ];
 
 const {src, all, single} = nomnom.options({
@@ -38,8 +38,8 @@ if (!src) {
     exit(1);
 }
 
-const buildCMD = (filePath, src) => {
-    return `jscodeshift -t ${filePath} ${src} --extensions "jsx,js"`;
+const buildCMD = (filePath, file) => {
+    return `jscodeshift -t ${filePath} ${file} --extensions "jsx,js"`;
 };
 
 const applyTransform = (transforms) => {
@@ -76,7 +76,3 @@ if (single) {
         echo(stout);
     });
 }
-
-
-
-
