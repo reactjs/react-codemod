@@ -8,6 +8,14 @@ import {exec} from "child_process";
 
 
 const transformBasePath = path.join(__dirname, "..", "transforms");
+const runFirst = [
+    "resolve-relative-imports.js"
+];
+const runLast = [
+    "remove-stilr.js",
+    "convert-to-radium.js",
+];
+
 const {src, all, single} = nomnom.options({
     src: {
         position: 0,
@@ -34,16 +42,30 @@ const buildCMD = (filePath, src) => {
     return `jscodeshift -t ${filePath} ${src} --extensions "jsx,js"`;
 };
 
-if (all) {
-    const transforms = fs.readdirSync(transformBasePath);
+const applyTransform = (transforms) => {
+    if (!transforms.length) {
+        return;
+    }
 
-    transforms.map(transform => {
-        const transformFilePath = path.join(transformBasePath, transform);
-        const cmd = buildCMD(transformFilePath, src);
-        exec(cmd, (err, stout) => {
-            echo(stout);
-        });
+    const transform = transforms.shift();
+    const transformFilePath = path.join(transformBasePath, transform);
+    const cmd = buildCMD(transformFilePath, src);
+
+    echo("Applying transform", transform);
+
+    exec(cmd, (err, stout) => {
+        echo(stout);
+        applyTransform(transforms);
     });
+};
+
+if (all) {
+    const transforms = fs.readdirSync(transformBasePath)
+                        .filter(fileName => fileName.match(".js$"))
+                        .filter(filename => runFirst.indexOf(filename) === -1)
+                        .filter(filename => runLast.indexOf(filename) === -1);
+    const orderedTransforms = [...runFirst, ...transforms, ...runLast];
+    applyTransform(orderedTransforms);
 }
 
 if (single) {

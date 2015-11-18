@@ -42,8 +42,10 @@ module.exports = function (file, api, options) {
 
 
     const logError = (attr) => {
-        const line = attr.loc.start.line;
-        console.error(`${file.path}: Could not update styles on line ${line}`);
+        if (attr.loc && attr.loc.start) {
+            const line = attr.loc.start.line;
+            console.error(`${file.path}: Could not update styles on line ${line}`);
+        }
     };
 
 
