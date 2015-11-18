@@ -17,7 +17,8 @@
     "jscodeshift": "^0.3.8",
     "nomnom": "^1.8.1",
     "resolve": "^1.1.6",
-    "shelljs": "^0.5.3"
+    "shelljs": "^0.5.3",
+    "underscore": "^1.8.3"
   },
   "bin": {
     "wildcat-codemod": "cli/wildcat-codemod.js"
