@@ -42,7 +42,7 @@ const buildCMD = (filePath, file) => {
     return `jscodeshift -t ${filePath} ${file} --extensions "jsx,js"`;
 };
 
-const renameFiles = (cb) => {
+const renameFiles = () => {
     echo("Renaming files from .jsx to .js");
 
     find(src)
@@ -51,7 +51,7 @@ const renameFiles = (cb) => {
         }).map(file => {
             mv(file, file.replace("jsx", "js"));
         });
-}
+};
 
 const applyTransform = (transforms) => {
     if (!transforms.length) {
