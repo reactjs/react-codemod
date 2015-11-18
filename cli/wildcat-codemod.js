@@ -1,10 +1,11 @@
 #! /usr/bin/env babel-node
 
-import {echo, exit} from "shelljs";
+import {echo, exit, cat, rm} from "shelljs";
 import nomnom from "nomnom";
 import fs from "fs";
 import path from "path";
 import {exec} from "child_process";
+import _ from "underscore";
 
 
 const transformBasePath = path.join(__dirname, "..", "transforms");
@@ -16,7 +17,7 @@ const runLast = [
     "convert-to-radium.js"
 ];
 
-const {src, all, single} = nomnom.options({
+const {src, all, single, clean} = nomnom.options({
     src: {
         position: 0,
         help: "Source directory to run the transforms against"
@@ -29,6 +30,11 @@ const {src, all, single} = nomnom.options({
     single: {
         help: "Run single transform",
         abbr: "S"
+    },
+    clean: {
+        flag: true,
+        help: "Remove any files that have been marked for deletion",
+        abbr: "C"
     }
 }).parse();
 
@@ -42,8 +48,23 @@ const buildCMD = (filePath, file) => {
     return `jscodeshift -t ${filePath} ${file} --extensions "jsx,js"`;
 };
 
+const markForDeletion = () => {
+    const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
+    const files = cat(emptyIndexFile)
+                    .split("\n")
+                    .filter(f => f !== "");
+    const uniqueFiles = _.uniq(files);
+    const filesList = uniqueFiles.join("\n");
+    filesList.to(emptyIndexFile);
+
+    echo("The following index files have been marked for deletion.");
+    echo("run `wildcat-codemod -C` to delete them:\n");
+    echo(filesList);
+};
+
 const applyTransform = (transforms) => {
     if (!transforms.length) {
+        markForDeletion();
         return;
     }
 
@@ -59,7 +80,25 @@ const applyTransform = (transforms) => {
     });
 };
 
-if (all) {
+const deleteEmptyIndexes = () => {
+    echo("Removing unused index files");
+    const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
+    const emptyIndexFiles = cat(emptyIndexFile);
+
+    if (emptyIndexFiles === null) {
+        return;
+    }
+
+    emptyIndexFiles
+        .split("\n")
+        .filter(f => f !== "")
+        .map(f => rm(f));
+    rm(emptyIndexFile);
+};
+
+if (clean) {
+    deleteEmptyIndexes();
+} else if (all) {
     const transforms = fs.readdirSync(transformBasePath)
                         .filter(fileName => fileName.match(".js$"))
                         .filter(filename => runFirst.indexOf(filename) === -1)
