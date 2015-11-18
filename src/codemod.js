@@ -1,4 +1,4 @@
-import {echo, exit, cat, rm} from "shelljs";
+import {echo, exit, cat, mv, rm} from "shelljs";
 import nomnom from "nomnom";
 import fs from "fs";
 import path from "path";
@@ -60,6 +60,17 @@ const markForDeletion = () => {
     echo(filesList);
 };
 
+const renameFiles = () => {
+    echo("Renaming files from .jsx to .js");
+
+    find(src)
+        .filter(file => {
+            return file.match(/\.jsx$/);
+        }).map(file => {
+            mv(file, file.replace("jsx", "js"));
+        });
+};
+
 const applyTransform = (transforms) => {
     if (!transforms.length) {
         markForDeletion();
@@ -102,6 +113,8 @@ if (clean) {
                         .filter(filename => runFirst.indexOf(filename) === -1)
                         .filter(filename => runLast.indexOf(filename) === -1);
     const orderedTransforms = [...runFirst, ...transforms, ...runLast];
+
+    renameFiles();
     applyTransform(orderedTransforms);
 }
 
