@@ -1,6 +1,6 @@
 #! /usr/bin/env babel-node
 
-import {echo, exit} from "shelljs";
+import {echo, exit, find, mv} from "shelljs";
 import nomnom from "nomnom";
 import fs from "fs";
 import path from "path";
@@ -42,6 +42,17 @@ const buildCMD = (filePath, file) => {
     return `jscodeshift -t ${filePath} ${file} --extensions "jsx,js"`;
 };
 
+const renameFiles = (cb) => {
+    echo("Renaming files from .jsx to .js");
+
+    find(src)
+        .filter(file => {
+            return file.match(/\.jsx$/);
+        }).map(file => {
+            mv(file, file.replace("jsx", "js"));
+        });
+}
+
 const applyTransform = (transforms) => {
     if (!transforms.length) {
         return;
@@ -65,6 +76,8 @@ if (all) {
                         .filter(filename => runFirst.indexOf(filename) === -1)
                         .filter(filename => runLast.indexOf(filename) === -1);
     const orderedTransforms = [...runFirst, ...transforms, ...runLast];
+
+    renameFiles();
     applyTransform(orderedTransforms);
 }
 
