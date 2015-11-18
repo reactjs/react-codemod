@@ -1,4 +1,4 @@
-import updateImport from "./update-import";
+import updateImport from "./util/update-import";
 
 module.exports = function (file, api, options) {
     var j = api.jscodeshift;
