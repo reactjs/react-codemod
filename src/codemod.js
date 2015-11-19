@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
 
+const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
 const transformBasePath = path.join(__dirname, "..", "transforms");
 const runFirst = [
     "resolve-relative-imports.js"
@@ -47,7 +48,6 @@ const buildCMD = function (filePath, file) {
 };
 
 const markForDeletion = function () {
-    const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
     const files = cat(emptyIndexFile)
                     .split("\n")
                     .filter(function (f) {
@@ -63,14 +63,16 @@ const markForDeletion = function () {
 };
 
 const renameFiles = function () {
-    echo("Renaming files from .jsx to .js");
+    var files = find(opts.src)
+                    .filter(function (file) {
+                        return file.match(/\.jsx$/);
+                    });
 
-    find(opts.src)
-        .filter(function (file) {
-            return file.match(/\.jsx$/);
-        }).map(function (file) {
-            mv(file, file.replace("jsx", "js"));
-        });
+    echo("\nRenaming "+files.length+" files from .jsx to .js");
+
+    files.map(function (file) {
+        mv(file, file.replace("jsx", "js"));
+    });
 };
 
 const applyTransform = function (transforms) {
@@ -84,7 +86,7 @@ const applyTransform = function (transforms) {
 
     const cmd = buildCMD(transformFilePath, opts.src.replace(".jsx", ".js"));
 
-    echo("Applying transform", transformName);
+    echo("\nApplying transform", transformName);
 
     exec(cmd, function (err) {
         if (err) {
@@ -97,7 +99,7 @@ const applyTransform = function (transforms) {
 
 const deleteEmptyIndexes = function () {
     echo("Removing unused index files");
-    const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
+
     const emptyIndexFiles = cat(emptyIndexFile);
 
     if (emptyIndexFiles === null) {
@@ -119,6 +121,7 @@ if (opts.clean) {
     deleteEmptyIndexes();
 }
 
+rm(emptyIndexFile);
 renameFiles();
 
 if (opts.all) {
