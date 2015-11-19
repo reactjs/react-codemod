@@ -80,7 +80,8 @@ const applyTransform = function (transforms) {
     }
 
     const transformName = transforms.shift();
-    const transformFilePath = path.join(transformBasePath, transformName);
+    const transformFilePath = require.resolve(path.join(transformBasePath, transformName));
+
     const cmd = buildCMD(transformFilePath, opts.src.replace(".jsx", ".js"));
 
     echo("Applying transform", transformName);
