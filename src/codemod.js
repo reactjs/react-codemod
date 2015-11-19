@@ -85,12 +85,11 @@ const applyTransform = function (transforms) {
 
     echo("Applying transform", transformName);
 
-    exec(cmd, function (err, stdout) {
+    exec(cmd, function (err) {
         if (err) {
             console.error(err);
         }
 
-        echo(stdout);
         applyTransform(transforms);
     });
 };
