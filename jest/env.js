@@ -15,13 +15,14 @@ jest.autoMockOff();
 const fs = require("fs");
 const jscodeshift = require("jscodeshift");
 const p = require("path");
+var options = require("../transforms/util/options");
 
 const read = fileName => fs.readFileSync(
     p.join(__dirname, global.baseDir, "test", fileName),
     "utf8"
 );
 
-global.test = (transformName, testFileName, options, fakeOptions) => {
+global.test = (transformName, testFileName, testOptions, fakeOptions) => {
     let path = testFileName + ".js";
     const source = read(testFileName + ".js");
     const output = read(testFileName + ".output.js");
@@ -35,11 +36,7 @@ global.test = (transformName, testFileName, options, fakeOptions) => {
         }
     }
 
-    options = options || {};
-
-    if (!options.esprima) {
-        options.esprima = require("babel-core");
-    }
+    options = Object.assign({}, options, testOptions);
 
     expect(
         (transform({path, source}, {jscodeshift}, options) || "").trim()

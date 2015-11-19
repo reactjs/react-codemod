@@ -1,9 +1,10 @@
-const update = function (j, root, {importName, importSource, newName, newSource}) {
+const update = function (j, root, opts) {
+    // importName, importSource, newName, newSource
     const newImport = j.importDeclaration(
         [j.importDefaultSpecifier(
-            j.identifier(newName)
+            j.identifier(opts.newName)
         )],
-        j.literal(newSource)
+        j.literal(opts.newSource)
     );
 
     root
@@ -11,19 +12,19 @@ const update = function (j, root, {importName, importSource, newName, newSource}
             type: "ImportDeclaration",
             specifiers: [{
                 local: {
-                    name: importName
+                    name: opts.importName
                 }
             }],
             source: {
                 type: "Literal",
-                value: importSource
+                value: opts.importSource
             }
         })
-        .forEach(p => {
-            let {specifiers} = p.value;
-            specifiers = specifiers.filter(s => {
-                return s.imported.name !== importName;
+        .forEach(function (p) {
+            const specifiers = p.value.specifiers.filter(function (s) {
+                return s.imported.name !== opts.importName;
             });
+
             p.value.specifiers = specifiers;
 
             j(p).insertAfter(newImport);
@@ -36,4 +37,4 @@ const update = function (j, root, {importName, importSource, newName, newSource}
     return root;
 };
 
-export default update;
+module.exports = update;

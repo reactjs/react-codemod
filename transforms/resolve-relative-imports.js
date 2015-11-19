@@ -1,8 +1,9 @@
 var fs = require("fs");
 var path = require("path");
 var resolve = require("resolve");
+const options = require("./util/options");
 
-module.exports = function (file, api, options) {
+module.exports = function (file, api) {
     const j = api.jscodeshift;
 
     // We use resolve to find the absolute paths of our imports
@@ -18,7 +19,7 @@ module.exports = function (file, api, options) {
     };
 
     const markForDeletion = (filePath) => {
-        fs.appendFile(`${__dirname}/../empty_indexes.txt`, `\n${filePath}`, function (err) {
+        fs.appendFile(__dirname + "/../empty_indexes.txt", "\n" + filePath, function (err) {
             if (err) {
                 console.error("Error:", err);
             }
@@ -68,13 +69,11 @@ module.exports = function (file, api, options) {
 
                             // Then bypass the shell index file entirely
                             // Set the import path to be the import defined in the shell index file
-                            absoluteImportPath = resolve.sync(firstStatement.node.source.value, {
-                                ...resolveOptions,
-
+                            absoluteImportPath = resolve.sync(firstStatement.node.source.value, Object.assign({}, resolveOptions, {
                                 // Trick the resolver to resolve from the current index file
                                 basedir: path.dirname(absoluteImportPath),
                                 moduleDirectory: path.dirname(absoluteImportPath)
-                            });
+                            }));
                         }
                     }
                 }
@@ -85,7 +84,7 @@ module.exports = function (file, api, options) {
                 // ...and prepend a dot/slash so jspm is happy
                 if (!relativeImportPath.startsWith(".")) {
                     // (...only if we need to)
-                    relativeImportPath = `./${relativeImportPath}`;
+                    relativeImportPath = "./" + relativeImportPath;
                 }
 
                 p.node.source.value = relativeImportPath;
