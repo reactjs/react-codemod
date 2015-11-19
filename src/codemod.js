@@ -48,7 +48,6 @@ const buildCMD = function (filePath, file) {
 };
 
 const markForDeletion = function () {
-    const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
     const files = cat(emptyIndexFile)
                     .split("\n")
                     .filter(function (f) {
