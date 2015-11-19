@@ -117,7 +117,11 @@ const deleteEmptyIndexes = function () {
 
 if (opts.clean) {
     deleteEmptyIndexes();
-} else if (opts.all) {
+}
+
+renameFiles();
+
+if (opts.all) {
     const transforms = fs.readdirSync(transformBasePath)
         .filter(function (filename) {
             return filename.match(".js$");
@@ -131,11 +135,8 @@ if (opts.clean) {
 
     const orderedTransforms = [].concat(runFirst, transforms, runLast);
 
-    renameFiles();
     applyTransform(orderedTransforms);
-}
-
-if (opts.single) {
+} else if (opts.single) {
     applyTransform([
         opts.single
     ]);
