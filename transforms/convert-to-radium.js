@@ -6,15 +6,16 @@
  * @return {string}
  */
 
-import path from "path";
-import resolve from "resolve";
+const path = require("path");
+const resolve = require("resolve");
 
 const mediaQueries = ["min-width", "minWidth", "max-width", "maxWidth"];
+const options = require("./util/options");
 
-module.exports = function (file, api, options) {
+module.exports = function (file, api) {
     const j = api.jscodeshift;
     const root = j(file.source);
-    let styles = null;
+    var styles = null;
 
     const resolveOptions = {
         paths: [],
@@ -23,8 +24,8 @@ module.exports = function (file, api, options) {
         moduleDirectory: path.dirname(file.path)
     };
 
-    const getAttribute = (attrName, attributes) => {
-        const attrs = attributes.filter(attribute => {
+    const getAttribute = function (attrName, attributes) {
+        const attrs = attributes.filter(function (attribute) {
             if (!attribute.name) {
                 return false;
             }
@@ -36,20 +37,27 @@ module.exports = function (file, api, options) {
     };
 
 
-    const getClassAttribute = (attributes) => getAttribute("className", attributes);
-    const getStyleAttribute = (attributes) => getAttribute("style", attributes);
-    const getKeyAttribute = (attributes) => getAttribute("key", attributes);
+    const getClassAttribute = function (attributes) {
+        return getAttribute("className", attributes);
+    };
 
+    const getStyleAttribute = function (attributes) {
+        return getAttribute("style", attributes);
+    };
 
-    const logError = (attr) => {
+    const getKeyAttribute = function (attributes) {
+        return getAttribute("key", attributes);
+    };
+
+    const logError = function (attr) {
         if (attr.loc && attr.loc.start) {
             const line = attr.loc.start.line;
-            console.error(`${file.path}: Could not update styles on line ${line}`);
+            console.error("%s: Could not update styles on line %s", file.path, line);
         }
     };
 
 
-    const isInteractiveStyle = (style) => {
+    const isInteractiveStyle = function (style) {
         if (!style) {
             return false;
         }
@@ -58,10 +66,10 @@ module.exports = function (file, api, options) {
             return true;
         }
 
-        for (const prop in style) {
+        for (var prop in style) {
             if (style.hasOwnProperty(prop)) {
-                for (const query of mediaQueries) {
-                    if (prop.indexOf(query) > -1) {
+                for (var query in mediaQueries) {
+                    if (prop.indexOf(mediaQueries[query]) > -1) {
                         return true;
                     }
                 }
@@ -72,14 +80,14 @@ module.exports = function (file, api, options) {
     };
 
 
-    const getInteractiveKey = (expressions) => {
-        for (const expression of expressions) {
-            if (expression.type !== "MemberExpression") {
+    const getInteractiveKey = function (expressions) {
+        for (var expression in expressions) {
+            if (expressions[expression].type !== "MemberExpression") {
                 continue;
             }
 
-            if (expression.object.name === "styles") {
-                const style = expression.property.name;
+            if (expressions[expression].object.name === "styles") {
+                const style = expressions[expression].property.name;
                 if (isInteractiveStyle(styles[style])) {
                     return style;
                 }
@@ -90,14 +98,14 @@ module.exports = function (file, api, options) {
     };
 
 
-    const createStyleAttribute = (styleObjects) => {
+    const createStyleAttribute = function (styleObjects) {
         if (styleObjects.length === 0) {
             return null;
         }
 
-        let styleValue = null;
+        var styleValue = null;
         if (styleObjects.length > 1) {
-            const spreadObjects = styleObjects.map(style => {
+            const spreadObjects = styleObjects.map(function (style) {
                 return j.spreadProperty(style);
             });
             styleValue = j.objectExpression(spreadObjects);
@@ -112,7 +120,7 @@ module.exports = function (file, api, options) {
     };
 
 
-    const createClassAttribute = (classes) => {
+    const createClassAttribute = function (classes) {
         return j.jsxAttribute(
             j.jsxIdentifier("className"),
             j.literal(classes)
@@ -120,12 +128,14 @@ module.exports = function (file, api, options) {
     };
 
 
-    const applyClassesAndStyles = (attrs, allStyles) => {
-        const stringArgs = allStyles.filter(style => {
+    const applyClassesAndStyles = function (attrs, allStyles) {
+        const stringArgs = allStyles.filter(function (style) {
             return style.type === "Literal";
-        }).map(style => style.value).join(" ");
+        }).map(function (style) {
+            return style.value;
+        }).join(" ");
 
-        const objArgs = allStyles.filter(style => {
+        const objArgs = allStyles.filter(function (style) {
             return style.type !== "Literal";
         });
 
@@ -150,14 +160,15 @@ module.exports = function (file, api, options) {
     };
 
 
-    const updateStyles = (p) => {
+    const updateStyles = function (p) {
         const attrs = p.value.attributes;
         const classAttribute = getClassAttribute(attrs);
         const styleAttribute = getStyleAttribute(attrs);
+
         const classValue = classAttribute.value;
 
         if (classValue.expression && classValue.expression.type === "CallExpression") {
-            const conditionalStyles = classValue.expression.arguments.filter(arg => {
+            const conditionalStyles = classValue.expression.arguments.filter(function (arg) {
                 return (arg.type === "ObjectExpression");
             });
 
@@ -167,7 +178,7 @@ module.exports = function (file, api, options) {
             }
         }
 
-        let allStyles = [];
+        var allStyles = [];
         if (classValue.type === "Literal") {
             allStyles.push(classValue);
         } else if (classValue.expression.type === "CallExpression") {
@@ -204,7 +215,7 @@ module.exports = function (file, api, options) {
                     name: "styles"
                 }
             }]
-        }).forEach(p => {
+        }).forEach(function (p) {
             const styleImport = p.value.source.value;
             const absoluteImportPath = resolve.sync(styleImport, resolveOptions);
 
@@ -222,7 +233,7 @@ module.exports = function (file, api, options) {
                 type: "Literal",
                 value: "react"
             }
-        }).forEach(p => {
+        }).forEach(function (p) {
             j(p).insertAfter(radiumImport);
         });
 
@@ -233,16 +244,16 @@ module.exports = function (file, api, options) {
                 type: "Literal",
                 value: "classnames"
             }
-        }).forEach(p => {
+        }).forEach(function (p) {
             j(p).replaceWith("");
         });
 
     root
         .find(j.JSXOpeningElement)
-        .filter(p => {
+        .filter(function (p) {
             const attrs = p.value.attributes;
             return getClassAttribute(attrs) !== null;
-        }).forEach(p => {
+        }).forEach(function (p) {
             updateStyles(p);
         });
 
@@ -256,7 +267,7 @@ module.exports = function (file, api, options) {
                     name: "Component"
                 }
             }
-        }).forEach(p => {
+        }).forEach(function (p) {
             const hasStyles = root
                 .find(j.JSXOpeningElement, {
                     attributes: [{

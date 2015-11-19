@@ -1,9 +1,11 @@
-module.exports = function (file, api, options) {
+const options = require("./util/options");
+
+module.exports = function (file, api) {
     const j = api.jscodeshift;
     const root = j(file.source);
 
-    var filterImport = (remove, imports) => {
-        return imports.filter(imp => {
+    var filterImport = function (remove, imports) {
+        return imports.filter(function (imp) {
             return imp.imported.name !== remove;
         });
     };
@@ -18,7 +20,7 @@ module.exports = function (file, api, options) {
                 name: "StyleSheet"
             }
         }]
-    }).forEach(p => {
+    }).forEach(function (p) {
         p.value.specifiers = filterImport("StyleSheet", p.value.specifiers);
         if (!p.value.specifiers.length) {
             j(p).replaceWith("");
@@ -35,7 +37,7 @@ module.exports = function (file, api, options) {
                 name: "create"
             }
         }
-    }).forEach(p => {
+    }).forEach(function (p) {
         var styles = p.value.arguments[0];
         j(p).replaceWith(styles);
     });

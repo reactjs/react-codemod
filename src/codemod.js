@@ -1,10 +1,10 @@
-import {cat, echo, exit, find, mv, rm} from "shelljs";
-import nomnom from "nomnom";
-import fs from "fs";
-import path from "path";
-import {exec} from "child_process";
-import _ from "underscore";
+/* global cat, echo, exec, exit, mv, rm */
+require("shelljs/global");
 
+const nomnom = require("nomnom");
+const fs = require("fs");
+const path = require("path");
+const _ = require("underscore");
 
 const transformBasePath = path.join(__dirname, "..", "transforms");
 const runFirst = [
@@ -15,7 +15,7 @@ const runLast = [
     "convert-to-radium.js"
 ];
 
-const {src, all, single, clean} = nomnom.options({
+const opts = nomnom.options({
     src: {
         position: 0,
         help: "Source directory to run the transforms against"
@@ -37,20 +37,22 @@ const {src, all, single, clean} = nomnom.options({
 }).parse();
 
 
-if (!src) {
+if (!opts.src) {
     echo("src option is required");
     exit(1);
 }
 
-const buildCMD = (filePath, file) => {
-    return `jscodeshift -t ${filePath} ${file} --extensions "jsx,js"`;
+const buildCMD = function (filePath, file) {
+    return "jscodeshift -t " + filePath + " " + file + " --extensions 'jsx,js'";
 };
 
-const markForDeletion = () => {
+const markForDeletion = function () {
     const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
     const files = cat(emptyIndexFile)
                     .split("\n")
-                    .filter(f => f !== "");
+                    .filter(function (f) {
+                        return f !== "";
+                    });
     const uniqueFiles = _.uniq(files);
     const filesList = uniqueFiles.join("\n");
     filesList.to(emptyIndexFile);
@@ -60,40 +62,39 @@ const markForDeletion = () => {
     echo(filesList);
 };
 
-const renameFiles = () => {
+const renameFiles = function () {
     echo("Renaming files from .jsx to .js");
 
-    find(src)
-        .filter(file => {
+    find(opts.src)
+        .filter(function (file) {
             return file.match(/\.jsx$/);
-        }).map(file => {
+        }).map(function (file) {
             mv(file, file.replace("jsx", "js"));
         });
 };
 
-const applyTransform = (transforms) => {
+const applyTransform = function (transforms) {
     if (!transforms.length) {
         markForDeletion();
         return;
     }
 
-    const transform = transforms.shift();
-    const transformFilePath = path.join(transformBasePath, transform);
-    const cmd = buildCMD(transformFilePath, src);
+    const transformName = transforms.shift();
+    const transformFilePath = path.join(transformBasePath, transformName);
+    const cmd = buildCMD(transformFilePath, opts.src.replace(".jsx", ".js"));
 
-    echo("Applying transform", transform);
+    echo("Applying transform", transformName);
 
-    exec(cmd, (err, stdout) => {
+    exec(cmd, function (err) {
         if (err) {
             console.error(err);
         }
 
-        echo(stdout);
         applyTransform(transforms);
     });
 };
 
-const deleteEmptyIndexes = () => {
+const deleteEmptyIndexes = function () {
     echo("Removing unused index files");
     const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
     const emptyIndexFiles = cat(emptyIndexFile);
@@ -104,32 +105,37 @@ const deleteEmptyIndexes = () => {
 
     emptyIndexFiles
         .split("\n")
-        .filter(f => f !== "")
-        .map(f => rm(f));
+        .filter(function (f) {
+            return f !== "";
+        })
+        .map(function (f) {
+            return rm(f);
+        });
     rm(emptyIndexFile);
 };
 
-if (clean) {
+if (opts.clean) {
     deleteEmptyIndexes();
-} else if (all) {
+} else if (opts.all) {
     const transforms = fs.readdirSync(transformBasePath)
-                        .filter(fileName => fileName.match(".js$"))
-                        .filter(filename => runFirst.indexOf(filename) === -1)
-                        .filter(filename => runLast.indexOf(filename) === -1);
-    const orderedTransforms = [...runFirst, ...transforms, ...runLast];
+        .filter(function (filename) {
+            return filename.match(".js$");
+        })
+        .filter(function (filename) {
+            return runFirst.indexOf(filename) === -1;
+        })
+        .filter(function (filename) {
+            return runLast.indexOf(filename) === -1;
+        });
+
+    const orderedTransforms = [].concat(runFirst, transforms, runLast);
 
     renameFiles();
     applyTransform(orderedTransforms);
 }
 
-if (single) {
-    const transformFilePath = path.join(transformBasePath, single);
-    const cmd = buildCMD(transformFilePath, src);
-    exec(cmd, (err, stout) => {
-        if (err) {
-            console.error(err);
-        }
-
-        echo(stout);
-    });
+if (opts.single) {
+    applyTransform([
+        opts.single
+    ]);
 }

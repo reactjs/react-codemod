@@ -2,6 +2,11 @@ import React from "react";
 import classNames from "classnames";
 import styles from "styles/styles.js";
 
+import component from "component";
+import fooBar from "fooBar";
+
+@component
+@fooBar({foo: "bar"})
 class Article extends React.Component {
     render() {
         return (

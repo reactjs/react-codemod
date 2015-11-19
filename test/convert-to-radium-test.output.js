@@ -2,6 +2,11 @@ import React from "react";
 import radium from "react-wildcat-radium";
 import styles from "styles/styles.js";
 
+import component from "component";
+import fooBar from "fooBar";
+
+@component
+@fooBar({foo: "bar"})
 @radium
 class Article extends React.Component {
     render() {

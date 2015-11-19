@@ -1,6 +1,7 @@
-import updateImport from "./util/update-import";
+const options = require("./util/options");
+const updateImport = require("./util/update-import");
 
-module.exports = function (file, api, options) {
+module.exports = function (file, api) {
     var j = api.jscodeshift;
     var root = j(file.source);
 
