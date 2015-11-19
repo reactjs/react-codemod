@@ -10,7 +10,7 @@ const path = require("path");
 const resolve = require("resolve");
 
 const mediaQueries = ["min-width", "minWidth", "max-width", "maxWidth"];
-const options = require("./util/options");
+const toSource = require("./util/to-source");
 
 module.exports = function (file, api) {
     const j = api.jscodeshift;
@@ -258,26 +258,16 @@ module.exports = function (file, api) {
         });
 
     root
-        .find(j.ClassDeclaration, {
-            superClass: {
-                object: {
-                    name: "React"
-                },
-                property: {
-                    name: "Component"
-                }
-            }
-        }).forEach(function (p) {
+        .find(j.ClassDeclaration)
+        .forEach(function (p) {
             const hasStyles = root
-                .find(j.JSXOpeningElement, {
-                    attributes: [{
-                        name: {
-                            name: "style"
-                        }
-                    }]
+                .find(j.JSXOpeningElement)
+                .filter(function (x) {
+                    const attrs = x.value.attributes;
+                    return getStyleAttribute(attrs) !== null;
                 });
 
-            if (hasStyles.__paths.length) {
+            if (hasStyles.paths().length) {
                 if (!p.node.decorators) {
                     p.node.decorators = [];
                 }
@@ -290,5 +280,5 @@ module.exports = function (file, api) {
             }
         });
 
-    return root.toSource(options);
+    return toSource(root, j);
 };

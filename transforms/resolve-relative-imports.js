@@ -1,7 +1,7 @@
-var fs = require("fs");
-var path = require("path");
-var resolve = require("resolve");
-const options = require("./util/options");
+const fs = require("fs");
+const path = require("path");
+const resolve = require("resolve");
+const toSource = require("./util/to-source");
 
 module.exports = function (file, api) {
     const j = api.jscodeshift;
@@ -27,7 +27,7 @@ module.exports = function (file, api) {
     };
 
     // Feed the original code to our interpreter
-    return j(file.source)
+    const root = j(file.source)
         // Find all imports in the file
         .find(j.ImportDeclaration)
         // And remap them if necessary
@@ -50,8 +50,10 @@ module.exports = function (file, api) {
 
                 // If only 2 statements exist in this file,
                 // let's check that one is an import and one is a default export
-                if (importStatements.__paths.length === 2) {
-                    const [firstStatement, lastStatement] = importStatements.__paths;
+                if (importStatements.paths().length === 2) {
+                    const paths = importStatements.paths();
+                    const firstStatement = paths[0];
+                    const lastStatement = paths[1];
 
                     // If the first statement is an ImportDeclaration
                     // and the last statement is an ExportDefaultDeclaration
@@ -92,8 +94,7 @@ module.exports = function (file, api) {
 
             // Return the mapped value
             return p;
-        })
+        });
 
-        // Convert AST to source
-        .toSource(options);
+    return toSource(root, j);
 };
