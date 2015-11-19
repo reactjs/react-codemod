@@ -1,4 +1,4 @@
-// this is a copy of convert-to-radium-test.js, except that styles won't beb imported
+// this is a copy of convert-to-radium-test.js, except that styles won't be imported
 import React from "react";
 import radium from "react-wildcat-radium";
 import styles from "styles/bad-styles.js";
