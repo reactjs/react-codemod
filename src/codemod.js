@@ -83,8 +83,12 @@ const applyTransform = (transforms) => {
 
     echo("Applying transform", transform);
 
-    exec(cmd, (err, stout) => {
-        echo(stout);
+    exec(cmd, (err, stdout) => {
+        if (err) {
+            console.error(err);
+        }
+
+        echo(stdout);
         applyTransform(transforms);
     });
 };
@@ -122,7 +126,10 @@ if (single) {
     const transformFilePath = path.join(transformBasePath, single);
     const cmd = buildCMD(transformFilePath, src);
     exec(cmd, (err, stout) => {
-        echo(err);
+        if (err) {
+            console.error(err);
+        }
+
         echo(stout);
     });
 }
