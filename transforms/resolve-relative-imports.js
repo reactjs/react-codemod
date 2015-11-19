@@ -31,12 +31,12 @@ module.exports = function (file, api) {
         // Find all imports in the file
         .find(j.ImportDeclaration)
         // And remap them if necessary
-        .map(p => {
+        .map(function (p) {
             try {
                 // First, find the canonical path to the import
                 // This can be ./path/index.js or ./path.js
                 // We don't care, just let Node figure it out
-                let absoluteImportPath = resolve.sync(p.node.source.value, resolveOptions);
+                var absoluteImportPath = resolve.sync(p.node.source.value, resolveOptions);
 
                 // We assume the file is a relative file
                 // (Otherwise it will throw an error and bail)
@@ -79,7 +79,7 @@ module.exports = function (file, api) {
                 }
 
                 // Finally, make the import relative to the current file...
-                let relativeImportPath = path.relative(resolveOptions.basedir, absoluteImportPath);
+                var relativeImportPath = path.relative(resolveOptions.basedir, absoluteImportPath);
 
                 // ...and prepend a dot/slash so jspm is happy
                 if (!relativeImportPath.startsWith(".")) {
