@@ -34,6 +34,11 @@ const opts = nomnom.options({
         flag: true,
         help: "Remove any files that have been marked for deletion",
         abbr: "C"
+    },
+    norename: {
+        flag: true,
+        help: "Don't rename .jsx files to .js",
+        abbr: "N"
     }
 }).parse();
 
@@ -88,7 +93,8 @@ const applyTransform = function (transforms) {
     const transformName = transforms.shift();
     const transformFilePath = require.resolve(path.join(transformBasePath, transformName));
 
-    const cmd = buildCMD(transformFilePath, opts.src.replace(".jsx", ".js"));
+    const renamedSrc = opts.norename ? opts.src : opts.src.replace(".jsx", ".js");
+    const cmd = buildCMD(transformFilePath, renamedSrc);
 
     echo("\nApplying transform", transformName);
 
@@ -126,7 +132,10 @@ if (opts.clean) {
 }
 
 rm(emptyIndexFile);
-renameFiles();
+
+if (!opts.norename) {
+    renameFiles();
+}
 
 if (opts.all) {
     const transforms = fs.readdirSync(transformBasePath)
