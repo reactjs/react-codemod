@@ -1,6 +1,6 @@
 import React from "react";
 import {exposeMetrics} from "react-metrics";
-import {getPageName} from "metrics.config.js";
+import {getPageName} from "src/metrics.config.js";
 
 @exposeMetrics
 class Home extends GridironComponent {
