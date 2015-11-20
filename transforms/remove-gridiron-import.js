@@ -1,4 +1,4 @@
-const options = require("./util/options");
+const toSource = require("./util/to-source");
 
 module.exports = function (file, api) {
     var j = api.jscodeshift;
@@ -55,6 +55,5 @@ module.exports = function (file, api) {
             }
         });
 
-
-    return root.toSource(options);
+    return toSource(root, j);
 };

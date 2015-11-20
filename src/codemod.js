@@ -48,6 +48,10 @@ const buildCMD = function (filePath, file) {
 };
 
 const markForDeletion = function () {
+    if (!fs.existsSync(emptyIndexFile)) {
+        fs.writeFileSync(emptyIndexFile, "");
+    }
+
     const files = cat(emptyIndexFile)
                     .split("\n")
                     .filter(function (f) {
@@ -68,7 +72,7 @@ const renameFiles = function () {
                         return file.match(/\.jsx$/);
                     });
 
-    echo("\nRenaming "+files.length+" files from .jsx to .js");
+    echo("\nRenaming " + files.length + " files from .jsx to .js");
 
     files.map(function (file) {
         mv(file, file.replace("jsx", "js"));

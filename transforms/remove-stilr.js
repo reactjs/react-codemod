@@ -1,4 +1,4 @@
-const options = require("./util/options");
+const toSource = require("./util/to-source");
 
 module.exports = function (file, api) {
     const j = api.jscodeshift;
@@ -42,5 +42,5 @@ module.exports = function (file, api) {
         j(p).replaceWith(styles);
     });
 
-    return root.toSource(options);
+    return toSource(root, j);
 };
