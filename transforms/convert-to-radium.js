@@ -219,10 +219,15 @@ module.exports = function (file, api) {
             const styleImport = p.value.source.value;
             const absoluteImportPath = resolve.sync(styleImport, resolveOptions);
 
-            if (p.value.specifiers[0].type === "ImportDefaultSpecifier") {
-                styles = require(absoluteImportPath);
-            } else {
-                styles = require(absoluteImportPath).styles;
+            try {
+                if (p.value.specifiers[0].type === "ImportDefaultSpecifier") {
+                    styles = require(absoluteImportPath);
+                } else {
+                    styles = require(absoluteImportPath).styles;
+                }
+            } catch (e) {
+                console.error("%s: Could not import styles, you will need to add key attributes " +
+                                "manually to any elements with interactive styles", file.path);
             }
         });
 
