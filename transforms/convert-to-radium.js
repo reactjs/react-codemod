@@ -36,7 +36,6 @@ module.exports = function (file, api) {
         return attrs[0] || null;
     };
 
-
     const getClassAttribute = function (attributes) {
         return getAttribute("className", attributes);
     };
@@ -55,7 +54,6 @@ module.exports = function (file, api) {
             console.error("%s: Could not update styles on line %s", file.path, line);
         }
     };
-
 
     const isInteractiveStyle = function (style) {
         if (!style) {
@@ -79,7 +77,6 @@ module.exports = function (file, api) {
         return false;
     };
 
-
     const getInteractiveKey = function (expressions) {
         for (var expression in expressions) {
             if (expressions[expression].type !== "MemberExpression") {
@@ -96,7 +93,6 @@ module.exports = function (file, api) {
 
         return null;
     };
-
 
     const createStyleAttribute = function (styleObjects) {
         if (styleObjects.length === 0) {
@@ -119,14 +115,12 @@ module.exports = function (file, api) {
         );
     };
 
-
     const createClassAttribute = function (classes) {
         return j.jsxAttribute(
             j.jsxIdentifier("className"),
             j.literal(classes)
         );
     };
-
 
     const applyClassesAndStyles = function (attrs, allStyles) {
         const stringArgs = allStyles.filter(function (style) {
@@ -158,7 +152,6 @@ module.exports = function (file, api) {
             attrs.push(keyAttribute);
         }
     };
-
 
     const updateStyles = function (p) {
         const attrs = p.value.attributes;
@@ -199,15 +192,6 @@ module.exports = function (file, api) {
         applyClassesAndStyles(attrs, allStyles);
     };
 
-
-    const radiumImport = j.importDeclaration(
-        [j.importDefaultSpecifier(
-            j.identifier("radium")
-        )],
-        j.literal("react-wildcat-radium")
-    );
-
-
     root
         .find(j.ImportDeclaration, {
             specifiers: [{
@@ -231,18 +215,6 @@ module.exports = function (file, api) {
             }
         });
 
-
-    root
-        .find(j.ImportDeclaration, {
-            source: {
-                type: "Literal",
-                value: "react"
-            }
-        }).forEach(function (p) {
-            j(p).insertAfter(radiumImport);
-        });
-
-
     root
         .find(j.ImportDeclaration, {
             source: {
@@ -262,28 +234,47 @@ module.exports = function (file, api) {
             updateStyles(p);
         });
 
-    root
-        .find(j.ClassDeclaration)
-        .forEach(function (p) {
-            const hasStyles = root
-                .find(j.JSXOpeningElement)
-                .filter(function (x) {
-                    const attrs = x.value.attributes;
-                    return getStyleAttribute(attrs) !== null;
-                });
-
-            if (hasStyles.paths().length) {
-                if (!p.node.decorators) {
-                    p.node.decorators = [];
-                }
-
-                p.node.decorators.push(
-                    j.decorator(
-                        j.identifier("radium")
-                    )
-                );
-            }
+    const hasStyles = root
+        .find(j.JSXOpeningElement)
+        .filter(function (p) {
+            const attrs = p.value.attributes;
+            return getStyleAttribute(attrs) !== null;
         });
+
+    if (hasStyles.paths().length) {
+        const radiumImport = j.importDeclaration(
+            [j.importDefaultSpecifier(
+                j.identifier("radium")
+            )],
+            j.literal("react-wildcat-radium")
+        );
+
+        root
+            .find(j.ImportDeclaration, {
+                source: {
+                    type: "Literal",
+                    value: "react"
+                }
+            }).forEach(function (p) {
+                j(p).insertAfter(radiumImport);
+            });
+
+        root
+            .find(j.ClassDeclaration)
+            .forEach(function (p) {
+                if (hasStyles.paths().length) {
+                    if (!p.node.decorators) {
+                        p.node.decorators = [];
+                    }
+
+                    p.node.decorators.push(
+                        j.decorator(
+                            j.identifier("radium")
+                        )
+                    );
+                }
+            });
+    }
 
     return toSource(root, j);
 };

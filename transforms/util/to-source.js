@@ -1,7 +1,11 @@
 const options = require("./options");
 const _ = require("underscore");
 
-module.exports = function (root, j) {
+module.exports = function (root, j, forceDecorators) {
+    if (!forceDecorators) {
+        return root.toSource(options);
+    }
+
     // workaround the missing decorator issue
     // https://github.com/facebook/jscodeshift/issues/70
     root
