@@ -1,8 +1,8 @@
 const options = require("./options");
 const _ = require("underscore");
 
-module.exports = function (root, j, workaround) {
-    if (!workaround) {
+module.exports = function (root, j, forceDecorators) {
+    if (!forceDecorators) {
         return root.toSource(options);
     }
 
