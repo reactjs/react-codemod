@@ -55,5 +55,5 @@ module.exports = function (file, api) {
             }
         });
 
-    return toSource(root, j);
+    return toSource(root, j, true);
 };
