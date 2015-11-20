@@ -42,12 +42,6 @@ const opts = nomnom.options({
     }
 }).parse();
 
-
-if (!opts.src) {
-    echo("src option is required");
-    exit(1);
-}
-
 const buildCMD = function (filePath, file) {
     return "jscodeshift -t " + filePath + " " + file + " --extensions 'jsx,js'";
 };
@@ -127,11 +121,17 @@ const deleteEmptyIndexes = function () {
     rm(emptyIndexFile);
 };
 
-if (opts.clean) {
-    deleteEmptyIndexes();
+if (!opts.src && !opts.clean) {
+    echo("src option is required");
+    exit(1);
 }
 
-rm(emptyIndexFile);
+if (opts.clean) {
+    deleteEmptyIndexes();
+    exit(0);
+} else if (!fs.existsSync(emptyIndexFile)) {
+    rm(emptyIndexFile);
+}
 
 if (!opts.norename) {
     renameFiles();
