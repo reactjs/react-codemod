@@ -11,6 +11,7 @@ const resolve = require("resolve");
 
 const mediaQueries = ["min-width", "minWidth", "max-width", "maxWidth"];
 const toSource = require("./util/to-source");
+const formatError = require("./util/format-error");
 
 module.exports = function (file, api) {
     const j = api.jscodeshift;
@@ -51,10 +52,15 @@ module.exports = function (file, api) {
         return getAttribute("key", attributes);
     };
 
+
     const logError = function (attr) {
         if (attr.loc && attr.loc.start) {
             const line = attr.loc.start.line;
-            console.error("%s: Could not update styles on line %s", file.path, line);
+
+            formatError(
+                file.path,
+                "Could not update styles on line " + line
+            );
         }
     };
 
@@ -213,8 +219,11 @@ module.exports = function (file, api) {
                     styles = require(absoluteImportPath).styles;
                 }
             } catch (e) {
-                console.error("%s: Could not import styles, you will need to add key attributes " +
-                                "manually to any elements with interactive styles", file.path);
+                formatError(
+                    file.path,
+                    "Could not import styles, you will need to add key attributes " +
+                                "manually to any elements with interactive styles"
+                );
             }
         });
 
