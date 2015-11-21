@@ -1,6 +1,8 @@
 const toSource = require("./util/to-source");
 
 module.exports = function (file, api) {
+    var forceDecorators = false;
+
     var j = api.jscodeshift;
     var root = j(file.source);
 
@@ -33,6 +35,7 @@ module.exports = function (file, api) {
 
     const removeGridironImport = function (p) {
         j(p).remove();
+        forceDecorators = true;
         return p;
     };
 
@@ -55,5 +58,5 @@ module.exports = function (file, api) {
             }
         });
 
-    return toSource(root, j, true);
+    return toSource(root, j, forceDecorators);
 };
