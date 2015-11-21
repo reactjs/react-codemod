@@ -63,7 +63,7 @@ module.exports = function (file, api) {
             }
         })
         .forEach(function (p) {
-            p.value.source = j.literal("src/metrics.config.js");
+            p.value.source = j.literal("metrics.config.js");
             j(p).insertBefore(metricsImport);
             addDecorator();
         });
