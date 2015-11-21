@@ -129,8 +129,8 @@ if (!opts.src && !opts.clean) {
 if (opts.clean) {
     deleteEmptyIndexes();
     exit(0);
-} else if (!fs.existsSync(emptyIndexFile)) {
-    rm(emptyIndexFile);
+} else {
+    fs.writeFileSync(emptyIndexFile, "");
 }
 
 if (!opts.norename) {
