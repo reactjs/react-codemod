@@ -56,7 +56,10 @@ const markForDeletion = function () {
                     .filter(function (f) {
                         return f !== "";
                     });
-    const uniqueFiles = _.uniq(files);
+
+    const uniqueFiles = _.uniq(files).map(function (f) {
+        return path.relative(process.cwd(), f);
+    });
     const filesList = uniqueFiles.join("\n");
     filesList.to(emptyIndexFile);
 
