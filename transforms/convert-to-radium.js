@@ -18,9 +18,12 @@ module.exports = function (file, api) {
     var styles = null;
 
     const resolveOptions = {
-        paths: [],
+        paths: [process.cwd()],
         basedir: path.dirname(file.path),
-        extensions: [".js"],
+        extensions: [
+            ".js",
+            ".jsx"
+        ],
         moduleDirectory: path.dirname(file.path)
     };
 

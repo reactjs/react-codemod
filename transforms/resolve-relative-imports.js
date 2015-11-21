@@ -9,7 +9,7 @@ module.exports = function (file, api) {
     // We use resolve to find the absolute paths of our imports
     // Using the current file name as the base path
     const resolveOptions = {
-        paths: [],
+        paths: [process.cwd()],
         basedir: path.dirname(file.path),
         extensions: [
             ".js",
