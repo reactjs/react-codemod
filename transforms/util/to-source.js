@@ -15,6 +15,10 @@ module.exports = function (root, j, forceDecorators) {
                     return d.expression.callee ? d.expression.callee.name : d.expression.name;
                 });
 
+                if (!existingDecorators.length) {
+                    return;
+                }
+
                 p.node.decorators = [
                     j.decorator(
                         j.identifier("dummy")
