@@ -1,5 +1,5 @@
 import React from "react";
-import {routeHelper as route} from "routes.config.js";
+import {routeHelper as route} from "addons/RouteHelper.js";
 import {Link} from "react-router";
 
 @component

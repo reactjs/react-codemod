@@ -105,7 +105,7 @@ module.exports = function (file, api) {
                         j.identifier("routeHelper"),
                         j.identifier("route")
                     )],
-                    j.literal("routes.config.js")
+                    j.literal("addons/RouteHelper.js")
                 )
             );
     }
