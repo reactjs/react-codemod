@@ -9,7 +9,7 @@ module.exports = function (file, api) {
     // We use resolve to find the absolute paths of our imports
     // Using the current file name as the base path
     const resolveOptions = {
-        paths: [process.cwd()],
+        paths: [],
         basedir: path.dirname(file.path),
         extensions: [
             ".js",
@@ -32,11 +32,13 @@ module.exports = function (file, api) {
         .find(j.ImportDeclaration)
         // And remap them if necessary
         .map(function (p) {
+            const importSource = p.node.source;
+
             try {
                 // First, find the canonical path to the import
                 // This can be ./path/index.js or ./path.js
                 // We don't care, just let Node figure it out
-                var absoluteImportPath = resolve.sync(p.node.source.value, resolveOptions);
+                var absoluteImportPath = resolve.sync(importSource.value, resolveOptions);
 
                 // We assume the file is a relative file
                 // (Otherwise it will throw an error and bail)
@@ -89,8 +91,22 @@ module.exports = function (file, api) {
                     relativeImportPath = "./" + relativeImportPath;
                 }
 
-                p.node.source.value = relativeImportPath;
-            } catch (e) {} // eslint-disable-line no-empty
+                importSource.value = relativeImportPath;
+            } catch (e) {
+                if (!importSource.value.startsWith("src/")) {
+                    return p;
+                }
+
+                if (file.path.includes("test/e2e")) {
+                    return p;
+                }
+
+                importSource.value = importSource.value
+                    .replace(/^src\//, "")
+                    .replace(/^domains\/([a-zA-Z]+)/, function (match, p1) {
+                        return match.replace(p1, p1.toLowerCase()) + "/www";
+                    });
+            }
 
             // Return the mapped value
             return p;

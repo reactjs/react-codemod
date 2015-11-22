@@ -19,7 +19,7 @@ module.exports = function (file, api) {
     var styles = null;
 
     const resolveOptions = {
-        paths: [process.cwd()],
+        paths: [],
         basedir: path.dirname(file.path),
         extensions: [
             ".js",

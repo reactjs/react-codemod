@@ -15,5 +15,9 @@ describe("resolve-relative-imports", () => {
         test("resolve-relative-imports", "resolve-unprefixed-imports", null, {
             path: path.resolve(__dirname, "../resolve-unprefixed-imports.js")
         });
+
+        test("resolve-relative-imports", "resolve-root-relative-imports", null, {
+            path: path.resolve(__dirname, "../resolve-root-relative-imports.js")
+        });
     });
 });
