@@ -8,12 +8,11 @@ const _ = require("underscore");
 
 const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
 const transformBasePath = path.join(__dirname, "..", "transforms");
-const runFirst = [
-    "resolve-relative-imports.js"
-];
+const runFirst = [];
 const runLast = [
     "remove-stilr.js",
-    "convert-to-radium.js"
+    "convert-to-radium.js",
+    "resolve-relative-imports.js"
 ];
 
 const opts = nomnom.options({
