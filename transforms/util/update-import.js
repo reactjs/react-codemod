@@ -1,4 +1,6 @@
 const updateImport = function (j, root, opts) {
+    var forceDecorators = false;
+
     // importName, importSource, newName, newSource
     const newImport = j.importDeclaration(
         [j.importDefaultSpecifier(
@@ -18,7 +20,7 @@ const updateImport = function (j, root, opts) {
         .filter(function (p) {
             return p.value.specifiers.filter(function (s) {
                 return s.imported.name === opts.importName;
-            });
+            }).length;
         })
         .forEach(function (p) {
             const specifiers = p.value.specifiers.filter(function (s) {
@@ -32,9 +34,11 @@ const updateImport = function (j, root, opts) {
             if (!specifiers.length) {
                 p.prune();
             }
+
+            forceDecorators = true;
         });
 
-    return root;
+    return forceDecorators;
 };
 
 module.exports = updateImport;

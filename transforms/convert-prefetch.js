@@ -7,7 +7,7 @@ module.exports = function (file, api) {
     const j = api.jscodeshift;
     const root = j(file.source);
 
-    updateImport(
+    forceDecorators = updateImport(
         j,
         root,
         {
@@ -29,8 +29,6 @@ module.exports = function (file, api) {
             }
         })
         .forEach(function (p) {
-            forceDecorators = true;
-
             const args = p.get("declaration").get("arguments");
 
             const componentId = args.get(0);
