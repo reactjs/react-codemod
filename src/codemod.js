@@ -58,30 +58,30 @@ const opts = nomnom
             flag: true,
             help: "Don't rename .jsx files to .js",
             abbr: "N"
-        }
-    })
-    .option("transforms", {
-        abbr: "t",
-        flag: true,
-        help: "Print a list of available transforms",
-        callback: function () {
-            const orderedTransforms = getTransforms();
+        },
+        transforms: {
+            abbr: "t",
+            flag: true,
+            help: "Print a list of available transforms",
+            callback: function () {
+                const orderedTransforms = getTransforms();
 
-            console.log();
-            console.log(chalk.bold("Usage:"), "wildcat-codemod [src] --single", chalk.blue("[transform]"));
-            console.log();
-            console.log(chalk.blue("Transforms:"));
-            console.log(orderedTransforms.map(function (t) {
-                return "   " + t.replace(".js", "");
-            }).join("\n"));
-        }
-    })
-    .option("version", {
-        abbr: "v",
-        flag: true,
-        help: "Print version and exit",
-        callback: function () {
-            return pkg.version;
+                console.log();
+                console.log(chalk.bold("Usage:"), "wildcat-codemod [src] --single", chalk.blue("[transform]"));
+                console.log();
+                console.log(chalk.blue("Transforms:"));
+                console.log(orderedTransforms.map(function (t) {
+                    return "   " + t.replace(".js", "");
+                }).join("\n"));
+            }
+        },
+        version: {
+            abbr: "v",
+            flag: true,
+            help: "Print version and exit",
+            callback: function () {
+                return pkg.version;
+            }
         }
     }).parse();
 
