@@ -7,6 +7,7 @@ const path = require("path");
 const _ = require("underscore");
 const chalk = require("chalk");
 
+const pkg = require(path.join(__dirname, "..", "package.json"));
 const emptyIndexFile = path.join(__dirname, "..", "empty_indexes.txt");
 const transformBasePath = path.join(__dirname, "..", "transforms");
 const runFirst = [];
@@ -16,31 +17,77 @@ const runLast = [
     "resolve-relative-imports.js"
 ];
 
-const opts = nomnom.options({
-    src: {
-        position: 0,
-        help: "Source directory to run the transforms against"
-    },
-    all: {
-        flag: true,
-        abbr: "A",
-        help: "Run all transforms in transforms folder"
-    },
-    single: {
-        help: "Run single transform",
-        abbr: "S"
-    },
-    clean: {
-        flag: true,
-        help: "Remove any files that have been marked for deletion",
-        abbr: "C"
-    },
-    norename: {
-        flag: true,
-        help: "Don't rename .jsx files to .js",
-        abbr: "N"
-    }
-}).parse();
+const getTransforms = function () {
+    const transforms = fs.readdirSync(transformBasePath)
+        .filter(function (filename) {
+            return filename.match(".js$");
+        })
+        .filter(function (filename) {
+            return runFirst.indexOf(filename) === -1;
+        })
+        .filter(function (filename) {
+            return runLast.indexOf(filename) === -1;
+        });
+
+    const orderedTransforms = [].concat(runFirst, transforms, runLast);
+
+    return orderedTransforms;
+};
+
+const opts = nomnom
+    .options({
+        src: {
+            position: 0,
+            help: "Source directory to run the transforms against"
+        },
+        all: {
+            flag: true,
+            abbr: "A",
+            help: "Run all transforms in transforms folder"
+        },
+        single: {
+            help: "Run individual transforms. Use `wildcat-codemod --transforms` for a list of avaliable transforms.",
+            abbr: "S"
+        },
+        clean: {
+            flag: true,
+            help: "Remove any files that have been marked for deletion",
+            abbr: "C"
+        },
+        norename: {
+            flag: true,
+            help: "Don't rename .jsx files to .js",
+            abbr: "N"
+        },
+        transforms: {
+            abbr: "t",
+            flag: true,
+            help: "Print a list of available transforms",
+            callback: function () {
+                const orderedTransforms = getTransforms();
+
+                console.log();
+                console.log(chalk.bold("Usage:"), "wildcat-codemod [src] --single", chalk.blue("[transform]"));
+                console.log();
+                console.log(chalk.blue("Transforms:"));
+                console.log(orderedTransforms.map(function (t) {
+                    return "   " + t.replace(".js", "");
+                }).join("\n"));
+            }
+        },
+        version: {
+            abbr: "v",
+            flag: true,
+            help: "Print version and exit",
+            callback: function () {
+                return pkg.version;
+            }
+        }
+    }).parse();
+
+if (opts.transforms) {
+    exit(0);
+}
 
 const buildCMD = function (filePath, file) {
     return "jscodeshift -t " + filePath + " " + file + " --extensions 'jsx,js'";
@@ -159,20 +206,7 @@ if (!opts.norename) {
 }
 
 if (opts.all) {
-    const transforms = fs.readdirSync(transformBasePath)
-        .filter(function (filename) {
-            return filename.match(".js$");
-        })
-        .filter(function (filename) {
-            return runFirst.indexOf(filename) === -1;
-        })
-        .filter(function (filename) {
-            return runLast.indexOf(filename) === -1;
-        });
-
-    const orderedTransforms = [].concat(runFirst, transforms, runLast);
-
-    applyTransform(orderedTransforms);
+    applyTransform(getTransforms());
 } else if (opts.single) {
     applyTransform([
         opts.single
