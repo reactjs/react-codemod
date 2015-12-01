@@ -68,22 +68,35 @@ module.exports = function (file, api) {
 
                         // Spread attributes become spread properties
                         if (a.type === "JSXSpreadAttribute") {
+                            // ...this.props attributes get ignored
+                            // as they are automatically copied with React.cloneElement
+                            if (
+                                a.argument.type === "MemberExpression" &&
+                                a.argument.object.type === "ThisExpression" &&
+                                a.argument.property.name === "props"
+                            ) {
+                                return null;
+                            }
+
                             return j.spreadProperty(
                                 a.argument
                             );
                         }
+                    })
+                    .filter(function (a) {
+                        return a;
                     });
 
                 // Replace <RouteHandler /> with {React.cloneElement(this.props.children)}
                 p.replace(
                     j.jsxExpressionContainer(
-                        j.callExpression(
+                        attributeMap.length ? j.callExpression(
                             j.identifier("React.cloneElement"),
                             [
                                 j.identifier("this.props.children"),
                                 j.objectExpression(attributeMap)
                             ]
-                        )
+                        ) : j.identifier("this.props.children")
                     )
                 );
 

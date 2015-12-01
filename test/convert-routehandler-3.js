@@ -1,12 +1,11 @@
 import React from "react";
+import {RouteHandler} from "react-router";
 
 class Admin extends React.Component {
     static propTypes = {
         foo: React.PropTypes.shape({
             bar: React.PropTypes.string.isRequired
-        }),
-
-        children: React.PropTypes.node
+        })
     }
 
     render() {
@@ -14,10 +13,7 @@ class Admin extends React.Component {
 
         return (
             <main>
-                {React.cloneElement(this.props.children, {
-                    hasHeader: hasHeader,
-                    ...this.state
-                })}
+                <RouteHandler {...this.props} />
             </main>
         );
     }
