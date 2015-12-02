@@ -36,6 +36,7 @@ module.exports = function (file, api) {
         .find(j.ClassDeclaration)
         .forEach(function (c) {
             // Set to true if we need propTypes
+            var assignChildlessConstant = false;
             var addPropTypes = false;
 
             // Find all <RouteHandler /> elements
@@ -68,14 +69,20 @@ module.exports = function (file, api) {
 
                         // Spread attributes become spread properties
                         if (a.type === "JSXSpreadAttribute") {
-                            // ...this.props attributes get ignored
-                            // as they are automatically copied with React.cloneElement
+                            // ...this.props attributes must get stripped of its "children" prop
+                            // as they cannot be overwritten downstream
                             if (
                                 a.argument.type === "MemberExpression" &&
                                 a.argument.object.type === "ThisExpression" &&
                                 a.argument.property.name === "props"
                             ) {
-                                return null;
+                                // Flag that we need a new variable declaration
+                                assignChildlessConstant = true;
+
+                                // here we are converting ...this.props -> ...props
+                                return j.spreadProperty(
+                                    j.identifier(a.argument.property.name)
+                                );
                             }
 
                             return j.spreadProperty(
@@ -93,7 +100,9 @@ module.exports = function (file, api) {
                         attributeMap.length ? j.callExpression(
                             j.identifier("React.cloneElement"),
                             [
-                                j.identifier("this.props.children"),
+                                j.identifier(
+                                    assignChildlessConstant ? "children" : "this.props.children"
+                                ),
                                 j.objectExpression(attributeMap)
                             ]
                         ) : j.identifier("this.props.children")
@@ -103,6 +112,46 @@ module.exports = function (file, api) {
                 // Now we want to add static propTypes
                 addPropTypes = true;
             });
+
+            if (assignChildlessConstant) {
+                const prop = j.property(
+                    "init",
+                    j.identifier("children"),
+                    j.identifier("children")
+                );
+
+                prop.shorthand = true;
+
+                const childlessConstant = j.variableDeclaration(
+                    "const",
+                    [
+                        j.variableDeclarator(
+                            j.objectPattern([
+                                prop,
+                                j.spreadProperty(
+                                    j.identifier("props")
+                                )
+                            ]),
+                            j.identifier("this.props")
+                        )
+                    ]
+                );
+
+                // Append the static to our class body
+                j(c)
+                    .find(j.ClassBody)
+                    .find(j.MethodDefinition, {
+                        key: {
+                            name: "render"
+                        }
+                    })
+                    .map(function (m) {
+                        return m.get("value");
+                    })
+                    .forEach(function (b) {
+                        b.value.body.body.unshift(childlessConstant);
+                    });
+            }
 
             if (addPropTypes) {
                 // Create our propType for later use

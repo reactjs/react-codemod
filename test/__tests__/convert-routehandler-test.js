@@ -5,5 +5,6 @@ describe("convert-routehandler", () => {
         test("convert-routehandler", "convert-routehandler");
         test("convert-routehandler", "convert-routehandler-2");
         test("convert-routehandler", "convert-routehandler-3");
+        test("convert-routehandler", "convert-routehandler-4");
     });
 });
