@@ -6,10 +6,16 @@ class Admin extends React.Component {
     };
 
     render() {
+        const {
+            children,
+            ...props
+        } = this.props;
+
         return (
             <main>
-                {React.cloneElement(this.props.children, {
+                {React.cloneElement(children, {
                     hasHeader: true,
+                    ...props,
                     ...this.state
                 })}
             </main>
