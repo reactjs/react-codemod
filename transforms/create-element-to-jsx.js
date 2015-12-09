@@ -25,8 +25,15 @@ module.exports = function(file, api, options) {
           value = j.jsxExpressionContainer(property.value);
         }
 
+        let propertyKeyName;
+        if (property.key.type === 'Literal') {
+          propertyKeyName = property.key.value;
+        } else {
+          propertyKeyName = property.key.name;
+        }
+
         return j.jsxAttribute(
-          j.jsxIdentifier(property.key.name),
+          j.jsxIdentifier(propertyKeyName),
           value
         );
       }
