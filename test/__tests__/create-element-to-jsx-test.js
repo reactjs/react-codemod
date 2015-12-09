@@ -34,6 +34,8 @@ describe('create-element-to-jsx', () => {
     test('create-element-to-jsx', 'create-element-to-jsx-spread-props');
 
     test('create-element-to-jsx', 'create-element-to-jsx-no-react');
+
+    test('create-element-to-jsx', 'create-element-to-jsx-literal-prop');
   });
 
 });
