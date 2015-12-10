@@ -55,6 +55,7 @@ module.exports = function(file, api, options) {
       if (child.type === 'Literal' && typeof child.value === 'string') {
         return j.jsxText(child.value);
       } else if (child.type === 'CallExpression' &&
+        child.callee.object &&
         child.callee.object.name === 'React' &&
         child.callee.property.name === 'createElement') {
         return convertNodeToJSX(node.get('arguments', index + 2));
