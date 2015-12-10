@@ -8,6 +8,26 @@ module.exports = function(file, api, options) {
       return [j.jsxSpreadAttribute(objectExpression)];
     }
 
+    const isReactSpread = objectExpression.type === 'CallExpression' &&
+      objectExpression.callee.type === 'MemberExpression' &&
+      objectExpression.callee.object.name === 'React' &&
+      objectExpression.callee.property.name === '__spread';
+
+    const isObjectAssign = objectExpression.type === 'CallExpression' &&
+      objectExpression.callee.type === 'MemberExpression' &&
+      objectExpression.callee.object.name === 'Object' &&
+      objectExpression.callee.property.name === 'assign';
+
+    if (isReactSpread || isObjectAssign) {
+      var jsxAttributes = [];
+
+      objectExpression.arguments.forEach((objectExpression) =>
+        jsxAttributes.push(...convertObjectExpressionToJSXAttributes(objectExpression))
+      );
+
+      return jsxAttributes;
+    }
+
     if (!objectExpression.properties) {
       return [];
     }
