@@ -17,7 +17,7 @@ module.exports = function(file, api, options) {
     if (expression.type === 'Identifier') {
       return [j.jsxSpreadAttribute(expression)];
     } else if (isReactSpread || isObjectAssign) {
-      var jsxAttributes = [];
+      const jsxAttributes = [];
 
       expression.arguments.forEach((expression) =>
         jsxAttributes.push(...convertExpressionToJSXAttributes(expression))
