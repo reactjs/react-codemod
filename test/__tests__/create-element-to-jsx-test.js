@@ -44,4 +44,16 @@ describe('create-element-to-jsx', () => {
     test('create-element-to-jsx', 'create-element-to-jsx-object-assign');
   });
 
+  it('raises when it does not recognize a property type', () => {
+    const jscodeshift = require('jscodeshift');
+    const transform = require('../../transforms/create-element-to-jsx');
+    const source = `
+      var React = require("react/addons");
+      React.createElement("foo", 1)
+    `;
+
+    expect(() => transform({source}, {jscodeshift}, {}))
+      .toThrow('Unexpected attribute of type "Literal"');
+  });
+
 });
