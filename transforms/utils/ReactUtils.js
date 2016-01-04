@@ -123,10 +123,13 @@ module.exports = function(j) {
   // ---------------------------------------------------------------------------
   // Others
   const getReactCreateClassSpec = classPath => {
-    var {value} = classPath;
-    const spec = (value.init || value.right || value.declaration).arguments[0];
-    if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
-      return spec;
+    const {value} = classPath;
+    const args = (value.init || value.right || value.declaration).arguments;
+    if (args) {
+      const spec = args[0];
+      if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
+        return spec;
+      }
     }
   };
 
