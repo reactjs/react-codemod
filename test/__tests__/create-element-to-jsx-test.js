@@ -46,6 +46,8 @@ describe('create-element-to-jsx', () => {
     test('create-element-to-jsx', 'create-element-to-jsx-member-expression-as-prop');
 
     test('create-element-to-jsx', 'create-element-to-jsx-call-expression-as-prop');
+
+    test('create-element-to-jsx', 'create-element-to-jsx-allow-member-expression');
   });
 
   it('raises when it does not recognize a property type', () => {

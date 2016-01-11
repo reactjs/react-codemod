@@ -66,11 +66,23 @@ module.exports = function(file, api, options) {
     }
   };
 
+  const jsxIdentifierFor = node => {
+    if (node.type === 'Literal') {
+      return j.jsxIdentifier(node.value);
+    } else if (node.type === 'MemberExpression') {
+      return j.jsxMemberExpression(
+        jsxIdentifierFor(node.object),
+        jsxIdentifierFor(node.property)
+      );
+    } else {
+      return j.jsxIdentifier(node.name);
+    }
+  };
+
   const convertNodeToJSX = (node) => {
     const args = node.value.arguments;
 
-    const elementType = args[0].type;
-    const elementName = elementType === 'Literal' ? args[0].value : args[0].name;
+    const jsxIdentifier = jsxIdentifierFor(args[0]);
     const props = args[1];
 
     const attributes = convertExpressionToJSXAttributes(props);
@@ -88,12 +100,12 @@ module.exports = function(file, api, options) {
       }
     });
 
-    const openingElement = j.jsxOpeningElement(j.jsxIdentifier(elementName), attributes);
+    const openingElement = j.jsxOpeningElement(jsxIdentifier, attributes);
 
     if (children.length) {
       return j.jsxElement(
         openingElement,
-        j.jsxClosingElement(j.jsxIdentifier(elementName)),
+        j.jsxClosingElement(jsxIdentifier),
         children
       );
     } else {
