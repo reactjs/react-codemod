@@ -1,3 +1,5 @@
+/*eslint-disable no-extra-semi*/
+
 'use strict';
 
 import React from 'React';
