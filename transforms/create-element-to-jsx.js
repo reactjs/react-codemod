@@ -4,13 +4,8 @@ module.exports = function(file, api, options) {
   const ReactUtils = require('./utils/ReactUtils')(j);
   const encodeJSXTextValue = value =>
     value
-      .replace(new RegExp('(?:<|>)', 'g'), match => {
-        if (match === '<') {
-          return '&lt;';
-        } else {
-          return '&gt;';
-        }
-      });
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
 
   const convertExpressionToJSXAttributes = (expression) => {
     const isReactSpread = expression.type === 'CallExpression' &&
