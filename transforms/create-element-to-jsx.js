@@ -66,20 +66,23 @@ module.exports = function(file, api, options) {
     }
   };
 
-  const jsxIdentifierNameFor = node => {
+  const jsxIdentifierFor = node => {
     if (node.type === 'Literal') {
-      return node.value;
+      return j.jsxIdentifier(node.value);
     } else if (node.type === 'MemberExpression') {
-      return `${jsxIdentifierNameFor(node.object)}.${jsxIdentifierNameFor(node.property)}`;
+      return j.jsxMemberExpression(
+        jsxIdentifierFor(node.object),
+        jsxIdentifierFor(node.property)
+      );
     } else {
-      return node.name;
+      return j.jsxIdentifier(node.name);
     }
   };
 
   const convertNodeToJSX = (node) => {
     const args = node.value.arguments;
 
-    const elementName = jsxIdentifierNameFor(args[0]);
+    const jsxIdentifier = jsxIdentifierFor(args[0]);
     const props = args[1];
 
     const attributes = convertExpressionToJSXAttributes(props);
@@ -97,12 +100,12 @@ module.exports = function(file, api, options) {
       }
     });
 
-    const openingElement = j.jsxOpeningElement(j.jsxIdentifier(elementName), attributes);
+    const openingElement = j.jsxOpeningElement(jsxIdentifier, attributes);
 
     if (children.length) {
       return j.jsxElement(
         openingElement,
-        j.jsxClosingElement(j.jsxIdentifier(elementName)),
+        j.jsxClosingElement(jsxIdentifier),
         children
       );
     } else {
