@@ -66,11 +66,20 @@ module.exports = function(file, api, options) {
     }
   };
 
+  const jsxIdentifierNameFor = node => {
+    if (node.type === 'Literal') {
+      return node.value;
+    } else if (node.type === 'MemberExpression') {
+      return `${jsxIdentifierNameFor(node.object)}.${jsxIdentifierNameFor(node.property)}`;
+    } else {
+      return node.name;
+    }
+  };
+
   const convertNodeToJSX = (node) => {
     const args = node.value.arguments;
 
-    const elementType = args[0].type;
-    const elementName = elementType === 'Literal' ? args[0].value : args[0].name;
+    const elementName = jsxIdentifierNameFor(args[0]);
     const props = args[1];
 
     const attributes = convertExpressionToJSXAttributes(props);
