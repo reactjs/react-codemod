@@ -2,6 +2,15 @@ module.exports = function(file, api, options) {
   const j = api.jscodeshift;
   const root = j(file.source);
   const ReactUtils = require('./utils/ReactUtils')(j);
+  const encodeJSXTextValue = value =>
+    value
+      .replace(new RegExp('(?:<|>)', 'g'), match => {
+        if (match === '<') {
+          return '&lt;';
+        } else {
+          return '&gt;';
+        }
+      });
 
   const convertExpressionToJSXAttributes = (expression) => {
     const isReactSpread = expression.type === 'CallExpression' &&
@@ -89,7 +98,7 @@ module.exports = function(file, api, options) {
 
     const children = node.value.arguments.slice(2).map((child, index) => {
       if (child.type === 'Literal' && typeof child.value === 'string') {
-        return j.jsxText(child.value);
+        return j.jsxText(encodeJSXTextValue(child.value));
       } else if (child.type === 'CallExpression' &&
         child.callee.object &&
         child.callee.object.name === 'React' &&
