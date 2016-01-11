@@ -14,9 +14,13 @@ module.exports = function(file, api, options) {
       expression.callee.object.name === 'Object' &&
       expression.callee.property.name === 'assign';
 
-    if (expression.type === 'Identifier') {
-      return [j.jsxSpreadAttribute(expression)];
-    } else if (isReactSpread || isObjectAssign) {
+    const validSpreadTypes = [
+      'Identifier',
+      'MemberExpression',
+      'CallExpression',
+    ];
+
+    if (isReactSpread || isObjectAssign) {
       const jsxAttributes = [];
 
       expression.arguments.forEach((expression) =>
@@ -24,6 +28,8 @@ module.exports = function(file, api, options) {
       );
 
       return jsxAttributes;
+    } else if (validSpreadTypes.indexOf(expression.type) != -1) {
+      return [j.jsxSpreadAttribute(expression)];
     } else if (expression.type === 'ObjectExpression') {
       const attributes = expression.properties.map((property) => {
         if (property.type === 'SpreadProperty') {
