@@ -354,8 +354,15 @@ module.exports = (file, api, options) => {
     getInitialState,
     autobindFunctions,
     comments
-  ) =>
-    withComments(j.classDeclaration(
+  ) => {
+    console.log([].concat(
+      createConstructor(
+        getInitialState,
+        autobindFunctions
+      ),
+      properties
+    ));
+    return withComments(j.classDeclaration(
       name ? j.identifier(name) : null,
       j.classBody(
         [].concat(
@@ -372,6 +379,7 @@ module.exports = (file, api, options) => {
         false
       )
     ), {comments});
+  }
 
   const createStaticAssignment = (name, staticProperty) =>
     withComments(j.expressionStatement(
@@ -470,8 +478,9 @@ module.exports = (file, api, options) => {
       path = j(classPath).closest(j.VariableDeclaration);
     }
 
-    const properties =
-      (type == 'exportDefault') ? createStaticClassProperties(statics) : [];
+    // const properties =
+    //  (type == 'exportDefault') ? createStaticClassProperties(statics) : [];
+    const properties = createStaticClassProperties(statics);
 
     path.replaceWith(
       createESClass(
@@ -488,11 +497,14 @@ module.exports = (file, api, options) => {
         staticName,
         statics
       );
+      /*
       if (type == 'moduleExports') {
         root.get().value.program.body.push(...staticAssignments);
       } else {
         path.insertAfter(staticAssignments.reverse());
       }
+      */
+      path.insertAfter(staticAssignments.reverse());
     }
   };
 
