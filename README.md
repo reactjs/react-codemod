@@ -15,6 +15,17 @@ APIs.
 
 ### Included Scripts
 
+#### `class`
+
+Transforms `React.createClass` calls into ES2015 classes.
+
+  * `jscodeshift -t react-codemod/transforms/class.js <file>`
+  * If `--no-super-class` is specified it will not extend
+    `React.Component` if `setState` and `forceUpdate` aren't being called in a
+    class. We do recommend always extending from `React.Component`, especially
+    if you are using or planning to use [Flow](http://flowtype.org/). Also make
+    sure you are not calling `setState` anywhere outside of your component.
+
 #### `create-element-to-jsx`
 
 Converts calls to `React.createElement` into JSX elements.
@@ -31,6 +42,19 @@ to `getDOMNode` and then manually go through the remaining calls.
 
   * `jscodeshift -t react-codemod/transforms/findDOMNode.js <file>`
 
+#### `pure-render-mixin`
+
+Removes `PureRenderMixin` and inlines `shouldComponentUpdate` so that the ES2015
+class transform can pick up the React component and turn it into an ES2015
+class. NOTE: This currently only works if you are using the master version
+(>0.13.1) of React as it is using `React.addons.shallowCompare`
+
+ * `jscodeshift -t react-codemod/transforms/pure-render-mixin.js <file>`
+ * If `--mixin-name=<name>` is specified it will look for the specified name
+   instead of `PureRenderMixin`. Note that it is not possible to use a
+   namespaced name for the mixin. `mixins: [React.addons.PureRenderMixin]` will
+   not currently work.
+
 #### `react-to-react-dom`
 
 Updates code for the split of the `react` and `react-dom` packages (e.g.,
@@ -45,30 +69,6 @@ the `findDOMNode` conversion first.
     as `codemod.py -m -d src --extensions js '(var
     React\s*=\s*require\(.react.\);)\n\n(\s*var ReactDOM)' '\1\n\2'` using
     https://github.com/facebook/codemod.
-
-#### `pure-render-mixin`
-
-Removes `PureRenderMixin` and inlines `shouldComponentUpdate` so that the ES2015
-class transform can pick up the React component and turn it into an ES2015
-class. NOTE: This currently only works if you are using the master version
-(>0.13.1) of React as it is using `React.addons.shallowCompare`
-
- * `jscodeshift -t react-codemod/transforms/pure-render-mixin.js <file>`
- * If `--mixin-name=<name>` is specified it will look for the specified name
-   instead of `PureRenderMixin`. Note that it is not possible to use a
-   namespaced name for the mixin. `mixins: [React.addons.PureRenderMixin]` will
-   not currently work.
-
-#### `class`
-
-Transforms `React.createClass` calls into ES2015 classes.
-
-  * `jscodeshift -t react-codemod/transforms/class.js <file>`
-  * If `--no-super-class` is specified it will not extend
-    `React.Component` if `setState` and `forceUpdate` aren't being called in a
-    class. We do recommend always extending from `React.Component`, especially
-    if you are using or planning to use [Flow](http://flowtype.org/). Also make
-    sure you are not calling `setState` anywhere outside of your component.
 
 These three scripts take an option `--no-explicit-require` if you don't have a
 `require('React')` statement in your code files and if you access React as a
