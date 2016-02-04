@@ -70,10 +70,6 @@ the `findDOMNode` conversion first.
     React\s*=\s*require\(.react.\);)\n\n(\s*var ReactDOM)' '\1\n\2'` using
     https://github.com/facebook/codemod.
 
-These three scripts take an option `--no-explicit-require` if you don't have a
-`require('React')` statement in your code files and if you access React as a
-global.
-
 ### Explanation of the ES2015 class transform
 
   * Ignore components with calls to deprecated APIs. This is very defensive, if
