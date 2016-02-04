@@ -15,33 +15,43 @@ APIs.
 
 ### Included Scripts
 
-`create-element-to-jsx` converts calls to `React.createElement` into JSX elements.
+#### `create-element-to-jsx`
+
+Converts calls to `React.createElement` into JSX elements.
 
   * `jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <file>`
 
-`findDOMNode` updates `this.getDOMNode()` or `this.refs.foo.getDOMNode()`
-calls inside of `React.createClass` components to `React.findDOMNode(foo)`. Note
-that it will only look at code inside of `React.createClass` calls and only
-update calls on the component instance or its refs. You can use this script to
-update most calls to `getDOMNode` and then manually go through the remaining
-calls.
+#### `findDOMNode`
+
+Updates `this.getDOMNode()` or `this.refs.foo.getDOMNode()` calls inside of
+`React.createClass` components to `React.findDOMNode(foo)`. Note that it will
+only look at code inside of `React.createClass` calls and only update calls on
+the component instance or its refs. You can use this script to update most calls
+to `getDOMNode` and then manually go through the remaining calls.
 
   * `jscodeshift -t react-codemod/transforms/findDOMNode.js <file>`
 
-`react-to-react-dom` updates code for the split of the `react` and `react-dom`
-packages (e.g., `React.render` to `ReactDOM.render`). It looks for
-`require('react')` and replaces the appropriate property accesses using
-`require('react-dom')`. It does not support ES6 modules or other non-CommonJS
-systems. We recommend performing the `findDOMNode` conversion first.
+#### `react-to-react-dom`
+
+Updates code for the split of the `react` and `react-dom` packages (e.g.,
+`React.render` to `ReactDOM.render`). It looks for `require('react')` and
+replaces the appropriate property accesses using `require('react-dom')`. It does
+not support ES6 modules or other non-CommonJS systems. We recommend performing
+the `findDOMNode` conversion first.
 
   * `jscodeshift -t react-codemod/transforms/react-to-react-dom.js <file>`
-  * After running the automated codemod, you may want to run a regex-based find-and-replace to remove extra whitespace between the added requires, such as `codemod.py -m -d src --extensions js '(var React\s*=\s*require\(.react.\);)\n\n(\s*var ReactDOM)' '\1\n\2'` using https://github.com/facebook/codemod.
+  * After running the automated codemod, you may want to run a regex-based
+    find-and-replace to remove extra whitespace between the added requires, such
+    as `codemod.py -m -d src --extensions js '(var
+    React\s*=\s*require\(.react.\);)\n\n(\s*var ReactDOM)' '\1\n\2'` using
+    https://github.com/facebook/codemod.
 
-`pure-render-mixin` removes `PureRenderMixin` and inlines
-`shouldComponentUpdate` so that the ES2015 class transform can pick up the React
-component and turn it into an ES2015 class. NOTE: This currently only works if you
-are using the master version (>0.13.1) of React as it is using
-`React.addons.shallowCompare`
+#### `pure-render-mixin`
+
+Removes `PureRenderMixin` and inlines `shouldComponentUpdate` so that the ES2015
+class transform can pick up the React component and turn it into an ES2015
+class. NOTE: This currently only works if you are using the master version
+(>0.13.1) of React as it is using `React.addons.shallowCompare`
 
  * `jscodeshift -t react-codemod/transforms/pure-render-mixin.js <file>`
  * If `--mixin-name=<name>` is specified it will look for the specified name
@@ -49,7 +59,9 @@ are using the master version (>0.13.1) of React as it is using
    namespaced name for the mixin. `mixins: [React.addons.PureRenderMixin]` will
    not currently work.
 
-`class` transforms `React.createClass` calls into ES2015 classes.
+#### `class`
+
+Transforms `React.createClass` calls into ES2015 classes.
 
   * `jscodeshift -t react-codemod/transforms/class.js <file>`
   * If `--no-super-class` is specified it will not extend
