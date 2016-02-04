@@ -19,7 +19,10 @@ APIs.
 
 Transforms `React.createClass` calls into ES2015 classes.
 
-  * `jscodeshift -t react-codemod/transforms/class.js <file>`
+```sh
+jscodeshift -t react-codemod/transforms/class.js <file>
+```
+
   * If `--no-super-class` is specified it will not extend
     `React.Component` if `setState` and `forceUpdate` aren't being called in a
     class. We do recommend always extending from `React.Component`, especially
@@ -30,7 +33,9 @@ Transforms `React.createClass` calls into ES2015 classes.
 
 Converts calls to `React.createElement` into JSX elements.
 
-  * `jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <file>`
+```sh
+jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <file>
+```
 
 #### `findDOMNode`
 
@@ -40,11 +45,15 @@ only look at code inside of `React.createClass` calls and only update calls on
 the component instance or its refs. You can use this script to update most calls
 to `getDOMNode` and then manually go through the remaining calls.
 
-  * `jscodeshift -t react-codemod/transforms/findDOMNode.js <file>`
+```sh
+jscodeshift -t react-codemod/transforms/findDOMNode.js <file>
+```
 
 #### `pure-component`
 
-  * `jscodeshift -t react-codemod/transforms/pure-component.js <file>`
+```sh
+jscodeshift -t react-codemod/transforms/pure-component.js <file>
+```
 
 #### `pure-render-mixin`
 
@@ -53,7 +62,10 @@ class transform can pick up the React component and turn it into an ES2015
 class. NOTE: This currently only works if you are using the master version
 (>0.13.1) of React as it is using `React.addons.shallowCompare`
 
- * `jscodeshift -t react-codemod/transforms/pure-render-mixin.js <file>`
+```sh
+jscodeshift -t react-codemod/transforms/pure-render-mixin.js <file>
+```
+
  * If `--mixin-name=<name>` is specified it will look for the specified name
    instead of `PureRenderMixin`. Note that it is not possible to use a
    namespaced name for the mixin. `mixins: [React.addons.PureRenderMixin]` will
@@ -67,7 +79,10 @@ replaces the appropriate property accesses using `require('react-dom')`. It does
 not support ES6 modules or other non-CommonJS systems. We recommend performing
 the `findDOMNode` conversion first.
 
-  * `jscodeshift -t react-codemod/transforms/react-to-react-dom.js <file>`
+```sh
+jscodeshift -t react-codemod/transforms/react-to-react-dom.js <file>
+```
+
   * After running the automated codemod, you may want to run a regex-based
     find-and-replace to remove extra whitespace between the added requires, such
     as `codemod.py -m -d src --extensions js '(var
@@ -82,7 +97,9 @@ rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/so
 specifically with the [tighter constraints of the Airbnb style
 guide](https://github.com/airbnb/javascript/blob/6c89f958/packages/eslint-config-airbnb/rules/react.js#L47-L57).
 
-  * `jscodeshift -t react-codemod/transforms/sort-comp.js <file>`
+```sh
+jscodeshift -t react-codemod/transforms/sort-comp.js <file>
+```
 
 ### Explanation of the ES2015 class transform
 
@@ -118,6 +135,7 @@ guide](https://github.com/airbnb/javascript/blob/6c89f958/packages/eslint-config
     class.
 
 The constructor logic is as follows:
+
   * Call `super(props, context)` if the base class needs to be extended.
   * Bind all functions that are passed around,
     like `this.foo = this.foo.bind(this)`
@@ -134,4 +152,6 @@ The constructor logic is as follows:
 Options to [recast](https://github.com/benjamn/recast)'s printer can be provided
 through the `printOptions` command line argument
 
- * `jscodeshift -t transform.js <file> --printOptions='{"quote":"double"}'`
+```sh
+jscodeshift -t transform.js <file> --printOptions='{"quote":"double"}'
+```
