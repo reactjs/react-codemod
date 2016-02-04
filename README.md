@@ -42,6 +42,10 @@ to `getDOMNode` and then manually go through the remaining calls.
 
   * `jscodeshift -t react-codemod/transforms/findDOMNode.js <file>`
 
+#### `pure-component`
+
+  * `jscodeshift -t react-codemod/transforms/pure-component.js <file>`
+
 #### `pure-render-mixin`
 
 Removes `PureRenderMixin` and inlines `shouldComponentUpdate` so that the ES2015
