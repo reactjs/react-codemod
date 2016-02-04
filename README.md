@@ -70,6 +70,16 @@ the `findDOMNode` conversion first.
     React\s*=\s*require\(.react.\);)\n\n(\s*var ReactDOM)' '\1\n\2'` using
     https://github.com/facebook/codemod.
 
+#### `sort-comp`
+
+Reorders React component methods to match the [ESLint](http://eslint.org/)
+[react/sort-comp
+rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md),
+specifically with the [tighter constraints of the Airbnb style
+guide](https://github.com/airbnb/javascript/blob/6c89f958/packages/eslint-config-airbnb/rules/react.js#L47-L57).
+
+  * `jscodeshift -t react-codemod/transforms/sort-comp.js <file>`
+
 ### Explanation of the ES2015 class transform
 
   * Ignore components with calls to deprecated APIs. This is very defensive, if
