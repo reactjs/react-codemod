@@ -13,8 +13,6 @@
  *      'render'
  *    ]
  *  }],
- *
- * NOTE: only works on React.createClass() syntax, not ES6 class.
  */
 module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;
@@ -52,14 +50,33 @@ module.exports = function(fileInfo, api, options) {
     }
   };
 
+  const sortClassProperties = classPath => {
+    const spec = ReactUtils.getClassExtendReactSpec(classPath);
+
+    if (spec) {
+      spec.body.sort(propertyComparator);
+    }
+  };
+
   if (
     options['explicit-require'] === false ||
     ReactUtils.hasReact(root)
   ) {
-    const sortCandidates = ReactUtils.findReactCreateClass(root);
+    const createClassSortCandidates = ReactUtils.findReactCreateClass(root);
+    const es6ClassSortCandidates = ReactUtils.findReactES6ClassDeclaration(root);
 
-    if (sortCandidates.size() > 0) {
-      sortCandidates.forEach(sortComponentProperties);
+    if (createClassSortCandidates.size() > 0) {
+      createClassSortCandidates.forEach(sortComponentProperties);
+    }
+
+    if (es6ClassSortCandidates.size() > 0) {
+      es6ClassSortCandidates.forEach(sortClassProperties);
+    }
+
+    if (
+      createClassSortCandidates.size() > 0 ||
+      es6ClassSortCandidates.size() > 0
+    ) {
       return root.toSource(printOptions);
     }
   }
