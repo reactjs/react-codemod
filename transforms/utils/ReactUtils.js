@@ -133,6 +133,8 @@ module.exports = function(j) {
     }
   };
 
+  const getClassExtendReactSpec = classPath => classPath.value.body;
+
   const createCreateReactClassCallExpression = properties =>
     j.callExpression(
       j.memberExpression(
@@ -155,6 +157,7 @@ module.exports = function(j) {
     findReactCreateClassExportDefault,
     getComponentName,
     getReactCreateClassSpec,
+    getClassExtendReactSpec,
     hasMixins,
     hasModule,
     hasReact,
