@@ -1,3 +1,3 @@
 var React = require('react/addons');
 
-React.createElement(React.addons.CSSTransitionGroup, null, "");
+React.createElement(React.addons.CSSTransitionGroup, null, '');
