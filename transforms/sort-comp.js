@@ -125,43 +125,33 @@ const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
  * @returns {Array} The matching patterns indexes. Return [Infinity] if there is no match.
  */
 function getRefPropIndexes(method) {
-  var methodName = method.key.name;
-  var isRegExp;
-  var matching;
-  var i;
-  var j;
-  var indexes = [];
-  // Check for static methods
-  if (indexes.length === 0) {
-    if (method.static) {
-      for (i = 0, j = methodsOrder.length; i < j; i++) {
-        if (methodsOrder[i] === 'static-methods') {
-          indexes.push(i);
-        }
-      }
-    }
-  }
+  const methodName = method.key.name;
+  const selectorCount = methodsOrder.length;
+  const indexes = [];
 
-  // This is not a staic method, so we try to determine where it should go based
-  // on method name.
-  if (indexes.length === 0) {
-    for (i = 0, j = methodsOrder.length; i < j; i++) {
-      isRegExp = methodsOrder[i].match(regExpRegExp);
-      if (isRegExp) {
-        matching = new RegExp(isRegExp[1], isRegExp[2]).test(methodName);
-      } else {
-        matching = methodsOrder[i] === methodName;
-      }
-      if (matching) {
-        indexes.push(i);
-      }
+  for (let i = 0; i < selectorCount; i++) {
+    const selector = methodsOrder[i];
+    let matching;
+
+    if (methodName === selector) {
+      matching = true;
+    } else if (method.static) {
+      matching = selector === 'static-methods';
+    } else {
+      const isRegExp = selector.match(regExpRegExp);
+      matching = isRegExp && (new RegExp(selector)).test(methodName);
+    }
+
+    if (matching) {
+      indexes.push(i);
     }
   }
 
   // No matching pattern, return 'everything-else' index
   if (indexes.length === 0) {
-    for (i = 0, j = methodsOrder.length; i < j; i++) {
-      if (methodsOrder[i] === 'everything-else') {
+    for (let i = 0; i < selectorCount; i++) {
+      const selector = methodsOrder[i];
+      if (selector === 'everything-else') {
         indexes.push(i);
       }
     }
