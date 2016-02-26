@@ -4,6 +4,10 @@ const propTypes = {};
 
 // comment above class
 class MyComponent extends React.Component {
+  static someStaticThing() {
+    // should come first
+  }
+
   // comment on componentDidMount
   componentDidMount() {
   }

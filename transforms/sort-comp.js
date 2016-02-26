@@ -1,10 +1,11 @@
 /**
  * Reorders React component methods to match the [ESLint](http://eslint.org/)
  * [react/sort-comp rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md),
- * specifically with the [tighter constraints of the Airbnb style guide](https://github.com/airbnb/javascript/blob/6c89f9587f96688bf0d4d536adb8eb4ed9bf0002/packages/eslint-config-airbnb/rules/react.js#L47-L57),
+ * specifically with the [tighter constraints of the Airbnb style guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e9b2748b9e/packages/eslint-config-airbnb/rules/react.js#L122-L134),
  *
  *  'react/sort-comp': [2, {
  *    'order': [
+ *      'static-methods',
  *      'lifecycle',
  *      '/^on.+$/',
  *      '/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/',
@@ -28,8 +29,8 @@ module.exports = function(fileInfo, api, options) {
     const nameA = a.key.name;
     const nameB = b.key.name;
 
-    const indexA = getRefPropIndexes(nameA);
-    const indexB = getRefPropIndexes(nameB);
+    const indexA = getRefPropIndexes(a);
+    const indexB = getRefPropIndexes(b);
 
     const sameLocation = indexA.length == 1 && indexB.length == 1 && indexA[0] == indexB[0];
 
@@ -86,6 +87,7 @@ module.exports = function(fileInfo, api, options) {
 
 // Hard-coded for Airbnb style
 const methodsOrder = [
+  'static-methods',
   'displayName',
   'propTypes',
   'contextTypes',
@@ -119,24 +121,40 @@ const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
 
 /**
  * Get indexes of the matching patterns in methods order configuration
- * @param {String} method - Method name.
+ * @param {Object} method
  * @returns {Array} The matching patterns indexes. Return [Infinity] if there is no match.
  */
 function getRefPropIndexes(method) {
+  var methodName = method.key.name;
   var isRegExp;
   var matching;
   var i;
   var j;
   var indexes = [];
-  for (i = 0, j = methodsOrder.length; i < j; i++) {
-    isRegExp = methodsOrder[i].match(regExpRegExp);
-    if (isRegExp) {
-      matching = new RegExp(isRegExp[1], isRegExp[2]).test(method);
-    } else {
-      matching = methodsOrder[i] === method;
+  // Check for static methods
+  if (indexes.length === 0) {
+    if (method.static) {
+      for (i = 0, j = methodsOrder.length; i < j; i++) {
+        if (methodsOrder[i] === 'static-methods') {
+          indexes.push(i);
+        }
+      }
     }
-    if (matching) {
-      indexes.push(i);
+  }
+
+  // This is not a staic method, so we try to determine where it should go based
+  // on method name.
+  if (indexes.length === 0) {
+    for (i = 0, j = methodsOrder.length; i < j; i++) {
+      isRegExp = methodsOrder[i].match(regExpRegExp);
+      if (isRegExp) {
+        matching = new RegExp(isRegExp[1], isRegExp[2]).test(methodName);
+      } else {
+        matching = methodsOrder[i] === methodName;
+      }
+      if (matching) {
+        indexes.push(i);
+      }
     }
   }
 
