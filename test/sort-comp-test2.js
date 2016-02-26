@@ -15,6 +15,10 @@ class MyComponent extends React.Component {
   componentDidMount() {
   }
 
+  static someStaticThing() {
+    // should come first
+  }
+
   renderFoo() {
     // other render* function
   }
