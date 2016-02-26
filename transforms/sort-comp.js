@@ -23,16 +23,18 @@ module.exports = function(fileInfo, api, options) {
   const printOptions =
     options.printOptions || {quote: 'single', trailingComma: true};
 
+  const methodsOrder = options.methodsOrder || defaultMethodsOrder;
+
   const root = j(fileInfo.source);
 
   const propertyComparator = (a, b) => {
     const nameA = a.key.name;
     const nameB = b.key.name;
 
-    const indexA = getRefPropIndexes(a);
-    const indexB = getRefPropIndexes(b);
+    const indexA = getCorrectIndex(methodsOrder, a);
+    const indexB = getCorrectIndex(methodsOrder, b);
 
-    const sameLocation = indexA.length == 1 && indexB.length == 1 && indexA[0] == indexB[0];
+    const sameLocation = indexA === indexB;
 
     if (sameLocation) {
       // compare lexically
@@ -86,7 +88,7 @@ module.exports = function(fileInfo, api, options) {
 };
 
 // Hard-coded for Airbnb style
-const methodsOrder = [
+const defaultMethodsOrder = [
   'static-methods',
   'displayName',
   'propTypes',
@@ -114,53 +116,47 @@ const methodsOrder = [
   'render',
 ];
 
-// Code below from
-// https://github.com/yannickcr/eslint-plugin-react/blob/master/lib/rules/sort-comp.js
-
+// FROM https://github.com/yannickcr/eslint-plugin-react/blob/master/lib/rules/sort-comp.js
 const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
 
-/**
- * Get indexes of the matching patterns in methods order configuration
- * @param {Object} method
- * @returns {Array} The matching patterns indexes. Return [Infinity] if there is no match.
- */
-function getRefPropIndexes(method) {
+function selectorMatches(selector, method) {
+  if (method.static && selector === 'static-methods') {
+    return true;
+  }
+
   const methodName = method.key.name;
-  const selectorCount = methodsOrder.length;
-  const indexes = [];
 
-  for (let i = 0; i < selectorCount; i++) {
-    const selector = methodsOrder[i];
-    let matching;
-
-    if (methodName === selector) {
-      matching = true;
-    } else if (method.static) {
-      matching = selector === 'static-methods';
-    } else {
-      const isRegExp = selector.match(regExpRegExp);
-      matching = isRegExp && (new RegExp(selector)).test(methodName);
-    }
-
-    if (matching) {
-      indexes.push(i);
-    }
+  if (selector === methodName) {
+    return true;
   }
 
-  // No matching pattern, return 'everything-else' index
-  if (indexes.length === 0) {
-    for (let i = 0; i < selectorCount; i++) {
-      const selector = methodsOrder[i];
-      if (selector === 'everything-else') {
-        indexes.push(i);
-      }
+  const selectorIsRe = regExpRegExp.test(selector);
+
+  if (selectorIsRe) {
+    const selectorRe = new RegExp(selector);
+    return selectorRe.test(methodName);
+  }
+
+  return false;
+}
+
+/**
+ * Get index of the matching patterns in methods order configuration
+ * @param {Object} method
+ * @returns {Number} Index of the method in the method ordering. Return [Infinity] if there is no match.
+ */
+function getCorrectIndex(methodsOrder, method) {
+  const everythingElseIndex = methodsOrder.indexOf('everything-else');
+
+  for (let i = 0; i < methodsOrder.length; i++) {
+    if (i != everythingElseIndex && selectorMatches(methodsOrder[i], method)) {
+      return i;
     }
   }
 
-  // No matching pattern and no 'everything-else' group
-  if (indexes.length === 0) {
-    indexes.push(Infinity);
+  if (everythingElseIndex >= 0) {
+    return everythingElseIndex;
+  } else {
+    return Infinity;
   }
-
-  return indexes;
 }

@@ -16,7 +16,7 @@ class MyComponent extends React.Component {
   }
 
   static someStaticThing() {
-    // should come first
+    // should bundle with other statics
   }
 
   renderFoo() {
@@ -25,6 +25,10 @@ class MyComponent extends React.Component {
 
   renderBar() {
     // should come before renderFoo
+  }
+
+  static aStaticThing() {
+    // should come first
   }
 
   myOwnMethod(foo) {
