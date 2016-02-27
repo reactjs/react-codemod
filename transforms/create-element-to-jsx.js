@@ -118,7 +118,10 @@ module.exports = function(file, api, options) {
     }
   };
 
-  if (ReactUtils.hasReact(root)) {
+  if ( 
+    options['explicit-require'] === false ||
+    ReactUtils.hasReact(root)
+  ) {
     const mutations = root
       .find(j.CallExpression, {
         callee: {
