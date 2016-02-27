@@ -4,8 +4,12 @@ const propTypes = {};
 
 // comment above class
 class MyComponent extends React.Component {
-  static someStaticThing() {
+  static aStaticThing() {
     // should come first
+  }
+
+  static someStaticThing() {
+    // should bundle with other statics
   }
 
   // comment on componentDidMount
