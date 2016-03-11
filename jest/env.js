@@ -25,14 +25,15 @@ global.test = (transformName, testFileName, options, fakeOptions) => {
   let path = testFileName + '.js';
   const source = read(testFileName + '.js');
   const output = read(testFileName + '.output.js');
-  const transform = require(
+  let transform = require(
     p.join(global.baseDir, '/transforms/', transformName)
   );
+  if (transform.default) {
+    transform = transform.default;
+  }
 
-  if (fakeOptions) {
-    if (fakeOptions.path) {
-      path = fakeOptions.path;
-    }
+  if (fakeOptions && fakeOptions.path) {
+    path = fakeOptions.path;
   }
 
   expect(

@@ -1,4 +1,16 @@
 /**
+ * Copyright 2013-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ */
+
+'use strict';
+
+/**
  * Reorders React component methods to match the [ESLint](http://eslint.org/)
  * [react/sort-comp rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md),
  * specifically with the [tighter constraints of the Airbnb style guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e9b2748b9e/packages/eslint-config-airbnb/rules/react.js#L122-L134),
@@ -15,6 +27,7 @@
  *    ]
  *  }],
  */
+
 module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;
 
