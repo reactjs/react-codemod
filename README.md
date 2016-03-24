@@ -9,7 +9,7 @@ APIs.
   * `npm install -g jscodeshift`
   * `git clone https://github.com/reactjs/react-codemod.git` or download a zip file
     from `https://github.com/reactjs/react-codemod/archive/master.zip`
-  * `jscodeshift -t <codemod-script> <file>`
+  * `jscodeshift -t <codemod-script> <path>`
   * Use the `-d` option for a dry-run and use `-p` to print the output
     for comparison
 
@@ -20,7 +20,7 @@ APIs.
 Transforms `React.createClass` calls into ES2015 classes.
 
 ```sh
-jscodeshift -t react-codemod/transforms/class.js <file>
+jscodeshift -t react-codemod/transforms/class.js <path>
 ```
 
   * If `--no-super-class` is specified it will not extend
@@ -34,7 +34,7 @@ jscodeshift -t react-codemod/transforms/class.js <file>
 Converts calls to `React.createElement` into JSX elements.
 
 ```sh
-jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <file>
+jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <path>
 ```
 
 #### `findDOMNode`
@@ -46,13 +46,13 @@ the component instance or its refs. You can use this script to update most calls
 to `getDOMNode` and then manually go through the remaining calls.
 
 ```sh
-jscodeshift -t react-codemod/transforms/findDOMNode.js <file>
+jscodeshift -t react-codemod/transforms/findDOMNode.js <path>
 ```
 
 #### `pure-component`
 
 ```sh
-jscodeshift -t react-codemod/transforms/pure-component.js <file>
+jscodeshift -t react-codemod/transforms/pure-component.js <path>
 ```
 
 #### `pure-render-mixin`
@@ -63,7 +63,7 @@ class. NOTE: This currently only works if you are using the master version
 (>0.13.1) of React as it is using `React.addons.shallowCompare`
 
 ```sh
-jscodeshift -t react-codemod/transforms/pure-render-mixin.js <file>
+jscodeshift -t react-codemod/transforms/pure-render-mixin.js <path>
 ```
 
  * If `--mixin-name=<name>` is specified it will look for the specified name
@@ -80,7 +80,7 @@ not support ES6 modules or other non-CommonJS systems. We recommend performing
 the `findDOMNode` conversion first.
 
 ```sh
-jscodeshift -t react-codemod/transforms/react-to-react-dom.js <file>
+jscodeshift -t react-codemod/transforms/react-to-react-dom.js <path>
 ```
 
   * After running the automated codemod, you may want to run a regex-based
@@ -98,7 +98,7 @@ specifically with the [tighter constraints of the Airbnb style
 guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e9b2748b9e/packages/eslint-config-airbnb/rules/react.js#L122-L134).
 
 ```sh
-jscodeshift -t react-codemod/transforms/sort-comp.js <file>
+jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 ```
 
 ### Explanation of the ES2015 class transform
@@ -153,5 +153,5 @@ Options to [recast](https://github.com/benjamn/recast)'s printer can be provided
 through the `printOptions` command line argument
 
 ```sh
-jscodeshift -t transform.js <file> --printOptions='{"quote":"double"}'
+jscodeshift -t transform.js <path> --printOptions='{"quote":"double"}'
 ```
