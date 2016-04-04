@@ -1,9 +1,9 @@
 const style1 = {
-  height: 10,
+  height: '10',
 };
 
 const style2 = {
-  height: 20,
+  height: '20',
 };
 
 class Cool extends Component {

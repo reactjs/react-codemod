@@ -15,6 +15,7 @@ describe('append px to style properties', () => {
   it('transforms correctly', () => {
 
     test('append-px-to-style-properties', 'append-px-to-style-properties-basic-transform', {
+      transformNumbers: true,
       printOptions: {quote: 'single'},
     });
 
@@ -42,6 +43,10 @@ describe('append px to style properties', () => {
       printOptions: {quote: 'single'},
     });
 
+    test('append-px-to-style-properties', 'append-px-to-style-properties-no-transform-non-numeric', {
+      printOptions: {quote: 'single'},
+    });
+
   });
 
   it('transforms correctly and ignores specified properties', () => {
@@ -50,4 +55,11 @@ describe('append px to style properties', () => {
       printOptions: {quote: 'single'},
     });
   });  
+
+  it('transforms numbers as well when transformNumbers is set', () => {
+    test('append-px-to-style-properties', 'append-px-to-style-properties-transform-numbers', {
+      transformNumbers: true,
+      printOptions: {quote: 'single'},
+    });
+  });
 });

@@ -103,11 +103,12 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 
 #### `append-px-to-style-properties`
 
-Updates code to get rid of warnings in React 15 when using shorthand style syntax. Future versions of React will not automatically append `px` to the end of values specified with shorthand. Optionally you can pass comma delimited values to `ignore` on the command line for style properties you want to specifically not transform.
+Updates code to get rid of warnings in React 15 when using shorthand style syntax in string without `px`. Future versions of React will not automatically append `px` to the end of values specified with shorthand inside string. Optionally you can pass comma delimited values to `ignore` on the command line for style properties you want to specifically not transform. By default will only transform string values with `px` suffix but you can optionally pass in `transformNumbers=true` on the command line to also transform number values to string with `px` suffix.
 
 ```sh
 jscodeshift -t react-codemod/transforms/react-to-react-dom.js <path>
 jscodeshift -t react-codemod/transforms/react-to-react-dom.js --ignore='fontSize,height' <path>
+jscodeshift -t react-codemod/transforms/react-to-react-dom.js --transformNumbers=true <path>
 ```
 
 ### Explanation of the ES2015 class transform

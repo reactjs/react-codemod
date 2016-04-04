@@ -47,12 +47,19 @@ module.exports = function(file, api, options) {
       toIgnore.forEach(i => itemsToNotSuffixWithPx.add(i));
     }
   }
+  const transformNumbers = options.transformNumbers;
   const printOptions = options.printOptions || {};
   const j = api.jscodeshift;
   const root = j(file.source);
 
   const shouldSuffixIfIntergerValue = attr => !itemsToNotSuffixWithPx.has(attr);
-
+  const doesNeedSuffix = val => {
+    if (typeof val === 'string') {
+      const isNumString = !isNaN(Number(val));
+      return isNumString && !val.includes('px');
+    }
+    return transformNumbers && typeof val === 'number'; 
+  };
   const getStyle = attrs => attrs.find(attr => attr.name && attr.name.name === 'style');
 
   function transformProperties(props) {
@@ -63,16 +70,16 @@ module.exports = function(file, api, options) {
         const key = p.key.type === 'Identifier' ? p.key.name : p.key.value;
         let val = p.value.value;
         if (val === undefined) {
-          if (p.value.type === 'UnaryExpression') {
+          if (transformNumbers && p.value.type === 'UnaryExpression') {
             val = parseInt(`${p.value.operator}${p.value.argument.value}`, 10); 
-            if (shouldSuffixIfIntergerValue(key) && typeof val === 'number') {
+            if (shouldSuffixIfIntergerValue(key) && doesNeedSuffix(val)) {
               p.value.operator = '';
               p.value.argument.value = `${val}px`;
             }  
             return;
           }
         }
-        if (shouldSuffixIfIntergerValue(key) && typeof val === 'number') {
+        if (shouldSuffixIfIntergerValue(key) && doesNeedSuffix(val)) {
           p.value.value = `${val}px`;
         }
       }
