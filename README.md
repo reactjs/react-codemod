@@ -101,6 +101,15 @@ guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e
 jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 ```
 
+#### `append-px-to-style-properties`
+
+Updates code to get rid of warnings in React 15 when using shorthand style syntax. Future versions of React will not automatically append `px` to the end of values specified with shorthand. Optionally you can pass comma delimited values to `ignore` on command line for style properties you want to specifically not transform.
+
+```sh
+jscodeshift -t react-codemod/transforms/react-to-react-dom.js <path>
+jscodeshift -t react-codemod/transforms/react-to-react-dom.js --ignore='fontSize,height' <path>
+```
+
 ### Explanation of the ES2015 class transform
 
   * Ignore components with calls to deprecated APIs. This is very defensive, if
