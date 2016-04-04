@@ -103,7 +103,7 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 
 #### `append-px-to-style-properties`
 
-Updates code to get rid of warnings in React 15 when using shorthand style syntax. Future versions of React will not automatically append `px` to the end of values specified with shorthand. Optionally you can pass comma delimited values to `ignore` on command line for style properties you want to specifically not transform.
+Updates code to get rid of warnings in React 15 when using shorthand style syntax. Future versions of React will not automatically append `px` to the end of values specified with shorthand. Optionally you can pass comma delimited values to `ignore` on the command line for style properties you want to specifically not transform.
 
 ```sh
 jscodeshift -t react-codemod/transforms/react-to-react-dom.js <path>

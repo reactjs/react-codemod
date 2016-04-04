@@ -7,3 +7,4 @@ class Cool extends React.Component {
     return <div style={{fontSize: 10}}><div style={style}>Hello</div><div style={style2}>Hello</div></div>;
   }
 }
+  
