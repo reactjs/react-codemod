@@ -128,10 +128,14 @@ function getDOMNodeToFindDOMNode(file, api, options) {
     options['explicit-require'] === false ||
     ReactUtils.hasReact(root)
   ) {
-    const didTransform = ReactUtils
-      .findReactCreateClass(root)
-      .filter(updateToFindDOMNode)
-      .size() > 0;
+    const apply = (path) =>
+      path.filter(updateToFindDOMNode);
+
+    const didTransform = (
+      apply(ReactUtils.findReactCreateClass(root)).size() +
+      apply(ReactUtils.findReactCreateClassModuleExports(root)).size() +
+      apply(ReactUtils.findReactCreateClassExportDefault(root)).size()
+    ) > 0;
 
     if (didTransform) {
       return root.toSource(printOptions);
