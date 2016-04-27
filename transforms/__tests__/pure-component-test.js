@@ -10,12 +10,6 @@
 
 'use strict';
 
-describe('sort-comp', () => {
-
-  it('transforms correctly', () => {
-    test('sort-comp', 'sort-comp-test');
-
-    test('sort-comp', 'sort-comp-test2');
-  });
-
-});
+const defineTest = require('jscodeshift/dist/testUtils').defineTest;
+defineTest(__dirname, 'pure-component');
+defineTest(__dirname, 'pure-component', {useArrows: true}, 'pure-component2');

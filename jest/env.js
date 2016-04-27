@@ -21,6 +21,11 @@ const read = fileName => fs.readFileSync(
 );
 
 global.test = (transformName, testFileName, options, fakeOptions) => {
+  console.warn(
+    'react-codemod test() is deprecated. Please use jscodeshift testUtils ' +
+    'instead. See http://dl.vc/jscodeshift-test'
+  );
+
   const jscodeshift = require('jscodeshift');
   const source = read(testFileName + '.js');
   const output = read(testFileName + '.output.js');

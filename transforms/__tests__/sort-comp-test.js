@@ -10,16 +10,6 @@
 
 'use strict';
 
-describe('class', () => {
-
-  it('transforms correctly', () => {
-    test('class', 'class-test');
-
-    test('class', 'class-test2');
-  });
-
-  it('transforms exports class correctly', () => {
-    test('class', 'export-default-class-test');
-  });
-
-});
+const defineTest = require('jscodeshift/dist/testUtils').defineTest;
+defineTest(__dirname, 'sort-comp');
+defineTest(__dirname, 'sort-comp', null, 'sort-comp2');
