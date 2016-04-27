@@ -10,14 +10,6 @@
 
 'use strict';
 
-describe('pure-component', () => {
-
-  it('transforms correctly', () => {
-    test('pure-component', 'pure-component-test');
-
-    test('pure-component', 'pure-component-test2', {
-      useArrows: true,
-    });
-  });
-
-});
+const defineTest = require('jscodeshift/dist/testUtils').defineTest;
+defineTest(__dirname, 'class');
+defineTest(__dirname, 'class', null, 'export-default-class');
