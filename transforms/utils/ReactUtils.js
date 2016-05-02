@@ -86,22 +86,59 @@ module.exports = function(j) {
       });
 
   // ---------------------------------------------------------------------------
-  // Finds all classes that extend React.Component
-  const findReactES6ClassDeclaration = path =>
-    path
-      .find(j.ClassDeclaration, {
-        superClass: {
-          type: 'MemberExpression',
-          object: {
-            type: 'Identifier',
-            name: 'React',
-          },
-          property: {
-            type: 'Identifier',
-            name: 'Component',
-          },
+  // Finds alias for React.Component if used as named import.
+  const findReactComponentName = path => {
+    const reactImportDeclaration = path
+      .find(j.ImportDeclaration, {
+        type: 'ImportDeclaration',
+        source: {
+          type: 'Literal',
         },
-      });
+      })
+      .filter(importDeclaration => hasReact(path));
+
+    const componentImportSpecifier = reactImportDeclaration
+      .find(j.ImportSpecifier, {
+        type: 'ImportSpecifier',
+        imported: {
+          type: 'Identifier',
+          name: 'Component',
+        },
+      }).at(0);
+
+    const paths = componentImportSpecifier.paths();
+    return paths.length
+      ? paths[0].value.local.name
+      : undefined;
+  };
+
+  // Finds all classes that extend React.Component
+  const findReactES6ClassDeclaration = path => {
+    const componentImport = findReactComponentName(path);
+    const selector = componentImport
+      ? {
+          superClass: {
+            type: 'Identifier',
+            name: componentImport,
+          },
+        }
+      : {
+          superClass: {
+            type: 'MemberExpression',
+            object: {
+              type: 'Identifier',
+              name: 'React',
+            },
+            property: {
+              type: 'Identifier',
+              name: 'Component',
+            },
+          }
+        };
+
+    return path
+     .find(j.ClassDeclaration, selector);
+  };
 
   // ---------------------------------------------------------------------------
   // Checks if the React class has mixins
