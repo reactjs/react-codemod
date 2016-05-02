@@ -41,7 +41,8 @@ module.exports = function(j) {
   const hasReact = path => (
     hasModule(path, 'React') ||
     hasModule(path, 'react') ||
-    hasModule(path, 'react/addons')
+    hasModule(path, 'react/addons') ||
+    hasModule(path, 'react-native')
   );
 
   // ---------------------------------------------------------------------------
