@@ -117,24 +117,24 @@ module.exports = function(j) {
     const componentImport = findReactComponentName(path);
     const selector = componentImport
       ? {
-          superClass: {
-            type: 'Identifier',
-            name: componentImport,
-          },
-        }
+        superClass: {
+          type: 'Identifier',
+          name: componentImport,
+        },
+      }
       : {
-          superClass: {
-            type: 'MemberExpression',
-            object: {
-              type: 'Identifier',
-              name: 'React',
-            },
-            property: {
-              type: 'Identifier',
-              name: 'Component',
-            },
-          }
-        };
+        superClass: {
+          type: 'MemberExpression',
+          object: {
+            type: 'Identifier',
+            name: 'React',
+          },
+          property: {
+            type: 'Identifier',
+            name: 'Component',
+          },
+        },
+      };
 
     return path
      .find(j.ClassDeclaration, selector);
