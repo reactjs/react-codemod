@@ -1,0 +1,11 @@
+---
+plugins:
+  - react
+rules:
+  no-undef: 0
+  no-unused-vars: 0
+  react/sort-comp:
+    - 0
+    - order:
+      - everything-else
+      - render

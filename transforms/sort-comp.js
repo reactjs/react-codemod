@@ -37,7 +37,6 @@ module.exports = function(fileInfo, api, options) {
     options.printOptions || {quote: 'single', trailingComma: true};
 
   const methodsOrder = getMethodsOrder(fileInfo, options);
-  console.log('using methodsOrder', methodsOrder);
 
   const root = j(fileInfo.source);
 
@@ -182,7 +181,6 @@ function getMethodsOrderFromEslint(filePath) {
   });
 
   const config = cli.getConfigForFile(filePath);
-
   const { rules } = config;
   const sortCompRules = rules['react/sort-comp'];
 
