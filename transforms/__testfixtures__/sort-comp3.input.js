@@ -1,3 +1,15 @@
+/*
+eslint "react/sort-comp": [
+  1,
+  {
+    order: [
+      "render",
+      "everything-else"
+    ]
+  }
+]
+*/
+
 import React, { Component } from 'react/addons';
 
 const propTypes = {};

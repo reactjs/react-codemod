@@ -26,5 +26,8 @@
     "testPathDirs": [
       "transforms/__tests__"
     ]
+  },
+  "devDependencies": {
+    "eslint-plugin-react": "^5.1.1"
   }
 }

@@ -36,7 +36,8 @@ module.exports = function(fileInfo, api, options) {
   const printOptions =
     options.printOptions || {quote: 'single', trailingComma: true};
 
-  const methodsOrder = options.methodsOrder || defaultMethodsOrder;
+  const methodsOrder = getMethodsOrder(fileInfo, options);
+  console.log('using methodsOrder', methodsOrder);
 
   const root = j(fileInfo.source);
 
@@ -172,4 +173,24 @@ function getCorrectIndex(methodsOrder, method) {
   } else {
     return Infinity;
   }
+}
+
+function getMethodsOrderFromEslint(filePath) {
+  const CLIEngine = require('eslint').CLIEngine;
+  const cli = new CLIEngine({
+    useEslintrc: true,
+  });
+
+  const config = cli.getConfigForFile(filePath);
+
+  const { rules } = config;
+  const sortCompRules = rules['react/sort-comp'];
+
+  return sortCompRules && sortCompRules[1].order;
+}
+
+function getMethodsOrder(fileInfo, options) {
+  return options.methodsOrder
+    || getMethodsOrderFromEslint(fileInfo.path)
+    || defaultMethodsOrder;
 }
