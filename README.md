@@ -93,8 +93,7 @@ jscodeshift -t react-codemod/transforms/react-to-react-dom.js <path>
 
 Reorders React component methods to match the [ESLint](http://eslint.org/)
 [react/sort-comp
-rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md),
-specifically with the [tighter constraints of the Airbnb style
+rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md). (Defaults to ordering of the [Airbnb style
 guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e9b2748b9e/packages/eslint-config-airbnb/rules/react.js#L122-L134).
 
 ```sh
