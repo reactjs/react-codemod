@@ -176,14 +176,10 @@ function getCorrectIndex(methodsOrder, method) {
 
 function getMethodsOrderFromEslint(filePath) {
   const CLIEngine = require('eslint').CLIEngine;
-  const cli = new CLIEngine({
-    useEslintrc: true,
-  });
-
+  const cli = new CLIEngine({ useEslintrc: true });
   const config = cli.getConfigForFile(filePath);
-  const { rules } = config;
+  const {rules} = config;
   const sortCompRules = rules['react/sort-comp'];
-
   return sortCompRules && sortCompRules[1].order;
 }
 
