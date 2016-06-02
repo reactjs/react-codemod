@@ -126,6 +126,12 @@ describe('create-element-to-jsx', () => {
     null,
     'create-element-to-jsx-gt-lt-entities'
   );
+  defineTest(
+    __dirname,
+    'create-element-to-jsx',
+    null,
+    'create-element-to-jsx-no-props-arg'
+  );
 
   it('throws when it does not recognize a property type', () => {
     const jscodeshift = require('jscodeshift');
