@@ -175,12 +175,18 @@ function getCorrectIndex(methodsOrder, method) {
 }
 
 function getMethodsOrderFromEslint(filePath) {
+  let order;
   const CLIEngine = require('eslint').CLIEngine;
   const cli = new CLIEngine({ useEslintrc: true });
-  const config = cli.getConfigForFile(filePath);
-  const {rules} = config;
-  const sortCompRules = rules['react/sort-comp'];
-  return sortCompRules && sortCompRules[1].order;
+  try {
+    const config = cli.getConfigForFile(filePath);
+    const {rules} = config;
+    const sortCompRules = rules['react/sort-comp'];
+    order = sortCompRules && sortCompRules[1].order;
+  } catch (e) {
+    // unable to get config for file
+  }
+  return order;
 }
 
 function getMethodsOrder(fileInfo, options) {
