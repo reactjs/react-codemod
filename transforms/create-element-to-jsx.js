@@ -101,7 +101,7 @@ module.exports = function(file, api, options) {
     const jsxIdentifier = jsxIdentifierFor(args[0]);
     const props = args[1];
 
-    const attributes = convertExpressionToJSXAttributes(props);
+    const attributes = props ? convertExpressionToJSXAttributes(props) : [];
 
     const children = node.value.arguments.slice(2).map((child, index) => {
       if (child.type === 'Literal' && typeof child.value === 'string') {
