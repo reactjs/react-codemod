@@ -11,5 +11,5 @@
 'use strict';
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
-defineTest(__dirname, 'class-arrow');
-defineTest(__dirname, 'class-arrow', null, 'export-default-class-arrow');
+defineTest(__dirname, 'property-initializer');
+defineTest(__dirname, 'property-initializer', null, 'export-default-property-initializer');
