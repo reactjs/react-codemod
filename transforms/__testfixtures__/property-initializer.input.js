@@ -16,7 +16,7 @@ var MyComponent = React.createClass({
     };
   },
 
-  foo: function() {
+  foo: function(): void {
     this.setState({heyoo: 24});
   },
 });
@@ -26,7 +26,7 @@ var MyComponent2 = React.createClass({
   getDefaultProps: function() {
     return {a: 1};
   },
-  foo: function() {
+  foo: function(): void {
     pass(this.foo);
     this.forceUpdate();
   },
@@ -35,7 +35,7 @@ var MyComponent2 = React.createClass({
 var MyComponent3 = React.createClass({
   statics: {
     someThing: 10,
-    foo: function() {},
+    funcThatDoesNothing: function(): void {},
   },
   propTypes: {
     highlightEntities: React.PropTypes.bool,
@@ -47,7 +47,7 @@ var MyComponent3 = React.createClass({
   },
 
   getDefaultProps: function() {
-    foo();
+    unboundFunc();
     return {
       linkifyEntities: true,
       highlightEntities: false,
@@ -61,11 +61,11 @@ var MyComponent3 = React.createClass({
     };
   },
 
-  _renderText: function(text) {
+  _renderText: function(text: string): ReactElement<any> {
     return <Text text={text} />;
   },
 
-  _renderImageRange: function(text, range) {
+  _renderImageRange: function(text: string, range): ReactElement<any> {
     var image = range.image;
     if (image) {
       return (
@@ -79,10 +79,10 @@ var MyComponent3 = React.createClass({
   },
 
   autobindMe: function() {},
-  dontAutobindMe: function() {},
+  dontAutobindMe: function(): number { return 12; },
 
   // Function comment
-  _renderRange: function(text, range) {
+  _renderRange: function(text: string, range, bla: Promise<string>): ReactElement<any> {
     var self = this;
 
     self.dontAutobindMe();

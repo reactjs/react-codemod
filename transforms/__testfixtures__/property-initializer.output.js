@@ -18,7 +18,7 @@ class MyComponent extends React.Component {
     };
   }
 
-  foo() {
+  foo(): void {
     this.setState({heyoo: 24});
   }
 }
@@ -30,7 +30,7 @@ class MyComponent2 extends React.Component {
     this.foo = this.foo.bind(this);
   }
 
-  foo() {
+  foo(): void {
     pass(this.foo);
     this.forceUpdate();
   }
@@ -51,11 +51,11 @@ class MyComponent3 extends React.Component {
     };
   }
 
-  _renderText(text) {
+  _renderText(text: string): ReactElement<any> {
     return <Text text={text} />;
   }
 
-  _renderImageRange(text, range) {
+  _renderImageRange(text: string, range): ReactElement<any> {
     var image = range.image;
     if (image) {
       return (
@@ -69,10 +69,10 @@ class MyComponent3 extends React.Component {
   }
 
   autobindMe() {}
-  dontAutobindMe() {}
+  dontAutobindMe(): number { return 12; }
 
   // Function comment
-  _renderRange(text, range) {
+  _renderRange(text: string, range, bla: Promise<string>): ReactElement<any> {
     var self = this;
 
     self.dontAutobindMe();
@@ -112,14 +112,14 @@ class MyComponent3 extends React.Component {
 }
 
 MyComponent3.defaultProps = function() {
-  foo();
+  unboundFunc();
   return {
     linkifyEntities: true,
     highlightEntities: false,
   };
 }();
 
-MyComponent3.foo = function() {};
+MyComponent3.funcThatDoesNothing = function(): void {};
 
 MyComponent3.propTypes = {
   highlightEntities: React.PropTypes.bool,
