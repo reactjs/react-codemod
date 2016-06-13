@@ -283,7 +283,7 @@ module.exports = (file, api, options) => {
       })
       .forEach(path => j(path).replaceWith(j.identifier('props')));
 
-  const liftGetInitialState = getInitialState =>
+  const inlineGetInitialState = getInitialState =>
     getInitialState.value.body.body.map(statement => {
       if (statement.type === 'ReturnStatement') {
         return j.expressionStatement(
@@ -344,7 +344,7 @@ module.exports = (file, api, options) => {
                   )
                 ),
               ],
-              liftGetInitialState(getInitialState)
+              inlineGetInitialState(getInitialState)
             )
           )
         ),
