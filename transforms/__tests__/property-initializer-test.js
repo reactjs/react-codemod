@@ -13,3 +13,4 @@
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 defineTest(__dirname, 'property-initializer');
 defineTest(__dirname, 'property-initializer', null, 'property-initializer-2');
+defineTest(__dirname, 'property-initializer', null, 'export-default-property-initializer');

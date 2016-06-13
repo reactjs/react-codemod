@@ -156,9 +156,7 @@ The constructor logic is as follows:
   * Pulls out all statics defined on `statics` plus the few special cased
     statics like `propTypes`, `childContextTypes`, `contextTypes`, and
     `displayName` and transforms them to `static` properties at the very top.
-    like `static displayName = 'Counter';`
-    * TODO do we bind stuff in the `static` object?
-  * Takes `getDefaultProps` and inlines it as a static `defaultProps`.
+  * Takes `getDefaultProps` and inlines it as `static defaultProps = ...;`.
     If `getDefaultProps` is defined as a function with a single statement that
     returns an object, it optimizes and transforms
     `getDefaultProps() { return {foo: 'bar'}; }` into
@@ -168,33 +166,19 @@ The constructor logic is as follows:
     will be executed only a single time per app-lifetime. In practice this
     hasn't caused any issues – `getDefaultProps` should not contain any
     side-effects.
+  * If there exists references to `this.props` in `getInitialState` then it creates
+    a constructor and converts `getInitialState` to an assignment to `this.state`;
+    Otherwise it lifts `getInitialState` to a property initializer (`state = ...;`).
   * Transforms class methods to arrow functions as class property initializers
     (i.e., to bind them) if methods are referenced without being
     called directly. It checks for `this.foo` but also traces variable
     assignments like `var self = this; self.foo`. It does not bind functions
     from the React API (lifecycle methods) and ignores functions that are being
     called directly (unless it is both called directly and passed around to
-    somewhere else)
-  * TODO how do we handle `getInitialState`?
-    * If we reference `this.props` in `getInitialState` then it
-      has to be in the constructor
-    * Otherwise it's simple and just make it a property initializer
-  * TODO [???] When `--no-super-class` is passed it only optionally extends
+    somewhere else).
+  * TODO When `--no-super-class` is passed it only optionally extends
     `React.Component` when `setState` or `forceUpdate` are used within the
     class.
-
-The constructor logic is as follows:
-
-  * Call `super(props, context)` if the base class needs to be extended.
-  * Bind all functions that are passed around,
-    like `this.foo = this.foo.bind(this)`
-  * Inline `getInitialState` (and remove `getInitialState` from the spec). It
-    also updates access of `this.props.foo` to `props.foo` and adds `props` as
-    argument to the constructor. This is necessary in the case when the base
-    class does not need to be extended where `this.props` will only be set by
-    React after the constructor has been run.
-  * Changes `return StateObject` from `getInitialState` to assign `this.state`
-    directly.
 
 ### Recast Options
 
