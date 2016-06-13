@@ -158,6 +158,35 @@ module.exports = function(j) {
     return spec && spec.properties.some(isMixinProperty);
   };
 
+  const containSameElements = (ls1, ls2) => {
+    if (ls1.length !== ls2.length) {
+      return false;
+    }
+
+    return (
+      ls1.reduce((res, x) => res && ls2.indexOf(x) !== -1, true) &&
+      ls2.reduce((res, x) => res && ls1.indexOf(x) !== -1, true)
+    );
+  };
+
+  const isSpecificMixinsProperty = (property, mixinIdentifierNames) => {
+    const key = property.key;
+    const value = property.value;
+
+    return (
+      key.name === 'mixins' &&
+      value.type === 'ArrayExpression' &&
+      Array.isArray(value.elements) &&
+      value.elements.every(elem => elem.type === 'Identifier') &&
+      containSameElements(value.elements.map(elem => elem.name), mixinIdentifierNames)
+    );
+  };
+
+  const hasSpecificMixins = (classPath, mixinIdentifierNames) => {
+    const spec = getReactCreateClassSpec(classPath);
+    return spec && spec.properties.some(prop => isSpecificMixinsProperty(prop, mixinIdentifierNames));
+  };
+
   // ---------------------------------------------------------------------------
   // Others
   const getReactCreateClassSpec = classPath => {
@@ -197,6 +226,7 @@ module.exports = function(j) {
     getReactCreateClassSpec,
     getClassExtendReactSpec,
     hasMixins,
+    hasSpecificMixins,
     hasModule,
     hasReact,
     isMixinProperty,

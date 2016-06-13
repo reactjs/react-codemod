@@ -54,6 +54,8 @@ module.exports = (file, api, options) => {
     propTypes: true,
   };
 
+  const MIXIN_KEY = 'mixins';
+
   // ---------------------------------------------------------------------------
   // Checks if the module uses mixins or accesses deprecated APIs.
   const checkDeprecatedAPICalls = classPath =>
@@ -86,7 +88,8 @@ module.exports = (file, api, options) => {
         STATIC_KEY != prop.key.name &&
         !filterDefaultPropsField(prop) &&
         !filterGetInitialStateField(prop) &&
-        !isFunctionExpression(prop)
+        !isFunctionExpression(prop) &&
+        MIXIN_KEY != prop.key.name
       )
     ));
 
@@ -105,11 +108,14 @@ module.exports = (file, api, options) => {
     return !invalidProperties.length;
   };
 
-  const hasMixins = classPath => {
-    if (ReactUtils.hasMixins(classPath)) {
+  const hasInconvertibleMixins = classPath => {
+    if (
+      ReactUtils.hasMixins(classPath) &&
+      !ReactUtils.hasSpecificMixins(classPath, ['ReactComponentWithPureRenderMixin'])
+    ) {
       console.log(
         file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
-        'was skipped because of mixins.'
+        'was skipped because of inconvertible mixins.'
       );
       return false;
     }
@@ -150,32 +156,32 @@ module.exports = (file, api, options) => {
     node.value.type === 'FunctionExpression'
   );
 
-  // - collects everything in the `statics` property object
-  // - `childContextTypes`, `contextTypes`, `displayName`, and `propTypes`
-  // - simplifies `getDefaultProps` or converts it to an IIFE
+  // Collects `childContextTypes`, `contextTypes`, `displayName`, and `propTypes` first;
+  // then simplifies `getDefaultProps` or converts it to an IIFE;
+  // finally it collects everything in the `statics` property object.
   const collectStatics = specPath => {
-    const statics = specPath.properties.find(createFindPropFn('statics'));
-    const staticsObject =
-      (statics && statics.value && statics.value.properties) || [];
+    let result = specPath.properties.filter(property =>
+      property.key && STATIC_KEYS[property.key.name]
+    );
 
     const getDefaultProps = findGetDefaultProps(specPath);
     if (getDefaultProps) {
-      staticsObject.push(createDefaultProps(getDefaultProps));
+      result.push(createDefaultProps(getDefaultProps));
     }
 
-    return (
-      staticsObject.concat(specPath.properties.filter(property =>
-        property.key && STATIC_KEYS[property.key.name]
-      ))
-      .sort((a, b) => a.key.name > b.key.name)
+    const statics = specPath.properties.find(createFindPropFn('statics'));
+    result = result.concat(
+      (statics && statics.value && statics.value.properties) || []
     );
+
+    return result;
   };
 
   const collectFunctions = specPath => specPath.properties
     .filter(prop =>
       !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
     )
-    .filter(isFunctionExpression); // TODO how about stuff that are not functions?
+    .filter(isFunctionExpression);
 
   const findAutobindNamesFor = (subtree, fnNames, literalOrIdentifier) => {
     const node = literalOrIdentifier;
@@ -237,7 +243,7 @@ module.exports = (file, api, options) => {
         ).forEach(add)
       );
 
-    return Object.keys(autobindNames).sort((a, b) => a > b);
+    return Object.keys(autobindNames);
   };
 
   // ---------------------------------------------------------------------------
@@ -249,7 +255,7 @@ module.exports = (file, api, options) => {
       fn.value
     ), fn);
 
-  const isInitialStateSimple = getInitialState =>
+  const isInitialStateLiftable = getInitialState =>
     getInitialState ?
       j(getInitialState)
         .find(j.MemberExpression, {
@@ -277,7 +283,7 @@ module.exports = (file, api, options) => {
       })
       .forEach(path => j(path).replaceWith(j.identifier('props')));
 
-  const inlineGetInitialState = getInitialState =>
+  const liftGetInitialState = getInitialState =>
     getInitialState.value.body.body.map(statement => {
       if (statement.type === 'ReturnStatement') {
         return j.expressionStatement(
@@ -296,7 +302,7 @@ module.exports = (file, api, options) => {
       return statement;
     });
 
-  const createInitialStateValue = value => {
+  const pickReturnValueOrCreateIIFE = value => {
     if (hasSingleReturnStatement(value)) {
       return value.body.body[0].argument;
     } else {
@@ -310,7 +316,7 @@ module.exports = (file, api, options) => {
   const convertInitialStateToClassProperty = getInitialState =>
     withComments(j.classProperty(
       j.identifier('state'),
-      createInitialStateValue(getInitialState.value),
+      pickReturnValueOrCreateIIFE(getInitialState.value),
       null,
       false
     ), getInitialState);
@@ -320,7 +326,7 @@ module.exports = (file, api, options) => {
   };
 
   const createConstructor = getInitialState => {
-    updatePropsAccess(getInitialState); // TODO no side-effects?
+    updatePropsAccess(getInitialState);
 
     return [
       createMethodDefinition({
@@ -338,7 +344,7 @@ module.exports = (file, api, options) => {
                   )
                 ),
               ],
-              inlineGetInitialState(getInitialState)
+              liftGetInitialState(getInitialState)
             )
           )
         ),
@@ -346,13 +352,14 @@ module.exports = (file, api, options) => {
     ];
   };
 
-  const createArrowFunctionExpression = fn => j.arrowFunctionExpression(
-    fn.params,
-    fn.body,
-    false
-  );
+  const createArrowFunctionExpression = fn =>
+    j.arrowFunctionExpression(
+      fn.params,
+      fn.body,
+      false
+    );
 
-  const createArrowPropertyFromMethod = method =>
+  const createArrowPropertyFromMethod = method => // TODO fix flow annotations
     withComments(j.classProperty(
       j.identifier(method.key.name),
       createArrowFunctionExpression(method.value),
@@ -362,10 +369,18 @@ module.exports = (file, api, options) => {
 
   // if there's no `getInitialState` or the `getInitialState` function is simple
   // (i.e., it does not reference `this.props`) then we don't need a constructor.
-  // we can simply do `state = {...}` as a property initializer.
+  // we can simply lift `state = {...}` as a property initializer.
   // otherwise, create a constructor and inline `this.state = ...`.
+  //
+  // It creates a class with the following order of properties/methods:
+  // 1. static properties
+  // 2. constructor (if necessary)
+  // 3. new properties (`state = {...};`)
+  // 4. arrow functions
+  // 5. other methods
   const createESClass = (
     name,
+    baseClassName,
     staticProperties,
     getInitialState,
     autobindFunctionNames,
@@ -375,7 +390,7 @@ module.exports = (file, api, options) => {
     let newConstructor = [];
     const newProperties = [];
 
-    if (isInitialStateSimple(getInitialState)) {
+    if (isInitialStateLiftable(getInitialState)) {
       if (getInitialState) {
         newProperties.push(convertInitialStateToClassProperty(getInitialState));
       }
@@ -395,8 +410,6 @@ module.exports = (file, api, options) => {
       }
     }
 
-    arrowBindFunctions.sort((a, b) => a.key.name > b.key.name);
-
     return withComments(j.classDeclaration(
       name ? j.identifier(name) : null,
       j.classBody(
@@ -410,7 +423,7 @@ module.exports = (file, api, options) => {
       ),
       j.memberExpression(
         j.identifier('React'),
-        j.identifier('Component'),
+        j.identifier(baseClassName),
         false
       )
     ), {comments});
@@ -438,23 +451,12 @@ module.exports = (file, api, options) => {
     value.body.body[0].argument.type === 'ObjectExpression'
   );
 
-  const createDefaultPropsValue = value => {
-    if (hasSingleReturnStatement(value)) {
-      return value.body.body[0].argument;
-    } else {
-      return j.callExpression(
-        value,
-        []
-      );
-    }
-  };
-
   const createDefaultProps = prop =>
     withComments(
       j.property(
         'init',
         j.identifier(DEFAULT_PROPS_KEY),
-        createDefaultPropsValue(prop.value)
+        pickReturnValueOrCreateIIFE(prop.value)
       ),
       prop
     );
@@ -488,10 +490,15 @@ module.exports = (file, api, options) => {
     }
 
     const staticProperties = createStaticClassProperties(statics);
+    const baseClassName =
+      ReactUtils.hasSpecificMixins(classPath, ['ReactComponentWithPureRenderMixin']) ?
+      'PureComponent' :
+      'Component';
 
     path.replaceWith(
       createESClass(
         name,
+        baseClassName,
         staticProperties,
         getInitialState,
         autobindFunctionNames,
@@ -506,7 +513,7 @@ module.exports = (file, api, options) => {
   ) {
     const apply = (path, type) =>
       path
-        .filter(hasMixins)
+        .filter(hasInconvertibleMixins)
         .filter(callsDeprecatedAPIs)
         .filter(canConvertToClass)
         .forEach(classPath => updateToClass(classPath, type));

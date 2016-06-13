@@ -1,6 +1,8 @@
 'use strict';
 
 var React = require('React');
+var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
+var FooBarMixin = require('FooBarMixin');
 
 var ComponentWithNonSimpleInitialState = React.createClass({
   statics: {
@@ -42,5 +44,37 @@ module.exports = React.createClass({
 
   render: function() {
     return <div />;
+  },
+});
+
+var ComponentWithOnlyPureRenderMixin = React.createClass({
+  mixins: [ReactComponentWithPureRenderMixin],
+
+  getInitialState: function() {
+    return {
+      counter: this.props.initialNumber + 1,
+    };
+  },
+
+  render: function() {
+    return (
+      <div>{this.state.counter}</div>
+    );
+  },
+});
+
+var ComponentWithInconvertibleMixins = React.createClass({
+  mixins: [ReactComponentWithPureRenderMixin, FooBarMixin],
+
+  getInitialState: function() {
+    return {
+      counter: this.props.initialNumber + 1,
+    };
+  },
+
+  render: function() {
+    return (
+      <div>{this.state.counter}</div>
+    );
   },
 });

@@ -34,16 +34,6 @@ class MyComponent2 extends React.Component {
 }
 
 class MyComponent3 extends React.Component {
-  static defaultProps = function() {
-    unboundFunc();
-    return {
-      linkifyEntities: true,
-      highlightEntities: false,
-    };
-  }();
-
-  static funcThatDoesNothing = function(): void {};
-
   static propTypes = {
     highlightEntities: React.PropTypes.bool,
     linkifyEntities: React.PropTypes.bool,
@@ -53,7 +43,16 @@ class MyComponent3 extends React.Component {
     }).isRequired,
   };
 
+  static defaultProps = function() {
+    unboundFunc();
+    return {
+      linkifyEntities: true,
+      highlightEntities: false,
+    };
+  }();
+
   static someThing = 10;
+  static funcThatDoesNothing = function(): void {};
 
   constructor(props, context) {
     super(props, context);
@@ -63,6 +62,12 @@ class MyComponent3 extends React.Component {
       heyoo: 23,
     };
   }
+
+  _renderText = (text: string) => { // TODO no return type yet
+    return <Text text={text} />;
+  };
+
+  autobindMe = () => {};
 
   // Function comment
   _renderRange = (text: string, range, bla: Promise<string>) => {
@@ -89,12 +94,6 @@ class MyComponent3 extends React.Component {
 
     return text;
   };
-
-  _renderText = (text: string) => { // TODO no return type yet
-    return <Text text={text} />;
-  };
-
-  autobindMe = () => {};
 
   _renderImageRange(text: string, range) { // TODO no return type yet
     var image = range.image;
