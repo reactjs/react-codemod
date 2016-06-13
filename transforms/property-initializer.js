@@ -150,6 +150,9 @@ module.exports = (file, api, options) => {
     node.value.type === 'FunctionExpression'
   );
 
+  // - collects everything in the `statics` property object
+  // - `childContextTypes`, `contextTypes`, `displayName`, and `propTypes`
+  // - simplifies `getDefaultProps` or converts it to an IIFE
   const collectStatics = specPath => {
     const statics = specPath.properties.find(createFindPropFn('statics'));
     const staticsObject =
@@ -164,7 +167,7 @@ module.exports = (file, api, options) => {
       staticsObject.concat(specPath.properties.filter(property =>
         property.key && STATIC_KEYS[property.key.name]
       ))
-      .sort((a, b) => a.key.name < b.key.name)
+      .sort((a, b) => a.key.name > b.key.name)
     );
   };
 
@@ -172,7 +175,7 @@ module.exports = (file, api, options) => {
     .filter(prop =>
       !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
     )
-    .filter(isFunctionExpression);
+    .filter(isFunctionExpression); // TODO how about stuff that are not functions?
 
   const findAutobindNamesFor = (subtree, fnNames, literalOrIdentifier) => {
     const node = literalOrIdentifier;
@@ -234,7 +237,7 @@ module.exports = (file, api, options) => {
         ).forEach(add)
       );
 
-    return Object.keys(autobindNames).sort();
+    return Object.keys(autobindNames).sort((a, b) => a > b);
   };
 
   // ---------------------------------------------------------------------------
@@ -246,31 +249,7 @@ module.exports = (file, api, options) => {
       fn.value
     ), fn);
 
-  const createBindAssignment = name =>
-    j.expressionStatement(
-      j.assignmentExpression(
-        '=',
-        j.memberExpression(
-          j.thisExpression(),
-          j.identifier(name),
-          false
-        ),
-        j.callExpression(
-          j.memberExpression(
-            j.memberExpression(
-              j.thisExpression(),
-              j.identifier(name),
-              false
-            ),
-            j.identifier('bind'),
-            false
-          ),
-          [j.thisExpression()]
-        )
-      )
-    );
-
-  const updatePropsAccess = getInitialState =>
+  const isInitialStateSimple = getInitialState =>
     getInitialState ?
       j(getInitialState)
         .find(j.MemberExpression, {
@@ -282,16 +261,24 @@ module.exports = (file, api, options) => {
             name: 'props',
           },
         })
-        .forEach(path => j(path).replaceWith(j.identifier('props')))
-        .size() > 0 :
-      false;
+        .size() === 0 :
+      true;
 
-  const inlineGetInitialState = getInitialState => {
-    if (!getInitialState) {
-      return [];
-    }
+  const updatePropsAccess = getInitialState =>
+    j(getInitialState)
+      .find(j.MemberExpression, {
+        object: {
+          type: 'ThisExpression',
+        },
+        property: {
+          type: 'Identifier',
+          name: 'props',
+        },
+      })
+      .forEach(path => j(path).replaceWith(j.identifier('props')));
 
-    return getInitialState.value.body.body.map(statement => {
+  const inlineGetInitialState = getInitialState =>
+    getInitialState.value.body.body.map(statement => {
       if (statement.type === 'ReturnStatement') {
         return j.expressionStatement(
           j.assignmentExpression(
@@ -308,27 +295,39 @@ module.exports = (file, api, options) => {
 
       return statement;
     });
+
+  const createInitialStateValue = value => {
+    if (hasSingleReturnStatement(value)) {
+      return value.body.body[0].argument;
+    } else {
+      return j.callExpression(
+        value,
+        []
+      );
+    }
   };
 
-  const createConstructorArgs = (hasPropsAccess) => {
+  const convertInitialStateToClassProperty = getInitialState =>
+    withComments(j.classProperty(
+      j.identifier('state'),
+      createInitialStateValue(getInitialState.value),
+      null,
+      false
+    ), getInitialState);
+
+  const createConstructorArgs = () => {
     return [j.identifier('props'), j.identifier('context')];
   };
 
-  const createConstructor = (
-    getInitialState,
-    autobindFunctions
-  ) => {
-    if (!getInitialState && !autobindFunctions.length) {
-      return [];
-    }
+  const createConstructor = getInitialState => {
+    updatePropsAccess(getInitialState); // TODO no side-effects?
 
-    const hasPropsAccess = updatePropsAccess(getInitialState);
     return [
       createMethodDefinition({
         key: j.identifier('constructor'),
         value: j.functionExpression(
           null,
-          createConstructorArgs(hasPropsAccess),
+          createConstructorArgs(),
           j.blockStatement(
             [].concat(
               [
@@ -339,7 +338,6 @@ module.exports = (file, api, options) => {
                   )
                 ),
               ],
-              autobindFunctions.map(createBindAssignment),
               inlineGetInitialState(getInitialState)
             )
           )
@@ -348,22 +346,66 @@ module.exports = (file, api, options) => {
     ];
   };
 
+  const createArrowFunctionExpression = fn => j.arrowFunctionExpression(
+    fn.params,
+    fn.body,
+    false
+  );
+
+  const createArrowPropertyFromMethod = method =>
+    withComments(j.classProperty(
+      j.identifier(method.key.name),
+      createArrowFunctionExpression(method.value),
+      null,
+      false
+    ), method);
+
+  // if there's no `getInitialState` or the `getInitialState` function is simple
+  // (i.e., it does not reference `this.props`) then we don't need a constructor.
+  // we can simply do `state = {...}` as a property initializer.
+  // otherwise, create a constructor and inline `this.state = ...`.
   const createESClass = (
     name,
-    properties,
+    staticProperties,
     getInitialState,
-    autobindFunctions,
+    autobindFunctionNames,
+    methods,
     comments
-  ) =>
-    withComments(j.classDeclaration(
+  ) => {
+    let newConstructor = [];
+    const newProperties = [];
+
+    if (isInitialStateSimple(getInitialState)) {
+      if (getInitialState) {
+        newProperties.push(convertInitialStateToClassProperty(getInitialState));
+      }
+    } else {
+      newConstructor = createConstructor(getInitialState);
+    }
+
+    const arrowBindFunctions = [];
+    const newMethods = [];
+
+    for (let i = 0; i < methods.length; i++) {
+      const method = methods[i];
+      if (autobindFunctionNames.indexOf(method.key.name) !== -1) {
+        arrowBindFunctions.push(method);
+      } else {
+        newMethods.push(method);
+      }
+    }
+
+    arrowBindFunctions.sort((a, b) => a.key.name > b.key.name);
+
+    return withComments(j.classDeclaration(
       name ? j.identifier(name) : null,
       j.classBody(
         [].concat(
-          createConstructor(
-            getInitialState,
-            autobindFunctions
-          ),
-          properties
+          staticProperties,
+          newConstructor,
+          newProperties,
+          arrowBindFunctions.map(createArrowPropertyFromMethod),
+          newMethods
         )
       ),
       j.memberExpression(
@@ -372,22 +414,7 @@ module.exports = (file, api, options) => {
         false
       )
     ), {comments});
-
-  const createStaticAssignment = (name, staticProperty) =>
-    withComments(j.expressionStatement(
-      j.assignmentExpression(
-        '=',
-        j.memberExpression(
-          name,
-          j.identifier(staticProperty.key.name),
-          false
-        ),
-        staticProperty.value
-      )
-    ), staticProperty);
-
-  const createStaticAssignmentExpressions = (name, statics) =>
-    statics.map(staticProperty => createStaticAssignment(name, staticProperty));
+  };
 
   const createStaticClassProperty = staticProperty =>
     withComments(j.classProperty(
@@ -443,13 +470,6 @@ module.exports = (file, api, options) => {
     return null;
   };
 
-  const createModuleExportsMemberExpression = () =>
-    j.memberExpression(
-      j.identifier('module'),
-      j.identifier('exports'),
-      false
-    );
-
   const updateToClass = (classPath, type) => {
     const specPath = ReactUtils.getReactCreateClassSpec(classPath);
     const name = ReactUtils.getComponentName(classPath);
@@ -457,11 +477,8 @@ module.exports = (file, api, options) => {
     const functions = collectFunctions(specPath);
     const comments = getComments(classPath);
 
-    const autobindFunctions = collectAutoBindFunctions(functions, classPath);
+    const autobindFunctionNames = collectAutoBindFunctions(functions, classPath);
     const getInitialState = findGetInitialState(specPath);
-
-    const staticName =
-      name ? j.identifier(name) : createModuleExportsMemberExpression();
 
     var path;
     if (type == 'moduleExports' || type == 'exportDefault') {
@@ -470,30 +487,18 @@ module.exports = (file, api, options) => {
       path = j(classPath).closest(j.VariableDeclaration);
     }
 
-    const properties =
-      (type == 'exportDefault') ? createStaticClassProperties(statics) : [];
+    const staticProperties = createStaticClassProperties(statics);
 
     path.replaceWith(
       createESClass(
         name,
-        properties.concat(functions.map(createMethodDefinition)),
+        staticProperties,
         getInitialState,
-        autobindFunctions,
+        autobindFunctionNames,
+        functions.map(createMethodDefinition),
         comments
       )
     );
-
-    if (type == 'moduleExports' || type == 'var') {
-      const staticAssignments = createStaticAssignmentExpressions(
-        staticName,
-        statics
-      );
-      if (type == 'moduleExports') {
-        root.get().value.program.body.push(...staticAssignments);
-      } else {
-        path.insertAfter(staticAssignments.reverse());
-      }
-    }
   };
 
   if (

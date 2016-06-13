@@ -11,5 +11,5 @@
 'use strict';
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
-// defineTest(__dirname, 'property-initializer');
+defineTest(__dirname, 'property-initializer');
 defineTest(__dirname, 'property-initializer', null, 'property-initializer-2');
