@@ -23,10 +23,10 @@ var MyComponent = React.createClass({
 
 // Class comment
 var MyComponent2 = React.createClass({
-  getDefaultProps: function() {
+  getDefaultProps: function(): Object {
     return {a: 1};
   },
-  foo: function() { // flow annotations dont work for now
+  foo: function(): void {
     pass(this.foo);
     this.forceUpdate();
   },
@@ -61,11 +61,12 @@ var MyComponent3 = React.createClass({
     };
   },
 
-  _renderText: function(text: string) { // TODO no return type yet
+  // comment here
+  _renderText: function(text: string): ReactElement<any> { // say something
     return <Text text={text} />;
   },
 
-  _renderImageRange: function(text: string, range) { // TODO no return type yet
+  _renderImageRange: function(text: string, range): ReactElement<any> {
     var image = range.image;
     if (image) {
       return (
@@ -82,7 +83,7 @@ var MyComponent3 = React.createClass({
   dontAutobindMe: function(): number { return 12; },
 
   // Function comment
-  _renderRange: function(text: string, range, bla: Promise<string>) {
+  _renderRange: function(text: string, range, bla: Promise<string>): ReactElement<any> {
     var self = this;
 
     self.dontAutobindMe();

@@ -352,14 +352,19 @@ module.exports = (file, api, options) => {
     ];
   };
 
+  const copyReturnType = (to, from) => {
+    to.returnType = from.returnType;
+    return to;
+  };
+
   const createArrowFunctionExpression = fn =>
-    j.arrowFunctionExpression(
+    copyReturnType(j.arrowFunctionExpression(
       fn.params,
       fn.body,
       false
-    );
+    ), fn);
 
-  const createArrowPropertyFromMethod = method => // TODO fix flow annotations
+  const createArrowPropertyFromMethod = method =>
     withComments(j.classProperty(
       j.identifier(method.key.name),
       createArrowFunctionExpression(method.value),

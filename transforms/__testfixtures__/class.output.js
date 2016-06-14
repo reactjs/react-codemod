@@ -27,7 +27,7 @@ class MyComponent extends React.Component {
 class MyComponent2 extends React.Component {
   static defaultProps = {a: 1};
 
-  foo = () => { // flow annotations dont work for now
+  foo = (): void => {
     pass(this.foo);
     this.forceUpdate();
   };
@@ -63,14 +63,15 @@ class MyComponent3 extends React.Component {
     };
   }
 
-  _renderText = (text: string) => { // TODO no return type yet
+  // comment here
+  _renderText = (text: string): ReactElement<any> => { // say something
     return <Text text={text} />;
   };
 
   autobindMe = () => {};
 
   // Function comment
-  _renderRange = (text: string, range, bla: Promise<string>) => {
+  _renderRange = (text: string, range, bla: Promise<string>): ReactElement<any> => {
     var self = this;
 
     self.dontAutobindMe();
@@ -95,7 +96,7 @@ class MyComponent3 extends React.Component {
     return text;
   };
 
-  _renderImageRange(text: string, range) { // TODO no return type yet
+  _renderImageRange(text: string, range): ReactElement<any> {
     var image = range.image;
     if (image) {
       return (
