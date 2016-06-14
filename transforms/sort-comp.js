@@ -122,10 +122,10 @@ const defaultMethodsOrder = [
   'componentWillUpdate',
   'componentDidUpdate',
   'componentWillUnmount',
-  '/^on.+$/',
-  '/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/',
+  /^on.+$/,
+  /^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/,
   'everything-else',
-  '/^render.+$/',
+  /^render.+$/,
   'render',
 ];
 
