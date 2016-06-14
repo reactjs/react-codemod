@@ -12,4 +12,5 @@
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 defineTest(__dirname, 'class');
+defineTest(__dirname, 'class', null, 'class-test2');
 defineTest(__dirname, 'class', null, 'export-default-class');

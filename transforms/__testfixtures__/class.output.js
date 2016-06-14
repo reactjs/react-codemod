@@ -18,32 +18,44 @@ class MyComponent extends React.Component {
     };
   }
 
-  foo() {
+  foo(): void {
     this.setState({heyoo: 24});
   }
 }
 
 // Class comment
 class MyComponent2 extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    this.foo = this.foo.bind(this);
-  }
+  static defaultProps = {a: 1};
 
-  foo() {
+  foo = () => { // flow annotations dont work for now
     pass(this.foo);
     this.forceUpdate();
-  }
+  };
 }
 
-MyComponent2.defaultProps = {a: 1};
-
 class MyComponent3 extends React.Component {
+  static propTypes = {
+    highlightEntities: React.PropTypes.bool,
+    linkifyEntities: React.PropTypes.bool,
+    text: React.PropTypes.shape({
+      text: React.PropTypes.string,
+      ranges: React.PropTypes.array,
+    }).isRequired,
+  };
+
+  static defaultProps = function() {
+    unboundFunc();
+    return {
+      linkifyEntities: true,
+      highlightEntities: false,
+    };
+  }();
+
+  static someThing = 10;
+  static funcThatDoesNothing = function(): void {};
+
   constructor(props, context) {
     super(props, context);
-    this._renderRange = this._renderRange.bind(this);
-    this._renderText = this._renderText.bind(this);
-    this.autobindMe = this.autobindMe.bind(this);
     props.foo();
 
     this.state = {
@@ -51,28 +63,14 @@ class MyComponent3 extends React.Component {
     };
   }
 
-  _renderText(text) {
+  _renderText = (text: string) => { // TODO no return type yet
     return <Text text={text} />;
-  }
+  };
 
-  _renderImageRange(text, range) {
-    var image = range.image;
-    if (image) {
-      return (
-        <Image
-          src={image.uri}
-          height={image.height / image.scale}
-          width={image.width / image.scale}
-        />
-      );
-    }
-  }
-
-  autobindMe() {}
-  dontAutobindMe() {}
+  autobindMe = () => {};
 
   // Function comment
-  _renderRange(text, range) {
+  _renderRange = (text: string, range, bla: Promise<string>) => {
     var self = this;
 
     self.dontAutobindMe();
@@ -95,7 +93,22 @@ class MyComponent3 extends React.Component {
     }
 
     return text;
+  };
+
+  _renderImageRange(text: string, range) { // TODO no return type yet
+    var image = range.image;
+    if (image) {
+      return (
+        <Image
+          src={image.uri}
+          height={image.height / image.scale}
+          width={image.width / image.scale}
+        />
+      );
+    }
   }
+
+  dontAutobindMe(): number { return 12; }
 
   /* This is a comment */
   render() {
@@ -110,27 +123,6 @@ class MyComponent3 extends React.Component {
     );
   }
 }
-
-MyComponent3.defaultProps = function() {
-  foo();
-  return {
-    linkifyEntities: true,
-    highlightEntities: false,
-  };
-}();
-
-MyComponent3.foo = function() {};
-
-MyComponent3.propTypes = {
-  highlightEntities: React.PropTypes.bool,
-  linkifyEntities: React.PropTypes.bool,
-  text: React.PropTypes.shape({
-    text: React.PropTypes.string,
-    ranges: React.PropTypes.array,
-  }).isRequired,
-};
-
-MyComponent3.someThing = 10;
 
 var MyComponent4 = React.createClass({
   foo: callMeMaybe(),

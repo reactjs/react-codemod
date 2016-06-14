@@ -100,52 +100,6 @@ guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e
 jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 ```
 
-### Explanation of the ES2015 class transform
-
-  * Ignore components with calls to deprecated APIs. This is very defensive, if
-    the script finds any identifiers called `isMounted`, `getDOMNode`,
-    `replaceProps`, `replaceState` or `setProps` it will skip the component.
-  * Replaces `var A = React.createClass(spec)` with
-    `class A (extends React.Component) {spec}`.
-  * Pulls out all statics defined on `statics` plus the few special cased
-    statics like `propTypes`, `childContextTypes`, `contextTypes` and
-    `displayName` and assigns them after the class is created.
-    `class A {}; A.foo = bar;`
-  * Takes `getDefaultProps` and inlines it as a static `defaultProps`.
-    If `getDefaultProps` is defined as a function with a single statement that
-    returns an object, it optimizes and transforms
-    `getDefaultProps() { return {foo: 'bar'}; }` into
-    `A.defaultProps = {foo: 'bar'};`. If `getDefaultProps` contains more than
-    one statement it will transform into a self-invoking function like this:
-    `A.defaultProps = function() {…}();`. Note that this means that the function
-    will be executed only a single time per app-lifetime. In practice this
-    hasn't caused any issues – `getDefaultProps` should not contain any
-    side-effects.
-  * Binds class methods to the instance if methods are referenced without being
-    called directly. It checks for `this.foo` but also traces variable
-    assignments like `var self = this; self.foo`. It does not bind functions
-    from the React API and ignores functions that are being called directly
-    (unless it is both called directly and passed around to somewhere else)
-  * Creates a constructor if necessary. This is necessary if either
-    `getInitialState` exists in the `React.createClass` spec OR if functions
-    need to be bound to the instance.
-  * When `--no-super-class` is passed it only optionally extends
-    `React.Component` when `setState` or `forceUpdate` are used within the
-    class.
-
-The constructor logic is as follows:
-
-  * Call `super(props, context)` if the base class needs to be extended.
-  * Bind all functions that are passed around,
-    like `this.foo = this.foo.bind(this)`
-  * Inline `getInitialState` (and remove `getInitialState` from the spec). It
-    also updates access of `this.props.foo` to `props.foo` and adds `props` as
-    argument to the constructor. This is necessary in the case when the base
-    class does not need to be extended where `this.props` will only be set by
-    React after the constructor has been run.
-  * Changes `return StateObject` from `getInitialState` to assign `this.state`
-    directly.
-
 ### Explanation of the new ES2015 class transform with property initializers
 
   * Ignore components with calls to deprecated APIs. This is very defensive, if
