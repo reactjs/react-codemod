@@ -35,7 +35,7 @@ module.exports = React.createClass({
     };
   },
 
-  getInitialState: function() { // non-simple
+  getInitialState: function() { // non-simple getInitialState
     var data = 'bar';
     return {
       bar: data,

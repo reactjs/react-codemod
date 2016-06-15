@@ -255,20 +255,25 @@ module.exports = (file, api, options) => {
       fn.value
     ), fn);
 
-  const isInitialStateLiftable = getInitialState =>
-    getInitialState ?
-      j(getInitialState)
-        .find(j.MemberExpression, {
-          object: {
-            type: 'ThisExpression',
-          },
-          property: {
-            type: 'Identifier',
-            name: 'props',
-          },
-        })
-        .size() === 0 :
-      true;
+  const isInitialStateLiftable = getInitialState => {
+    if (!getInitialState || !(getInitialState.value)) {
+      return true;
+    } else if (!hasSingleReturnStatement(getInitialState.value)) {
+      return false;
+    }
+
+    return j(getInitialState)
+      .find(j.MemberExpression, {
+        object: {
+          type: 'ThisExpression',
+        },
+        property: {
+          type: 'Identifier',
+          name: 'props',
+        },
+      })
+      .size() === 0;
+  };
 
   const updatePropsAccess = getInitialState =>
     j(getInitialState)

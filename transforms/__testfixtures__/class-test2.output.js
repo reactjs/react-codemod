@@ -33,12 +33,15 @@ module.exports = class extends React.Component {
     foo: 12,
   };
 
-  state = function() { // non-simple
+  constructor(props, context) {
+    super(props, context);
+    // non-simple getInitialState
     var data = 'bar';
-    return {
+
+    this.state = {
       bar: data,
     };
-  }();
+  }
 
   render() {
     return <div />;
