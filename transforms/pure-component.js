@@ -36,6 +36,16 @@ module.exports = function(file, api, options) {
       .filter(p => !isRenderMethod(p.value))
       .size() === 0;
 
+  const hasRefs = path =>
+    j(path)
+      .find(j.JSXAttribute, {
+        name: {
+          type: 'JSXIdentifier',
+          name: 'ref',
+        },
+      })
+      .size() > 0;
+
   const THIS_PROPS = {
     object: {
       type: 'ThisExpression',
@@ -82,7 +92,7 @@ module.exports = function(file, api, options) {
 
   const pureClasses = ReactUtils.findReactES6ClassDeclaration(f)
     .filter(path => {
-      const isPure = onlyHasRenderMethod(path);
+      const isPure = onlyHasRenderMethod(path) && !hasRefs(path);
       if (!isPure && !silenceWarnings) {
         reportSkipped(path);
       }
@@ -109,4 +119,3 @@ module.exports = function(file, api, options) {
 
   return f.toSource(printOptions);
 };
-
