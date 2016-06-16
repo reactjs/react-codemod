@@ -47,22 +47,6 @@ module.exports = React.createClass({
   },
 });
 
-var ComponentWithOnlyPureRenderMixin = React.createClass({
-  mixins: [ReactComponentWithPureRenderMixin],
-
-  getInitialState: function() {
-    return {
-      counter: this.props.initialNumber + 1,
-    };
-  },
-
-  render: function() {
-    return (
-      <div>{this.state.counter}</div>
-    );
-  },
-});
-
 var ComponentWithInconvertibleMixins = React.createClass({
   mixins: [ReactComponentWithPureRenderMixin, FooBarMixin],
 

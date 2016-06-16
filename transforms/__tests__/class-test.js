@@ -11,6 +11,13 @@
 'use strict';
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
+
+const pureMixinAlternativeOption = {
+  'mixin-module-name': 'ReactComponentWithPureRenderMixin',
+};
+
 defineTest(__dirname, 'class');
-defineTest(__dirname, 'class', null, 'class-test2');
+defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-test2');
 defineTest(__dirname, 'class', null, 'export-default-class');
+defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-pure-mixin1');
+defineTest(__dirname, 'class', null, 'class-pure-mixin2');

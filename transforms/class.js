@@ -45,6 +45,9 @@ module.exports = (file, api, options) => {
     'setProps',
   ];
 
+  const PURE_MIXIN_MODULE_NAME = options['mixin-module-name'] ||
+    'react-addons-pure-render-mixin';
+
   const STATIC_KEY = 'statics';
 
   const STATIC_KEYS = {
@@ -108,15 +111,11 @@ module.exports = (file, api, options) => {
     return !invalidProperties.length;
   };
 
-  const hasInconvertibleMixins = classPath => {
+  const areMixinsConvertible = (mixinIdentifierNames, classPath) => {
     if (
       ReactUtils.hasMixins(classPath) &&
-      !ReactUtils.hasSpecificMixins(classPath, ['ReactComponentWithPureRenderMixin'])
+      !ReactUtils.hasSpecificMixins(classPath, mixinIdentifierNames)
     ) {
-      console.log(
-        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
-        'was skipped because of inconvertible mixins.'
-      );
       return false;
     }
     return true;
@@ -245,6 +244,49 @@ module.exports = (file, api, options) => {
 
     return Object.keys(autobindNames);
   };
+
+  const findRequirePathAndBinding = (moduleName) => {
+    let result = null;
+
+    const requireStatement = root.find(j.VariableDeclarator, {
+      init: {
+        type: 'CallExpression',
+        callee: {
+          type: 'Identifier',
+          name: 'require',
+        },
+        arguments: [{
+          value: moduleName,
+        }],
+      },
+    });
+
+    const importStatement = root.find(j.ImportDeclaration, {
+      source: {
+        value: moduleName,
+      },
+    });
+
+    if (importStatement.size() !== 0) {
+      importStatement.forEach(path => {
+        result = {
+          path,
+          binding: path.value.specifiers[0].local.name,
+        };
+      });
+    } else if (requireStatement.size() !== 0) {
+      requireStatement.forEach(path => {
+        result = {
+          path,
+          binding: path.value.id.name,
+        };
+      });
+    }
+
+    return result;
+  };
+
+  const pureRenderMixinPathAndBinding = findRequirePathAndBinding(PURE_MIXIN_MODULE_NAME);
 
   // ---------------------------------------------------------------------------
   // Boom!
@@ -501,9 +543,10 @@ module.exports = (file, api, options) => {
 
     const staticProperties = createStaticClassProperties(statics);
     const baseClassName =
-      ReactUtils.hasSpecificMixins(classPath, ['ReactComponentWithPureRenderMixin']) ?
-      'PureComponent' :
-      'Component';
+      pureRenderMixinPathAndBinding &&
+      ReactUtils.hasSpecificMixins(classPath, [pureRenderMixinPathAndBinding.binding]) ?
+        'PureComponent' :
+        'Component';
 
     path.replaceWith(
       createESClass(
@@ -521,9 +564,29 @@ module.exports = (file, api, options) => {
   if (
     options['explicit-require'] === false || ReactUtils.hasReact(root)
   ) {
+    // no mixins found on the classPath -> true
+    // pure mixin identifier not found -> (has mixins) -> false
+    // found pure mixin identifier ->
+    //   class mixins only contain the identifier -> true
+    //   otherwise -> false
+    const mixinsFilter = (classPath) => {
+      if (!ReactUtils.hasMixins(classPath)) {
+        return true;
+      } else if (pureRenderMixinPathAndBinding) {
+        if (areMixinsConvertible([pureRenderMixinPathAndBinding.binding], classPath)) {
+          return true;
+        }
+      }
+      console.log(
+        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        'was skipped because of inconvertible mixins.'
+      );
+      return false;
+    };
+
     const apply = (path, type) =>
       path
-        .filter(hasInconvertibleMixins)
+        .filter(mixinsFilter)
         .filter(callsDeprecatedAPIs)
         .filter(canConvertToClass)
         .forEach(classPath => updateToClass(classPath, type));
@@ -538,6 +601,12 @@ module.exports = (file, api, options) => {
     ) > 0;
 
     if (didTransform) {
+      // prune removed requires
+      if (pureRenderMixinPathAndBinding) {
+        // FIXME check the scope before removing stuff
+        j(pureRenderMixinPathAndBinding.path).remove();
+      }
+
       return root.toSource(printOptions);
     }
 
