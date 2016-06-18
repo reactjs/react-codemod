@@ -18,9 +18,9 @@ class MyComponent extends React.Component {
     };
   }
 
-  foo(): void {
+  foo = (): void => {
     this.setState({heyoo: 24});
-  }
+  };
 }
 
 // Class comment
@@ -34,6 +34,9 @@ class MyComponent2 extends React.Component {
 }
 
 class MyComponent3 extends React.Component {
+  static someThing = 10;
+  static funcThatDoesNothing = function(): void {};
+
   static propTypes = {
     highlightEntities: React.PropTypes.bool,
     linkifyEntities: React.PropTypes.bool,
@@ -51,9 +54,6 @@ class MyComponent3 extends React.Component {
     };
   }();
 
-  static someThing = 10;
-  static funcThatDoesNothing = function(): void {};
-
   constructor(props, context) {
     super(props, context);
     props.foo();
@@ -68,13 +68,27 @@ class MyComponent3 extends React.Component {
     return <Text text={text} />;
   };
 
+  _renderImageRange = (text: string, range): ReactElement<any> => {
+    var image = range.image;
+    if (image) {
+      return (
+        <Image
+          src={image.uri}
+          height={image.height / image.scale}
+          width={image.width / image.scale}
+        />
+      );
+    }
+  };
+
   autobindMe = () => {};
+  okBindMe = (): number => { return 12; };
 
   // Function comment
   _renderRange = (text: string, range, bla: Promise<string>): ReactElement<any> => {
     var self = this;
 
-    self.dontAutobindMe();
+    self.okBindMe();
     call(self.autobindMe);
 
     var type = rage.type;
@@ -95,21 +109,6 @@ class MyComponent3 extends React.Component {
 
     return text;
   };
-
-  _renderImageRange(text: string, range): ReactElement<any> {
-    var image = range.image;
-    if (image) {
-      return (
-        <Image
-          src={image.uri}
-          height={image.height / image.scale}
-          width={image.width / image.scale}
-        />
-      );
-    }
-  }
-
-  dontAutobindMe(): number { return 12; }
 
   /* This is a comment */
   render() {
@@ -135,3 +134,31 @@ module.exports = Relay.createContainer(MyComponent, {
     me: Relay.graphql`this is not graphql`,
   },
 });
+
+class MyComponent5 extends React.Component {
+  static defaultProps = {
+    thisIs: true,
+    andThisIs: false,
+  };
+
+  state = {
+    todos: [],
+  };
+
+  renderTodo = (): ReactElement<any> => {
+    return (
+      <div>
+        {this.state.todos.map((item) => <p key={item.id}>{item.text}</p>)}
+      </div>
+    );
+  };
+
+  render() {
+    return (
+      <div>
+        <h1>TODOs</h1>
+        {this.renderTodo()}
+      </div>
+    );
+  }
+}

@@ -135,9 +135,6 @@ module.exports = (file, api, options) => {
   const filterGetInitialStateField = node =>
     createFindPropFn(GET_INITIAL_STATE_FIELD)(node);
 
-  const findGetDefaultProps = specPath =>
-    specPath.properties.find(createFindPropFn(DEFAULT_PROPS_FIELD));
-
   const findGetInitialState = specPath =>
     specPath.properties.find(createFindPropFn(GET_INITIAL_STATE_FIELD));
 
@@ -155,23 +152,22 @@ module.exports = (file, api, options) => {
     node.value.type === 'FunctionExpression'
   );
 
-  // Collects `childContextTypes`, `contextTypes`, `displayName`, and `propTypes` first;
-  // then simplifies `getDefaultProps` or converts it to an IIFE;
-  // finally it collects everything in the `statics` property object.
+  // Collects `childContextTypes`, `contextTypes`, `displayName`, and `propTypes`;
+  // simplifies `getDefaultProps` or converts it to an IIFE;
+  // and collects everything else in the `statics` property object.
   const collectStatics = specPath => {
-    let result = specPath.properties.filter(property =>
-      property.key && STATIC_KEYS[property.key.name]
-    );
+    const result = [];
 
-    const getDefaultProps = findGetDefaultProps(specPath);
-    if (getDefaultProps) {
-      result.push(createDefaultProps(getDefaultProps));
+    for (let i = 0; i < specPath.properties.length; i++) {
+      const property = specPath.properties[i];
+      if (createFindPropFn('statics')(property) && property.value && property.value.properties) {
+        result.push(...property.value.properties);
+      } else if (createFindPropFn(DEFAULT_PROPS_FIELD)(property)) {
+        result.push(createDefaultProps(property));
+      } else if (property.key && STATIC_KEYS[property.key.name]) {
+        result.push(property);
+      }
     }
-
-    const statics = specPath.properties.find(createFindPropFn('statics'));
-    result = result.concat(
-      (statics && statics.value && statics.value.properties) || []
-    );
 
     return result;
   };
@@ -181,69 +177,6 @@ module.exports = (file, api, options) => {
       !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
     )
     .filter(isFunctionExpression);
-
-  const findAutobindNamesFor = (subtree, fnNames, literalOrIdentifier) => {
-    const node = literalOrIdentifier;
-    const autobindNames = {};
-
-    j(subtree)
-      .find(j.MemberExpression, {
-        object: node.name ? {
-          type: node.type,
-          name: node.name,
-        } : {type: node.type},
-        property: {
-          type: 'Identifier',
-        },
-      })
-      .filter(path => path.value.property && fnNames[path.value.property.name])
-      .filter(path => {
-        const call = path.parent.value;
-        return !(
-          call &&
-          call.type === 'CallExpression' &&
-          call.callee.type === 'MemberExpression' &&
-          call.callee.object.type === node.type &&
-          call.callee.object.name === node.name &&
-          call.callee.property.type === 'Identifier' &&
-          call.callee.property.name === path.value.property.name
-        );
-      })
-      .forEach(path => autobindNames[path.value.property.name] = true);
-
-    return Object.keys(autobindNames);
-  };
-
-  const collectAutoBindFunctions = (functions, classPath) => {
-    const fnNames = {};
-    functions
-      .filter(fn => !AUTOBIND_IGNORE_KEYS[fn.key.name])
-      .forEach(fn => fnNames[fn.key.name] = true);
-
-    const autobindNames = {};
-    const add = name => autobindNames[name] = true;
-
-    // Find `this.<foo>`
-    findAutobindNamesFor(classPath, fnNames, j.thisExpression()).forEach(add);
-
-    // Find `self.<foo>` if `self = this`
-    j(classPath)
-      .findVariableDeclarators()
-      .filter(path => (
-        path.value.id.type === 'Identifier' &&
-        path.value.init &&
-        path.value.init.type === 'ThisExpression'
-      ))
-      .forEach(path =>
-        findAutobindNamesFor(
-          j(path).closest(j.FunctionExpression).get(),
-          fnNames,
-          path.value.id
-        ).forEach(add)
-      );
-
-    return Object.keys(autobindNames);
-  };
 
   const findRequirePathAndBinding = (moduleName) => {
     let result = null;
@@ -435,42 +368,34 @@ module.exports = (file, api, options) => {
     baseClassName,
     staticProperties,
     getInitialState,
-    autobindFunctionNames,
     methods,
     comments
   ) => {
-    let newConstructor = [];
-    const newProperties = [];
+    let maybeConstructor = [];
+    const initialStateProperty = [];
 
     if (isInitialStateLiftable(getInitialState)) {
       if (getInitialState) {
-        newProperties.push(convertInitialStateToClassProperty(getInitialState));
+        initialStateProperty.push(convertInitialStateToClassProperty(getInitialState));
       }
     } else {
-      newConstructor = createConstructor(getInitialState);
+      maybeConstructor = createConstructor(getInitialState);
     }
 
-    const arrowBindFunctions = [];
-    const newMethods = [];
-
-    for (let i = 0; i < methods.length; i++) {
-      const method = methods[i];
-      if (autobindFunctionNames.indexOf(method.key.name) !== -1) {
-        arrowBindFunctions.push(method);
-      } else {
-        newMethods.push(method);
-      }
-    }
+    const arrowBindFunctionsAndMethods = methods.map(method =>
+      AUTOBIND_IGNORE_KEYS[method.key.name] ?
+        method :
+        createArrowPropertyFromMethod(method)
+    );
 
     return withComments(j.classDeclaration(
       name ? j.identifier(name) : null,
       j.classBody(
         [].concat(
           staticProperties,
-          newConstructor,
-          newProperties,
-          arrowBindFunctions.map(createArrowPropertyFromMethod),
-          newMethods
+          maybeConstructor,
+          initialStateProperty,
+          arrowBindFunctionsAndMethods
         )
       ),
       j.memberExpression(
@@ -531,7 +456,6 @@ module.exports = (file, api, options) => {
     const functions = collectFunctions(specPath);
     const comments = getComments(classPath);
 
-    const autobindFunctionNames = collectAutoBindFunctions(functions, classPath);
     const getInitialState = findGetInitialState(specPath);
 
     var path;
@@ -554,7 +478,6 @@ module.exports = (file, api, options) => {
         baseClassName,
         staticProperties,
         getInitialState,
-        autobindFunctionNames,
         functions.map(createMethodDefinition),
         comments
       )

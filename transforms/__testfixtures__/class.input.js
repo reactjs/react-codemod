@@ -80,13 +80,13 @@ var MyComponent3 = React.createClass({
   },
 
   autobindMe: function() {},
-  dontAutobindMe: function(): number { return 12; },
+  okBindMe: function(): number { return 12; },
 
   // Function comment
   _renderRange: function(text: string, range, bla: Promise<string>): ReactElement<any> {
     var self = this;
 
-    self.dontAutobindMe();
+    self.okBindMe();
     call(self.autobindMe);
 
     var type = rage.type;
@@ -130,5 +130,39 @@ var MyComponent4 = React.createClass({
 module.exports = Relay.createContainer(MyComponent, {
   queries: {
     me: Relay.graphql`this is not graphql`,
+  },
+});
+
+var MyComponent5 = React.createClass({
+  getDefaultProps: function() {
+    return {
+      thisIs: true,
+      andThisIs: false,
+    };
+  },
+
+  statics: {},
+
+  getInitialState: function() {
+    return {
+      todos: [],
+    };
+  },
+
+  renderTodo: function(): ReactElement<any> {
+    return (
+      <div>
+        {this.state.todos.map((item) => <p key={item.id}>{item.text}</p>)}
+      </div>
+    );
+  },
+
+  render: function() {
+    return (
+      <div>
+        <h1>TODOs</h1>
+        {this.renderTodo()}
+      </div>
+    );
   },
 });
