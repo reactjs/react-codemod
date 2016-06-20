@@ -130,9 +130,6 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
     from the React API (lifecycle methods) and ignores functions that are being
     called directly (unless it is both called directly and passed around to
     somewhere else).
-  * TODO When `--no-super-class` is passed it only optionally extends
-    `React.Component` when `setState` or `forceUpdate` are used within the
-    class.
 
 ### Recast Options
 
