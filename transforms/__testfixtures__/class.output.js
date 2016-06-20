@@ -9,8 +9,8 @@ var Image = require('Image.react');
  * Multiline
  */
 class MyComponent extends React.Component {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     var x = props.foo;
 
     this.state = {
@@ -54,8 +54,8 @@ class MyComponent3 extends React.Component {
     };
   }();
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     props.foo();
 
     this.state = {

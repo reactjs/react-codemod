@@ -1,8 +1,8 @@
 var React = require('React');
 
 class ComponentWithOnlyPureRenderMixin extends React.PureComponent {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
 
     this.state = {
       counter: props.initialNumber + 1,

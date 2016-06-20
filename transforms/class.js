@@ -307,26 +307,32 @@ module.exports = (file, api, options) => {
       false
     ), getInitialState);
 
-  const createConstructorArgs = () => {
-    return [j.identifier('props'), j.identifier('context')];
+  const createConstructorArgs = (hasPropsAccess, hasContextAccess) => {
+    if (hasContextAccess) {
+      return [j.identifier('props'), j.identifier('context')];
+    } else if (hasPropsAccess) {
+      return [j.identifier('props')];
+    }
+    return [];
   };
 
-  const createConstructor = getInitialState => {
-    updatePropsAccess(getInitialState);
+  const createConstructor = (getInitialState, hasContextAccess) => {
+    const hasPropsAccess = updatePropsAccess(getInitialState).size() > 0;
+    const constructorArgs = createConstructorArgs(hasPropsAccess, hasContextAccess);
 
     return [
       createMethodDefinition({
         key: j.identifier('constructor'),
         value: j.functionExpression(
           null,
-          createConstructorArgs(),
+          constructorArgs,
           j.blockStatement(
             [].concat(
               [
                 j.expressionStatement(
                   j.callExpression(
                     j.identifier('super'),
-                    [j.identifier('props'), j.identifier('context')]
+                    constructorArgs
                   )
                 ),
               ],
@@ -387,13 +393,15 @@ module.exports = (file, api, options) => {
   ) => {
     let maybeConstructor = [];
     const initialStateProperty = [];
-
+    const hasContextAccess = !!staticProperties.find((prop) =>
+      prop.key.name === 'contextTypes'
+    );
     if (isInitialStateLiftable(getInitialState)) {
       if (getInitialState) {
         initialStateProperty.push(convertInitialStateToClassProperty(getInitialState));
       }
     } else {
-      maybeConstructor = createConstructor(getInitialState);
+      maybeConstructor = createConstructor(getInitialState, hasContextAccess);
     }
 
     const propertiesAndMethods = rawProperties.map(prop => {

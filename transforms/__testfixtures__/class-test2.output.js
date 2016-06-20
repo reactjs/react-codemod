@@ -8,8 +8,8 @@ class ComponentWithNonSimpleInitialState extends React.Component {
   static iDontKnowWhyYouNeedThis = true; // but comment it
   static foo = 'bar';
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
 
     this.state = {
       counter: props.initialNumber + 1,
@@ -19,6 +19,26 @@ class ComponentWithNonSimpleInitialState extends React.Component {
   render() {
     return (
       <div>{this.state.counter}</div>
+    );
+  }
+}
+
+class ComponentWithBothPropsAndContextAccess extends React.Component {
+  static contextTypes = {
+    name: React.PropTypes.string,
+  };
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      foo: props.foo,
+    };
+  }
+
+  render() {
+    return (
+      <div>{this.context.name}</div>
     );
   }
 }
@@ -33,8 +53,8 @@ module.exports = class extends React.Component {
     foo: 12,
   };
 
-  constructor(props, context) {
-    super(props, context);
+  constructor() {
+    super();
     // non-simple getInitialState
     var data = 'bar';
 
