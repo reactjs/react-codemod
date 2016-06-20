@@ -21,3 +21,4 @@ defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-test2');
 defineTest(__dirname, 'class', null, 'export-default-class');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-pure-mixin1');
 defineTest(__dirname, 'class', null, 'class-pure-mixin2');
+defineTest(__dirname, 'class', null, 'class-property-field');

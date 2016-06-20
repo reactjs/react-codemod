@@ -92,6 +92,7 @@ module.exports = (file, api, options) => {
         !filterDefaultPropsField(prop) &&
         !filterGetInitialStateField(prop) &&
         !isFunctionExpression(prop) &&
+        !isPrimExpression(prop) &&
         MIXIN_KEY != prop.key.name
       )
     ));
@@ -152,6 +153,16 @@ module.exports = (file, api, options) => {
     node.value.type === 'FunctionExpression'
   );
 
+  const isPrimExpression = node => (
+    node.key &&
+    node.key.type === 'Identifier' &&
+    node.value && (
+      node.value.type === 'Literal' || ( // TODO this might change in babylon v6
+        node.value.type === 'Identifier' &&
+        node.value.name === 'undefined'
+    ))
+  );
+
   // Collects `childContextTypes`, `contextTypes`, `displayName`, and `propTypes`;
   // simplifies `getDefaultProps` or converts it to an IIFE;
   // and collects everything else in the `statics` property object.
@@ -172,25 +183,20 @@ module.exports = (file, api, options) => {
     return result;
   };
 
-  const collectFunctions = specPath => specPath.properties
+  const collectProperties = specPath => specPath.properties
     .filter(prop =>
       !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
     )
-    .filter(isFunctionExpression);
+    .filter(prop => isFunctionExpression(prop) || isPrimExpression(prop));
 
   const findRequirePathAndBinding = (moduleName) => {
     let result = null;
 
     const requireStatement = root.find(j.VariableDeclarator, {
+      id: {type: 'Identifier'},
       init: {
-        type: 'CallExpression',
-        callee: {
-          type: 'Identifier',
-          name: 'require',
-        },
-        arguments: [{
-          value: moduleName,
-        }],
+        callee: {name: 'require'},
+        arguments: [{value: moduleName}],
       },
     });
 
@@ -344,13 +350,21 @@ module.exports = (file, api, options) => {
       false
     ), fn);
 
-  const createArrowPropertyFromMethod = method =>
+  const createArrowProperty = prop =>
     withComments(j.classProperty(
-      j.identifier(method.key.name),
-      createArrowFunctionExpression(method.value),
+      j.identifier(prop.key.name),
+      createArrowFunctionExpression(prop.value),
       null,
       false
-    ), method);
+    ), prop);
+
+  const createClassProperty = prop =>
+    withComments(j.classProperty(
+      j.identifier(prop.key.name),
+      prop.value,
+      null,
+      false
+    ), prop);
 
   // if there's no `getInitialState` or the `getInitialState` function is simple
   // (i.e., it does not reference `this.props`) then we don't need a constructor.
@@ -368,7 +382,7 @@ module.exports = (file, api, options) => {
     baseClassName,
     staticProperties,
     getInitialState,
-    methods,
+    rawProperties,
     comments
   ) => {
     let maybeConstructor = [];
@@ -382,11 +396,15 @@ module.exports = (file, api, options) => {
       maybeConstructor = createConstructor(getInitialState);
     }
 
-    const arrowBindFunctionsAndMethods = methods.map(method =>
-      AUTOBIND_IGNORE_KEYS[method.key.name] ?
-        method :
-        createArrowPropertyFromMethod(method)
-    );
+    const propertiesAndMethods = rawProperties.map(prop => {
+      if (isPrimExpression(prop)) {
+        return createClassProperty(prop);
+      } else if (AUTOBIND_IGNORE_KEYS[prop.key.name]) {
+        return createMethodDefinition(prop);
+      }
+
+      return createArrowProperty(prop);
+    });
 
     return withComments(j.classDeclaration(
       name ? j.identifier(name) : null,
@@ -395,7 +413,7 @@ module.exports = (file, api, options) => {
           staticProperties,
           maybeConstructor,
           initialStateProperty,
-          arrowBindFunctionsAndMethods
+          propertiesAndMethods
         )
       ),
       j.memberExpression(
@@ -449,11 +467,30 @@ module.exports = (file, api, options) => {
     return null;
   };
 
+  const findUnusedVariables = (path, varName) => j(path)
+    .closestScope()
+    .find(j.Identifier, {name: varName})
+    // Ignore require vars
+    .filter(identifierPath => identifierPath.value !== path.value.id)
+    // Ignore import bindings
+    .filter(identifierPath => !(
+      path.value.type === 'ImportDeclaration' &&
+      path.value.specifiers.some(specifier => specifier.local === identifierPath.value)
+    ))
+    // Ignore properties in MemberExpressions
+    .filter(identifierPath => {
+      const parent = identifierPath.parent.value;
+      return !(
+        j.MemberExpression.check(parent) &&
+        parent.property === identifierPath.value
+      );
+    });
+
   const updateToClass = (classPath, type) => {
     const specPath = ReactUtils.getReactCreateClassSpec(classPath);
     const name = ReactUtils.getComponentName(classPath);
     const statics = collectStatics(specPath);
-    const functions = collectFunctions(specPath);
+    const properties = collectProperties(specPath);
     const comments = getComments(classPath);
 
     const getInitialState = findGetInitialState(specPath);
@@ -478,7 +515,7 @@ module.exports = (file, api, options) => {
         baseClassName,
         staticProperties,
         getInitialState,
-        functions.map(createMethodDefinition),
+        properties,
         comments
       )
     );
@@ -496,7 +533,8 @@ module.exports = (file, api, options) => {
       if (!ReactUtils.hasMixins(classPath)) {
         return true;
       } else if (pureRenderMixinPathAndBinding) {
-        if (areMixinsConvertible([pureRenderMixinPathAndBinding.binding], classPath)) {
+        const {binding} = pureRenderMixinPathAndBinding;
+        if (areMixinsConvertible([binding], classPath)) {
           return true;
         }
       }
@@ -526,8 +564,10 @@ module.exports = (file, api, options) => {
     if (didTransform) {
       // prune removed requires
       if (pureRenderMixinPathAndBinding) {
-        // FIXME check the scope before removing stuff
-        j(pureRenderMixinPathAndBinding.path).remove();
+        const {binding, path} = pureRenderMixinPathAndBinding;
+        if (findUnusedVariables(path, binding).size() === 0) {
+          j(path).remove();
+        }
       }
 
       return root.toSource(printOptions);

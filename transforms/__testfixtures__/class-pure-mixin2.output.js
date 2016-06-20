@@ -1,4 +1,5 @@
 import React from 'React';
+import dontPruneMe from 'foobar';
 
 class ComponentWithOnlyPureRenderMixin extends React.PureComponent {
   constructor(props, context) {
@@ -10,6 +11,7 @@ class ComponentWithOnlyPureRenderMixin extends React.PureComponent {
   }
 
   render() {
+    dontPruneMe();
     return (
       <div>{this.state.counter}</div>
     );
