@@ -76,6 +76,7 @@ var MyComponent3 = React.createClass({
         />
       );
     }
+    return null;
   },
 
   autobindMe: function() {},
