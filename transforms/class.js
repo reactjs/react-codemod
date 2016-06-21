@@ -432,13 +432,23 @@ module.exports = (file, api, options) => {
     ), {comments});
   };
 
-  const createStaticClassProperty = staticProperty =>
-    withComments(j.classProperty(
+  const createStaticClassProperty = staticProperty => {
+    if (staticProperty.value.type === 'FunctionExpression') {
+      return withComments(j.methodDefinition(
+        'method',
+        j.identifier(staticProperty.key.name),
+        staticProperty.value,
+        true
+      ), staticProperty);
+    }
+
+    return withComments(j.classProperty(
       j.identifier(staticProperty.key.name),
       staticProperty.value,
       null,
       true
     ), staticProperty);
+  };
 
   const createStaticClassProperties = statics =>
     statics.map(createStaticClassProperty);

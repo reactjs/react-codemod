@@ -35,7 +35,7 @@ class MyComponent2 extends React.Component {
 
 class MyComponent3 extends React.Component {
   static someThing = 10;
-  static funcThatDoesNothing = function(): void {};
+  static funcThatDoesNothing(): void {}
 
   static propTypes = {
     highlightEntities: React.PropTypes.bool,

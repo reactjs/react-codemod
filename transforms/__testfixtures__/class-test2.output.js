@@ -8,6 +8,10 @@ class ComponentWithNonSimpleInitialState extends React.Component {
   static iDontKnowWhyYouNeedThis = true; // but comment it
   static foo = 'bar';
 
+  static dontBindMe(count: number): any {
+    return this;
+  }
+
   constructor(props) {
     super(props);
 

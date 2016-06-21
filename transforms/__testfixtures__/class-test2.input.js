@@ -8,6 +8,9 @@ var ComponentWithNonSimpleInitialState = React.createClass({
   statics: {
     iDontKnowWhyYouNeedThis: true, // but comment it
     foo: 'bar',
+    dontBindMe: function(count: number): any {
+      return this;
+    },
   },
 
   getInitialState: function() {
