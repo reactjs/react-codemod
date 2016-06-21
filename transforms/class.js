@@ -27,6 +27,7 @@ module.exports = (file, api, options) => {
     componentWillMount: true,
     componentWillUpdate: true,
     componentWillUnmount: true,
+    getChildContext: true,
     getDefaultProps: true,
     getInitialState: true,
     render: true,
