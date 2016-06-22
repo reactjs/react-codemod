@@ -26,24 +26,6 @@ var ComponentWithNonSimpleInitialState = React.createClass({
   },
 });
 
-var ComponentWithBothPropsAndContextAccess = React.createClass({
-  contextTypes: {
-    name: React.PropTypes.string,
-  },
-
-  getInitialState: function() {
-    return {
-      foo: this.props.foo,
-    };
-  },
-
-  render: function() {
-    return (
-      <div>{this.context.name}</div>
-    );
-  },
-});
-
 // Comment
 module.exports = React.createClass({
   propTypes: {

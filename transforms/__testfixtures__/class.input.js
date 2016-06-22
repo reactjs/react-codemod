@@ -5,22 +5,6 @@ var Relay = require('Relay');
 
 var Image = require('Image.react');
 
-/*
- * Multiline
- */
-var MyComponent = React.createClass({
-  getInitialState: function() {
-    var x = this.props.foo;
-    return {
-      heyoo: 23,
-    };
-  },
-
-  foo: function(): void {
-    this.setState({heyoo: 24});
-  },
-});
-
 // Class comment
 var MyComponent2 = React.createClass({
   getDefaultProps: function(): Object {

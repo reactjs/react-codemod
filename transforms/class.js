@@ -207,14 +207,14 @@ module.exports = (file, api, options) => {
       },
     });
 
-    if (importStatement.size() !== 0) {
+    if (importStatement.size()) {
       importStatement.forEach(path => {
         result = {
           path,
           binding: path.value.specifiers[0].local.name,
         };
       });
-    } else if (requireStatement.size() !== 0) {
+    } else if (requireStatement.size()) {
       requireStatement.forEach(path => {
         result = {
           path,
@@ -240,21 +240,9 @@ module.exports = (file, api, options) => {
   const isInitialStateLiftable = getInitialState => {
     if (!getInitialState || !(getInitialState.value)) {
       return true;
-    } else if (!hasSingleReturnStatement(getInitialState.value)) {
-      return false;
     }
 
-    return j(getInitialState)
-      .find(j.MemberExpression, {
-        object: {
-          type: 'ThisExpression',
-        },
-        property: {
-          type: 'Identifier',
-          name: 'props',
-        },
-      })
-      .size() === 0;
+    return hasSingleReturnStatementWithObject(getInitialState.value);
   };
 
   const updatePropsAccess = getInitialState =>
@@ -290,7 +278,7 @@ module.exports = (file, api, options) => {
     });
 
   const pickReturnValueOrCreateIIFE = value => {
-    if (hasSingleReturnStatement(value)) {
+    if (hasSingleReturnStatementWithObject(value)) {
       return value.body.body[0].argument;
     } else {
       return j.callExpression(
@@ -308,18 +296,38 @@ module.exports = (file, api, options) => {
       false
     ), getInitialState);
 
-  const createConstructorArgs = (hasPropsAccess, hasContextAccess) => {
+  const createConstructorArgs = (hasContextAccess) => {
     if (hasContextAccess) {
       return [j.identifier('props'), j.identifier('context')];
-    } else if (hasPropsAccess) {
-      return [j.identifier('props')];
     }
-    return [];
+
+    return [j.identifier('props')];
   };
 
-  const createConstructor = (getInitialState, hasContextAccess) => {
-    const hasPropsAccess = updatePropsAccess(getInitialState).size() > 0;
-    const constructorArgs = createConstructorArgs(hasPropsAccess, hasContextAccess);
+  const createConstructor = (getInitialState) => {
+    const initialStateAST = j(getInitialState);
+    let hasContextAccess = false;
+
+    if (
+      initialStateAST.find(j.MemberExpression, { // has `this.context` access
+        object: {type: 'ThisExpression'},
+        property: {type: 'Identifier', name: 'context'},
+      }).size() ||
+      initialStateAST.find(j.CallExpression, { // a direct method call `this.x()`
+        callee: {
+          type: 'MemberExpression',
+          object: {type: 'ThisExpression'},
+        },
+      }).size() ||
+      initialStateAST.find(j.MemberExpression, { // `this` is referenced alone
+        object: {type: 'ThisExpression'},
+      }).size() !== initialStateAST.find(j.ThisExpression).size()
+    ) {
+      hasContextAccess = true;
+    }
+
+    updatePropsAccess(getInitialState);
+    const constructorArgs = createConstructorArgs(hasContextAccess);
 
     return [
       createMethodDefinition({
@@ -374,9 +382,15 @@ module.exports = (file, api, options) => {
     ), prop);
 
   // if there's no `getInitialState` or the `getInitialState` function is simple
-  // (i.e., it does not reference `this.props`) then we don't need a constructor.
+  // (i.e., it's just a return statement) then we don't need a constructor.
   // we can simply lift `state = {...}` as a property initializer.
   // otherwise, create a constructor and inline `this.state = ...`.
+  //
+  // when we need to create a constructor, we only put `context` as the
+  // second parameter when the following things happen in `getInitialState()`:
+  // 1. there's a `this.context` access, or
+  // 2. there's a direct method call `this.x()`, or
+  // 3. `this` is referenced alone
   //
   // It creates a class with the following order of properties/methods:
   // 1. static properties
@@ -394,15 +408,13 @@ module.exports = (file, api, options) => {
   ) => {
     let maybeConstructor = [];
     const initialStateProperty = [];
-    const hasContextAccess = !!staticProperties.find((prop) =>
-      prop.key.name === 'contextTypes'
-    );
+
     if (isInitialStateLiftable(getInitialState)) {
       if (getInitialState) {
         initialStateProperty.push(convertInitialStateToClassProperty(getInitialState));
       }
     } else {
-      maybeConstructor = createConstructor(getInitialState, hasContextAccess);
+      maybeConstructor = createConstructor(getInitialState);
     }
 
     const propertiesAndMethods = rawProperties.map(prop => {
@@ -454,7 +466,7 @@ module.exports = (file, api, options) => {
   const createStaticClassProperties = statics =>
     statics.map(createStaticClassProperty);
 
-  const hasSingleReturnStatement = value => (
+  const hasSingleReturnStatementWithObject = value => (
     value.type === 'FunctionExpression' &&
     value.body &&
     value.body.type === 'BlockStatement' &&

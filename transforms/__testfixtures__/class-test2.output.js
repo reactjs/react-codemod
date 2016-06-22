@@ -12,37 +12,13 @@ class ComponentWithNonSimpleInitialState extends React.Component {
     return this;
   }
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      counter: props.initialNumber + 1,
-    };
-  }
+  state = {
+    counter: this.props.initialNumber + 1,
+  };
 
   render() {
     return (
       <div>{this.state.counter}</div>
-    );
-  }
-}
-
-class ComponentWithBothPropsAndContextAccess extends React.Component {
-  static contextTypes = {
-    name: React.PropTypes.string,
-  };
-
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-      foo: props.foo,
-    };
-  }
-
-  render() {
-    return (
-      <div>{this.context.name}</div>
     );
   }
 }
@@ -57,8 +33,8 @@ module.exports = class extends React.Component {
     foo: 12,
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     // non-simple getInitialState
     var data = 'bar';
 

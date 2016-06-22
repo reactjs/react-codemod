@@ -5,24 +5,6 @@ var Relay = require('Relay');
 
 var Image = require('Image.react');
 
-/*
- * Multiline
- */
-class MyComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    var x = props.foo;
-
-    this.state = {
-      heyoo: 23,
-    };
-  }
-
-  foo = (): void => {
-    this.setState({heyoo: 24});
-  };
-}
-
 // Class comment
 class MyComponent2 extends React.Component {
   static defaultProps = {a: 1};
