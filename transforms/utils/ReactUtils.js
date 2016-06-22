@@ -189,6 +189,7 @@ module.exports = function(j) {
         return spec;
       }
     }
+    return null;
   };
 
   const getClassExtendReactSpec = classPath => classPath.value.body;

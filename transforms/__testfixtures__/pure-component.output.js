@@ -19,4 +19,14 @@ class Impure extends React.Component {
   }
 }
 
+class ImpureWithRef extends React.Component {
+  render() {
+    return (
+      <div>
+        <span ref="spanasaurus" />
+      </div>
+    );
+  }
+}
+
 var A = props => <div className={props.foo} />;

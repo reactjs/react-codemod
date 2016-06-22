@@ -61,6 +61,7 @@ class MyComponent3 extends React.Component {
         />
       );
     }
+    return null;
   };
 
   autobindMe = () => {};
