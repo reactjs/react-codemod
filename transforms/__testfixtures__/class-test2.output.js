@@ -64,6 +64,24 @@ var ComponentWithInconvertibleMixins = React.createClass({
   },
 });
 
+var listOfInconvertibleMixins = [ReactComponentWithPureRenderMixin, FooBarMixin];
+
+var ComponentWithInconvertibleMixins2 = React.createClass({
+  mixins: listOfInconvertibleMixins,
+
+  getInitialState: function() {
+    return {
+      counter: this.props.initialNumber + 1,
+    };
+  },
+
+  render: function() {
+    return (
+      <div>{this.state.counter}</div>
+    );
+  },
+});
+
 // taken from https://facebook.github.io/react/docs/context.html#updating-context
 class MediaQuery extends React.Component {
   static childContextTypes = {

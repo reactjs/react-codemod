@@ -558,7 +558,7 @@ module.exports = (file, api, options) => {
     // no mixins found on the classPath -> true
     // pure mixin identifier not found -> (has mixins) -> false
     // found pure mixin identifier ->
-    //   class mixins only contain the identifier -> true
+    //   class mixins is an array and only contains the identifier -> true
     //   otherwise -> false
     const mixinsFilter = (classPath) => {
       if (!ReactUtils.hasMixins(classPath)) {

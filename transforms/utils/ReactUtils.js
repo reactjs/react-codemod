@@ -142,16 +142,7 @@ module.exports = function(j) {
 
   // ---------------------------------------------------------------------------
   // Checks if the React class has mixins
-  const isMixinProperty = property => {
-    const key = property.key;
-    const value = property.value;
-    return (
-      key.name === 'mixins' &&
-      value.type === 'ArrayExpression' &&
-      Array.isArray(value.elements) &&
-      value.elements.length
-    );
-  };
+  const isMixinProperty = property => property.key.name === 'mixins';
 
   const hasMixins = classPath => {
     const spec = getReactCreateClassSpec(classPath);
