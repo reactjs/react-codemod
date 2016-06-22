@@ -106,3 +106,25 @@ var MyComponent4 = React.createClass({
     this.setState({heyoo: 24});
   },
 });
+
+var Loader = React.createClass({
+  getInitialState() {
+    if (this.props.stuff) {
+      return {x: 1};
+    } else if (this.props.thing) {
+      return {x: 2};
+    }
+    switch (this.props.wow) {
+      case 1:
+        return this.props.lol ?
+          {x: 3} :
+          this.whatever(this.props);
+    }
+
+    return this.lol();
+  },
+
+  render() {
+    return null;
+  },
+});

@@ -113,3 +113,30 @@ class MyComponent4 extends React.Component {
     this.setState({heyoo: 24});
   };
 }
+
+class Loader extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    if (props.stuff) {
+      this.state = {x: 1};
+      return;
+    } else if (props.thing) {
+      this.state = {x: 2};
+      return;
+    }
+    switch (props.wow) {
+      case 1:
+        this.state = props.lol ?
+          {x: 3} :
+          this.whatever(props);
+
+        return;
+    }
+
+    this.state = this.lol();
+  }
+
+  render() {
+    return null;
+  }
+}

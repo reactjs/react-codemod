@@ -258,10 +258,13 @@ module.exports = (file, api, options) => {
       })
       .forEach(path => j(path).replaceWith(j.identifier('props')));
 
-  const inlineGetInitialState = getInitialState =>
-    getInitialState.value.body.body.map(statement => {
-      if (statement.type === 'ReturnStatement') {
-        return j.expressionStatement(
+  const inlineGetInitialState = getInitialState => {
+    const functionExpressionAST = j(getInitialState.value);
+
+    return functionExpressionAST
+      .find(j.ReturnStatement)
+      .forEach(path => {
+        j(path).replaceWith(j.expressionStatement(
           j.assignmentExpression(
             '=',
             j.memberExpression(
@@ -269,13 +272,20 @@ module.exports = (file, api, options) => {
               j.identifier('state'),
               false
             ),
-            statement.argument
+            path.value.argument
           )
-        );
-      }
+        ));
 
-      return statement;
-    });
+        if ( // FIXME is there a better way to check this?
+          j(path).closest(j.IfStatement).size() ||
+          j(path).closest(j.SwitchStatement).size() ||
+          j(path).closest(j.WhileStatement).size() ||
+          j(path).closest(j.ForStatement).size()
+        ) {
+          j(path).insertAfter(j.returnStatement(null));
+        }
+      }).getAST()[0].value.body.body;
+  };
 
   const pickReturnValueOrCreateIIFE = value => {
     if (hasSingleReturnStatementWithObject(value)) {
