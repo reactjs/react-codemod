@@ -72,6 +72,7 @@ module.exports = function(file, api, options) {
             value
           );
         }
+        return null;
       });
 
       return attributes;
