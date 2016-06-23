@@ -107,6 +107,7 @@ module.exports = (file, api, options) => {
         !filterGetInitialStateField(prop) &&
         !isFunctionExpression(prop) &&
         !isPrimProperty(prop) &&
+        !isPrimPropertyWithTypeAnnotation(prop) &&
         MIXIN_KEY != prop.key.name
       )
     ));
@@ -174,8 +175,16 @@ module.exports = (file, api, options) => {
     isPrimExpression(prop.value)
   );
 
+  const isPrimPropertyWithTypeAnnotation = prop => (
+    prop.key &&
+    prop.key.type === 'Identifier' &&
+    prop.value &&
+    prop.value.type === 'TypeCastExpression' &&
+    isPrimExpression(prop.value.expression)
+  );
+
   const isPrimExpression = node => (
-    node.type === 'Literal' || ( // TODO this might change in babylon v6
+    node.type === 'Literal' || ( // NOTE this might change in babylon v6
       node.type === 'Identifier' &&
       node.name === 'undefined'
   ));
@@ -204,7 +213,11 @@ module.exports = (file, api, options) => {
     .filter(prop =>
       !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
     )
-    .filter(prop => isFunctionExpression(prop) || isPrimProperty(prop));
+    .filter(prop =>
+      isFunctionExpression(prop) ||
+      isPrimPropertyWithTypeAnnotation(prop) ||
+      isPrimProperty(prop)
+    );
 
   const findRequirePathAndBinding = (moduleName) => {
     let result = null;
@@ -404,6 +417,14 @@ module.exports = (file, api, options) => {
       j.identifier(prop.key.name),
       prop.value,
       null,
+      false
+    ), prop);
+
+  const createClassPropertyWithType = prop =>
+    withComments(j.classProperty(
+      j.identifier(prop.key.name),
+      prop.value.expression,
+      prop.value.typeAnnotation,
       false
     ), prop);
 
@@ -626,7 +647,9 @@ module.exports = (file, api, options) => {
     }
 
     const propertiesAndMethods = rawProperties.map(prop => {
-      if (isPrimProperty(prop)) {
+      if (isPrimPropertyWithTypeAnnotation(prop)) {
+        return createClassPropertyWithType(prop);
+      } else if (isPrimProperty(prop)) {
         return createClassProperty(prop);
       } else if (AUTOBIND_IGNORE_KEYS[prop.key.name]) {
         return createMethodDefinition(prop);
@@ -666,6 +689,15 @@ module.exports = (file, api, options) => {
         'method',
         j.identifier(staticProperty.key.name),
         staticProperty.value,
+        true
+      ), staticProperty);
+    }
+
+    if (staticProperty.value.type === 'TypeCastExpression') {
+      return withComments(j.classProperty(
+        j.identifier(staticProperty.key.name),
+        staticProperty.value.expression,
+        staticProperty.value.typeAnnotation,
         true
       ), staticProperty);
     }

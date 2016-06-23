@@ -27,3 +27,4 @@ defineTest(__dirname, 'class', { flow: true }, 'class-flow1');
 defineTest(__dirname, 'class', { flow: true }, 'class-flow2');
 defineTest(__dirname, 'class', { flow: true }, 'class-flow3');
 defineTest(__dirname, 'class', { flow: true }, 'class-flow4');
+defineTest(__dirname, 'class', { flow: true }, 'class-flow5');
