@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "jscodeshift": {
+      "version": "0.3.25",
+      "dependencies": {
+        "recast": {
+          "version": "git://github.com/keyanzhang/recast.git#temporary-codemod-fork"
+        }
+      }
+    }
+  }
+}

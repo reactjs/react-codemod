@@ -16,8 +16,11 @@ class Component extends React.Component {
     optionalEnum?: 'News' | 'Photos' | 1 | true | null,
     optionalUnion?: string | number | Message,
     optionalArrayOf?: Array<number>,
-    optionalObjectOf?: {[key: string]: number},
-    optionalObjectWithShape?: {color: string, fontSize: number},
+    optionalObjectOf?: {[key: string]: number,},
+    optionalObjectWithShape?: {
+      color?: string,
+      fontSize?: number,
+    },
     requiredFunc: Function,
     requiredAny: any,
   };

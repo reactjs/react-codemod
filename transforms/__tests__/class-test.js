@@ -18,9 +18,12 @@ const pureMixinAlternativeOption = {
 
 defineTest(__dirname, 'class');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-test2');
-defineTest(__dirname, 'class', null, 'export-default-class');
+defineTest(__dirname, 'class', { flow: true }, 'export-default-class');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-pure-mixin1');
-defineTest(__dirname, 'class', null, 'class-pure-mixin2');
-defineTest(__dirname, 'class', null, 'class-initial-state');
-defineTest(__dirname, 'class', null, 'class-property-field');
-defineTest(__dirname, 'class', { flow: true }, 'class-proptypes');
+defineTest(__dirname, 'class', { flow: true }, 'class-pure-mixin2');
+defineTest(__dirname, 'class', { flow: true }, 'class-initial-state');
+defineTest(__dirname, 'class', { flow: true }, 'class-property-field');
+defineTest(__dirname, 'class', { flow: true }, 'class-flow1');
+defineTest(__dirname, 'class', { flow: true }, 'class-flow2');
+defineTest(__dirname, 'class', { flow: true }, 'class-flow3');
+defineTest(__dirname, 'class', { flow: true }, 'class-flow4');

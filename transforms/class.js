@@ -60,6 +60,19 @@ module.exports = (file, api, options) => {
 
   const MIXIN_KEY = 'mixins';
 
+  let shouldTransformFlow = false;
+
+  if (options['flow']) {
+    const programBodyNode = root.find(j.Program).get('body', 0).node;
+    if (programBodyNode && programBodyNode.comments) {
+      programBodyNode.comments.forEach(node => {
+        if (node.value.indexOf('@flow') !== -1) {
+          shouldTransformFlow = true;
+        }
+      });
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Checks if the module uses mixins or accesses deprecated APIs.
   const checkDeprecatedAPICalls = classPath =>
@@ -407,7 +420,7 @@ module.exports = (file, api, options) => {
         return j.numberLiteralTypeAnnotation(node.value, node.raw);
       case 'boolean':
         return j.booleanLiteralTypeAnnotation(node.value, node.raw);
-      case 'object':
+      case 'object': // we already know it's a NullLiteral here
         return j.nullLiteralTypeAnnotation();
       default:
         return flowAnyType; // meh
@@ -444,13 +457,12 @@ module.exports = (file, api, options) => {
       type,
       null
     ),
-    objectOf: (type) => j.objectTypeAnnotation(
-      [],
-      [j.objectTypeIndexer(j.identifier('key'), j.stringTypeAnnotation(), type)],
-      []
-    ),
+    objectOf: (type) => j.objectTypeAnnotation([], [
+      j.objectTypeIndexer(j.identifier('key'), j.stringTypeAnnotation(), type)
+    ]),
     oneOf: (typeList) => j.unionTypeAnnotation(typeList),
     oneOfType: (typeList) => j.unionTypeAnnotation(typeList),
+    shape: (propList) => j.objectTypeAnnotation(propList),
   };
 
   const propTypeToFlowAnnotation = val => {
@@ -458,7 +470,7 @@ module.exports = (file, api, options) => {
     let isOptional = true;
     let typeResult = flowAnyType;
 
-    if (
+    if ( // check `.isRequired` first
       cursor.type === 'MemberExpression' &&
       cursor.property.type === 'Identifier' &&
       cursor.property.name === 'isRequired'
@@ -467,13 +479,20 @@ module.exports = (file, api, options) => {
       cursor = cursor.object;
     }
 
-    if (
-      cursor.type === 'CallExpression'
-    ) {
+    if (cursor.type === 'CallExpression') { // type class
+      const calleeName = cursor.callee.type === 'MemberExpression' ?
+        cursor.callee.property.name :
+        cursor.callee.name;
+
+      const constructor = propTypeToFlowMapping[calleeName];
+      if (!constructor) {
+        typeResult = flowAnyType;
+        return [typeResult, isOptional];
+      }
+
       switch (cursor.callee.property.name) {
         case 'arrayOf': {
           const arg = cursor.arguments[0];
-          const constructor = propTypeToFlowMapping['arrayOf'];
           typeResult = constructor(
             propTypeToFlowAnnotation(arg)[0]
           );
@@ -486,13 +505,11 @@ module.exports = (file, api, options) => {
             break;
           }
 
-          const constructor = propTypeToFlowMapping['instanceOf'];
           typeResult = constructor(arg);
           break;
         }
         case 'objectOf': {
           const arg = cursor.arguments[0];
-          const constructor = propTypeToFlowMapping['objectOf'];
           typeResult = constructor(
             propTypeToFlowAnnotation(arg)[0]
           );
@@ -502,27 +519,38 @@ module.exports = (file, api, options) => {
           const argList = cursor.arguments[0].elements;
           if (!argList.every(node => node.type === 'Literal')) {
             typeResult = flowAnyType;
-            break;
+          } else {
+            typeResult = constructor(
+              argList.map(literalToFlowType)
+            );
           }
-          const constructor = propTypeToFlowMapping['oneOf'];
-          typeResult = constructor(
-            argList.map(literalToFlowType)
-          );
           break;
         }
         case 'oneOfType': {
           const argList = cursor.arguments[0].elements;
-          const constructor = propTypeToFlowMapping['oneOfType'];
           typeResult = constructor(
             argList.map(arg => propTypeToFlowAnnotation(arg)[0])
           );
           break;
         }
-        case 'shape': { // TODO
+        case 'shape': {
+          const rawPropList = cursor.arguments[0].properties;
+          const flowPropList = [];
+          rawPropList.forEach(typeProp => {
+            const name = typeProp.key.name;
+            const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
+            flowPropList.push(j.objectTypeProperty(
+              j.identifier(name),
+              valueType,
+              isOptional
+            ));
+          });
 
+          typeResult = constructor(flowPropList);
+          break;
         }
       }
-    } else if (
+    } else if ( // prim type
       cursor.type === 'MemberExpression' &&
       cursor.property.type === 'Identifier'
     ) {
@@ -533,16 +561,20 @@ module.exports = (file, api, options) => {
   };
 
   const createFlowAnnotationsFromPropTypesProperties = (prop) => {
-    const typeProperty = [];
+    const typePropertyList = [];
 
-    if (!prop) {
-      return typeProperty;
+    if (!prop || prop.value.type !== 'ObjectExpression') {
+      return typePropertyList;
     }
 
     prop.value.properties.forEach(typeProp => {
+      if (!typeProp.key) { // SpreadProperty
+        return;
+      }
+
       const name = typeProp.key.name;
       const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
-      typeProperty.push(j.objectTypeProperty(
+      typePropertyList.push(j.objectTypeProperty(
         j.identifier(name),
         valueType,
         isOptional
@@ -552,7 +584,7 @@ module.exports = (file, api, options) => {
     return j.classProperty(
       j.identifier('props'),
       null,
-      j.typeAnnotation(j.objectTypeAnnotation(typeProperty)),
+      j.typeAnnotation(j.objectTypeAnnotation(typePropertyList)),
       false
     );
   };
@@ -603,7 +635,7 @@ module.exports = (file, api, options) => {
       return createArrowProperty(prop);
     });
 
-    const flowPropsAnnotation = options['flow'] ?
+    const flowPropsAnnotation = shouldTransformFlow ?
       createFlowAnnotationsFromPropTypesProperties(
         staticProperties.find((path) => path.key.name === 'propTypes')
       ) :
