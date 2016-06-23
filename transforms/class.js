@@ -293,6 +293,13 @@ module.exports = (file, api, options) => {
     return functionExpressionAST
       .find(j.ReturnStatement)
       .forEach(path => {
+        let shouldInsertReturnAfterAssignment = false;
+
+        // if the return statement is not a direct child of the function body
+        if (getInitialState.value.body.body.indexOf(path.value) === -1) {
+          shouldInsertReturnAfterAssignment = true;
+        }
+
         j(path).replaceWith(j.expressionStatement(
           j.assignmentExpression(
             '=',
@@ -305,12 +312,7 @@ module.exports = (file, api, options) => {
           )
         ));
 
-        if ( // FIXME is there a better way to check this?
-          j(path).closest(j.IfStatement).size() ||
-          j(path).closest(j.SwitchStatement).size() ||
-          j(path).closest(j.WhileStatement).size() ||
-          j(path).closest(j.ForStatement).size()
-        ) {
+        if (shouldInsertReturnAfterAssignment) {
           j(path).insertAfter(j.returnStatement(null));
         }
       }).getAST()[0].value.body.body;
