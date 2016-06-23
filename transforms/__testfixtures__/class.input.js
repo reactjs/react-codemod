@@ -11,6 +11,7 @@ var MyComponent2 = React.createClass({
     return {a: 1};
   },
   foo: function(): void {
+    const x = (a: Object, b: string): void => {}; // This code cannot be parsed by Babel v5
     pass(this.foo);
     this.forceUpdate();
   },

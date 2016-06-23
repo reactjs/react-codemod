@@ -10,6 +10,7 @@ class MyComponent2 extends React.Component {
   static defaultProps = {a: 1};
 
   foo = (): void => {
+    const x = (a: Object, b: string): void => {}; // This code cannot be parsed by Babel v5
     pass(this.foo);
     this.forceUpdate();
   };

@@ -58,7 +58,8 @@ module.exports = function(j) {
       .filter(decl => findReactCreateClassCallExpression(decl).size() > 0);
 
   const findReactCreateClassExportDefault = path =>
-    path.find(j.ExportDefaultDeclaration, {
+    path.find(j.ExportDeclaration, {
+      default: true,
       declaration: {
         type: 'CallExpression',
         callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,

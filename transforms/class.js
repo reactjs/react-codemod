@@ -93,7 +93,7 @@ module.exports = (file, api, options) => {
         !filterDefaultPropsField(prop) &&
         !filterGetInitialStateField(prop) &&
         !isFunctionExpression(prop) &&
-        !isPrimExpression(prop) &&
+        !isPrimProperty(prop) &&
         MIXIN_KEY != prop.key.name
       )
     ));
@@ -154,15 +154,18 @@ module.exports = (file, api, options) => {
     node.value.type === 'FunctionExpression'
   );
 
-  const isPrimExpression = node => (
-    node.key &&
-    node.key.type === 'Identifier' &&
-    node.value && (
-      node.value.type === 'Literal' || ( // TODO this might change in babylon v6
-        node.value.type === 'Identifier' &&
-        node.value.name === 'undefined'
-    ))
+  const isPrimProperty = prop => (
+    prop.key &&
+    prop.key.type === 'Identifier' &&
+    prop.value &&
+    isPrimExpression(prop.value)
   );
+
+  const isPrimExpression = node => (
+    node.type === 'Literal' || ( // TODO this might change in babylon v6
+      node.type === 'Identifier' &&
+      node.name === 'undefined'
+  ));
 
   // Collects `childContextTypes`, `contextTypes`, `displayName`, and `propTypes`;
   // simplifies `getDefaultProps` or converts it to an IIFE;
@@ -188,7 +191,7 @@ module.exports = (file, api, options) => {
     .filter(prop =>
       !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
     )
-    .filter(prop => isFunctionExpression(prop) || isPrimExpression(prop));
+    .filter(prop => isFunctionExpression(prop) || isPrimProperty(prop));
 
   const findRequirePathAndBinding = (moduleName) => {
     let result = null;
@@ -211,7 +214,7 @@ module.exports = (file, api, options) => {
       importStatement.forEach(path => {
         result = {
           path,
-          binding: path.value.specifiers[0].local.name,
+          binding: path.value.specifiers[0].id.name,
         };
       });
     } else if (requireStatement.size()) {
@@ -391,6 +394,169 @@ module.exports = (file, api, options) => {
       false
     ), prop);
 
+  // ---------------------------------------------------------------------------
+  // Flow!
+
+  const flowAnyType = j.anyTypeAnnotation();
+
+  const literalToFlowType = node => {
+    switch (typeof node.value) {
+      case 'string':
+        return j.stringLiteralTypeAnnotation(node.value, node.raw);
+      case 'number':
+        return j.numberLiteralTypeAnnotation(node.value, node.raw);
+      case 'boolean':
+        return j.booleanLiteralTypeAnnotation(node.value, node.raw);
+      case 'object':
+        return j.nullLiteralTypeAnnotation();
+      default:
+        return flowAnyType; // meh
+    }
+  };
+
+  const propTypeToFlowMapping = {
+    // prim types
+    any: flowAnyType,
+    array: j.genericTypeAnnotation(
+      j.identifier('Array'),
+      j.typeParameterInstantiation([flowAnyType])
+    ),
+    bool: j.booleanTypeAnnotation(),
+    element: flowAnyType,
+    func: j.genericTypeAnnotation(
+      j.identifier('Function'),
+      null
+    ),
+    node: flowAnyType,
+    number: j.numberTypeAnnotation(),
+    object: j.genericTypeAnnotation(
+      j.identifier('Object'),
+      null
+    ),
+    string: j.stringTypeAnnotation(),
+
+    // type classes
+    arrayOf: (type) => j.genericTypeAnnotation(
+      j.identifier('Array'),
+      j.typeParameterInstantiation([type])
+    ),
+    instanceOf: (type) => j.genericTypeAnnotation(
+      type,
+      null
+    ),
+    objectOf: (type) => j.objectTypeAnnotation(
+      [],
+      [j.objectTypeIndexer(j.identifier('key'), j.stringTypeAnnotation(), type)],
+      []
+    ),
+    oneOf: (typeList) => j.unionTypeAnnotation(typeList),
+    oneOfType: (typeList) => j.unionTypeAnnotation(typeList),
+  };
+
+  const propTypeToFlowAnnotation = val => {
+    let cursor = val;
+    let isOptional = true;
+    let typeResult = flowAnyType;
+
+    if (
+      cursor.type === 'MemberExpression' &&
+      cursor.property.type === 'Identifier' &&
+      cursor.property.name === 'isRequired'
+    ) {
+      isOptional = false;
+      cursor = cursor.object;
+    }
+
+    if (
+      cursor.type === 'CallExpression'
+    ) {
+      switch (cursor.callee.property.name) {
+        case 'arrayOf': {
+          const arg = cursor.arguments[0];
+          const constructor = propTypeToFlowMapping['arrayOf'];
+          typeResult = constructor(
+            propTypeToFlowAnnotation(arg)[0]
+          );
+          break;
+        }
+        case 'instanceOf': {
+          const arg = cursor.arguments[0];
+          if (arg.type !== 'Identifier') {
+            typeResult = flowAnyType;
+            break;
+          }
+
+          const constructor = propTypeToFlowMapping['instanceOf'];
+          typeResult = constructor(arg);
+          break;
+        }
+        case 'objectOf': {
+          const arg = cursor.arguments[0];
+          const constructor = propTypeToFlowMapping['objectOf'];
+          typeResult = constructor(
+            propTypeToFlowAnnotation(arg)[0]
+          );
+          break;
+        }
+        case 'oneOf': {
+          const argList = cursor.arguments[0].elements;
+          if (!argList.every(node => node.type === 'Literal')) {
+            typeResult = flowAnyType;
+            break;
+          }
+          const constructor = propTypeToFlowMapping['oneOf'];
+          typeResult = constructor(
+            argList.map(literalToFlowType)
+          );
+          break;
+        }
+        case 'oneOfType': {
+          const argList = cursor.arguments[0].elements;
+          const constructor = propTypeToFlowMapping['oneOfType'];
+          typeResult = constructor(
+            argList.map(arg => propTypeToFlowAnnotation(arg)[0])
+          );
+          break;
+        }
+        case 'shape': { // TODO
+
+        }
+      }
+    } else if (
+      cursor.type === 'MemberExpression' &&
+      cursor.property.type === 'Identifier'
+    ) {
+      typeResult = propTypeToFlowMapping[cursor.property.name] || flowAnyType;
+    }
+
+    return [typeResult, isOptional];
+  };
+
+  const createFlowAnnotationsFromPropTypesProperties = (prop) => {
+    const typeProperty = [];
+
+    if (!prop) {
+      return typeProperty;
+    }
+
+    prop.value.properties.forEach(typeProp => {
+      const name = typeProp.key.name;
+      const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
+      typeProperty.push(j.objectTypeProperty(
+        j.identifier(name),
+        valueType,
+        isOptional
+      ));
+    });
+
+    return j.classProperty(
+      j.identifier('props'),
+      null,
+      j.typeAnnotation(j.objectTypeAnnotation(typeProperty)),
+      false
+    );
+  };
+
   // if there's no `getInitialState` or the `getInitialState` function is simple
   // (i.e., it's just a return statement) then we don't need a constructor.
   // we can simply lift `state = {...}` as a property initializer.
@@ -428,7 +594,7 @@ module.exports = (file, api, options) => {
     }
 
     const propertiesAndMethods = rawProperties.map(prop => {
-      if (isPrimExpression(prop)) {
+      if (isPrimProperty(prop)) {
         return createClassProperty(prop);
       } else if (AUTOBIND_IGNORE_KEYS[prop.key.name]) {
         return createMethodDefinition(prop);
@@ -437,10 +603,17 @@ module.exports = (file, api, options) => {
       return createArrowProperty(prop);
     });
 
+    const flowPropsAnnotation = options['flow'] ?
+      createFlowAnnotationsFromPropTypesProperties(
+        staticProperties.find((path) => path.key.name === 'propTypes')
+      ) :
+      [];
+
     return withComments(j.classDeclaration(
       name ? j.identifier(name) : null,
       j.classBody(
         [].concat(
+          flowPropsAnnotation,
           staticProperties,
           maybeConstructor,
           initialStateProperty,
@@ -516,7 +689,7 @@ module.exports = (file, api, options) => {
     // Ignore import bindings
     .filter(identifierPath => !(
       path.value.type === 'ImportDeclaration' &&
-      path.value.specifiers.some(specifier => specifier.local === identifierPath.value)
+      path.value.specifiers.some(specifier => specifier.id === identifierPath.value)
     ))
     // Ignore properties in MemberExpressions
     .filter(identifierPath => {
@@ -618,3 +791,5 @@ module.exports = (file, api, options) => {
 
   return null;
 };
+
+module.exports.parser = 'flow';
