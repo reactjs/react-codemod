@@ -36,7 +36,7 @@ module.exports = function(fileInfo, api, options) {
   const printOptions =
     options.printOptions || {quote: 'single', trailingComma: true};
 
-  const methodsOrder = getMethodsOrder(fileInfo, options);
+  const methodsOrder = getMethodsOrder(fileInfo, options); // eslint-disable-line no-use-before-define
 
   const root = j(fileInfo.source);
 
@@ -44,8 +44,8 @@ module.exports = function(fileInfo, api, options) {
     const nameA = a.key.name;
     const nameB = b.key.name;
 
-    const indexA = getCorrectIndex(methodsOrder, a);
-    const indexB = getCorrectIndex(methodsOrder, b);
+    const indexA = getCorrectIndex(methodsOrder, a); // eslint-disable-line no-use-before-define
+    const indexB = getCorrectIndex(methodsOrder, b); // eslint-disable-line no-use-before-define
 
     const sameLocation = indexA === indexB;
 

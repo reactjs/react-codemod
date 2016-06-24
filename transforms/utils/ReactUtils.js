@@ -86,6 +86,18 @@ module.exports = function(j) {
         },
       });
 
+  const getReactCreateClassSpec = classPath => {
+    const {value} = classPath;
+    const args = (value.init || value.right || value.declaration).arguments;
+    if (args) {
+      const spec = args[0];
+      if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
+        return spec;
+      }
+    }
+    return null;
+  };
+
   // ---------------------------------------------------------------------------
   // Finds alias for React.Component if used as named import.
   const findReactComponentName = path => {
@@ -181,18 +193,6 @@ module.exports = function(j) {
 
   // ---------------------------------------------------------------------------
   // Others
-  const getReactCreateClassSpec = classPath => {
-    const {value} = classPath;
-    const args = (value.init || value.right || value.declaration).arguments;
-    if (args) {
-      const spec = args[0];
-      if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
-        return spec;
-      }
-    }
-    return null;
-  };
-
   const getClassExtendReactSpec = classPath => classPath.value.body;
 
   const createCreateReactClassCallExpression = properties =>

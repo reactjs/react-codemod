@@ -10,4 +10,8 @@ module.exports = {
   ecmaFeatures: {
     modules: false
   },
+
+  rules: {
+    'no-use-before-define': 2,
+  },
 };

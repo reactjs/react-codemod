@@ -74,6 +74,75 @@ module.exports = (file, api, options) => {
   }
 
   // ---------------------------------------------------------------------------
+  // Helpers
+  const createFindPropFn = prop => property => (
+    property.key &&
+    property.key.type === 'Identifier' &&
+    property.key.name === prop
+  );
+
+  const filterDefaultPropsField = node =>
+    createFindPropFn(DEFAULT_PROPS_FIELD)(node);
+
+  const filterGetInitialStateField = node =>
+    createFindPropFn(GET_INITIAL_STATE_FIELD)(node);
+
+  const findGetInitialState = specPath =>
+    specPath.properties.find(createFindPropFn(GET_INITIAL_STATE_FIELD));
+
+  const withComments = (to, from) => {
+    to.comments = from.comments;
+    return to;
+  };
+
+  const isPrimExpression = node => (
+    node.type === 'Literal' || ( // NOTE this might change in babylon v6
+      node.type === 'Identifier' &&
+      node.name === 'undefined'
+  ));
+
+  const isFunctionExpression = node => (
+    node.key &&
+    node.key.type === 'Identifier' &&
+    node.value &&
+    node.value.type === 'FunctionExpression'
+  );
+
+  const isPrimProperty = prop => (
+    prop.key &&
+    prop.key.type === 'Identifier' &&
+    prop.value &&
+    isPrimExpression(prop.value)
+  );
+
+  const isPrimPropertyWithTypeAnnotation = prop => (
+    prop.key &&
+    prop.key.type === 'Identifier' &&
+    prop.value &&
+    prop.value.type === 'TypeCastExpression' &&
+    isPrimExpression(prop.value.expression)
+  );
+
+  const hasSingleReturnStatementWithObject = value => (
+    value.type === 'FunctionExpression' &&
+    value.body &&
+    value.body.type === 'BlockStatement' &&
+    value.body.body &&
+    value.body.body.length === 1 &&
+    value.body.body[0].type === 'ReturnStatement' &&
+    value.body.body[0].argument &&
+    value.body.body[0].argument.type === 'ObjectExpression'
+  );
+
+  const isInitialStateLiftable = getInitialState => {
+    if (!getInitialState || !(getInitialState.value)) {
+      return true;
+    }
+
+    return hasSingleReturnStatementWithObject(getInitialState.value);
+  };
+
+  // ---------------------------------------------------------------------------
   // Checks if the module uses mixins or accesses deprecated APIs.
   const checkDeprecatedAPICalls = classPath =>
     DEPRECATED_APIS.reduce(
@@ -233,56 +302,27 @@ module.exports = (file, api, options) => {
   };
 
   // ---------------------------------------------------------------------------
-  // Helpers
-  const createFindPropFn = prop => property => (
-    property.key &&
-    property.key.type === 'Identifier' &&
-    property.key.name === prop
-  );
-
-  const filterDefaultPropsField = node =>
-    createFindPropFn(DEFAULT_PROPS_FIELD)(node);
-
-  const filterGetInitialStateField = node =>
-    createFindPropFn(GET_INITIAL_STATE_FIELD)(node);
-
-  const findGetInitialState = specPath =>
-    specPath.properties.find(createFindPropFn(GET_INITIAL_STATE_FIELD));
-
-  const withComments = (to, from) => {
-    to.comments = from.comments;
-    return to;
+  // Collectors
+  const pickReturnValueOrCreateIIFE = value => {
+    if (hasSingleReturnStatementWithObject(value)) {
+      return value.body.body[0].argument;
+    } else {
+      return j.callExpression(
+        value,
+        []
+      );
+    }
   };
 
-  // ---------------------------------------------------------------------------
-  // Collectors
-  const isFunctionExpression = node => (
-    node.key &&
-    node.key.type === 'Identifier' &&
-    node.value &&
-    node.value.type === 'FunctionExpression'
-  );
-
-  const isPrimProperty = prop => (
-    prop.key &&
-    prop.key.type === 'Identifier' &&
-    prop.value &&
-    isPrimExpression(prop.value)
-  );
-
-  const isPrimPropertyWithTypeAnnotation = prop => (
-    prop.key &&
-    prop.key.type === 'Identifier' &&
-    prop.value &&
-    prop.value.type === 'TypeCastExpression' &&
-    isPrimExpression(prop.value.expression)
-  );
-
-  const isPrimExpression = node => (
-    node.type === 'Literal' || ( // NOTE this might change in babylon v6
-      node.type === 'Identifier' &&
-      node.name === 'undefined'
-  ));
+  const createDefaultProps = prop =>
+    withComments(
+      j.property(
+        'init',
+        j.identifier(DEFAULT_PROPS_KEY),
+        pickReturnValueOrCreateIIFE(prop.value)
+      ),
+      prop
+    );
 
   // Collects `childContextTypes`, `contextTypes`, `displayName`, and `propTypes`;
   // simplifies `getDefaultProps` or converts it to an IIFE;
@@ -361,14 +401,6 @@ module.exports = (file, api, options) => {
       fn.value
     ), fn);
 
-  const isInitialStateLiftable = getInitialState => {
-    if (!getInitialState || !(getInitialState.value)) {
-      return true;
-    }
-
-    return hasSingleReturnStatementWithObject(getInitialState.value);
-  };
-
   const updatePropsAccess = getInitialState =>
     j(getInitialState)
       .find(j.MemberExpression, {
@@ -438,17 +470,6 @@ module.exports = (file, api, options) => {
           j(path).insertAfter(j.returnStatement(null));
         }
       }).getAST()[0].value.body.body;
-  };
-
-  const pickReturnValueOrCreateIIFE = value => {
-    if (hasSingleReturnStatementWithObject(value)) {
-      return value.body.body[0].argument;
-    } else {
-      return j.callExpression(
-        value,
-        []
-      );
-    }
   };
 
   const convertInitialStateToClassProperty = getInitialState =>
@@ -852,27 +873,6 @@ module.exports = (file, api, options) => {
 
   const createStaticClassProperties = statics =>
     statics.map(createStaticClassProperty);
-
-  const hasSingleReturnStatementWithObject = value => (
-    value.type === 'FunctionExpression' &&
-    value.body &&
-    value.body.type === 'BlockStatement' &&
-    value.body.body &&
-    value.body.body.length === 1 &&
-    value.body.body[0].type === 'ReturnStatement' &&
-    value.body.body[0].argument &&
-    value.body.body[0].argument.type === 'ObjectExpression'
-  );
-
-  const createDefaultProps = prop =>
-    withComments(
-      j.property(
-        'init',
-        j.identifier(DEFAULT_PROPS_KEY),
-        pickReturnValueOrCreateIIFE(prop.value)
-      ),
-      prop
-    );
 
   const getComments = classPath => {
     if (classPath.value.comments) {
