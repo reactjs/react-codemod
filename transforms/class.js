@@ -684,7 +684,7 @@ module.exports = (file, api, options) => {
         }
         case 'oneOf': {
           const argList = cursor.arguments[0].elements;
-          if (!argList.every(node => node.type === 'Literal')) {
+          if (!argList || !argList.every(node => node.type === 'Literal')) {
             typeResult = flowAnyType;
           } else {
             typeResult = constructor(
@@ -695,25 +695,33 @@ module.exports = (file, api, options) => {
         }
         case 'oneOfType': {
           const argList = cursor.arguments[0].elements;
-          typeResult = constructor(
-            argList.map(arg => propTypeToFlowAnnotation(arg)[0])
-          );
+          if (!argList) {
+            typeResult = flowAnyType;
+          } else {
+            typeResult = constructor(
+              argList.map(arg => propTypeToFlowAnnotation(arg)[0])
+            );
+          }
           break;
         }
         case 'shape': {
           const rawPropList = cursor.arguments[0].properties;
-          const flowPropList = [];
-          rawPropList.forEach(typeProp => {
-            const name = typeProp.key.name;
-            const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
-            flowPropList.push(j.objectTypeProperty(
-              j.identifier(name),
-              valueType,
-              isOptional
-            ));
-          });
+          if (!rawPropList) {
+            typeResult = flowAnyType;
+          } else {
+            const flowPropList = [];
+            rawPropList.forEach(typeProp => {
+              const name = typeProp.key.name;
+              const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
+              flowPropList.push(j.objectTypeProperty(
+                j.identifier(name),
+                valueType,
+                isOptional
+              ));
+            });
 
-          typeResult = constructor(flowPropList);
+            typeResult = constructor(flowPropList);
+          }
           break;
         }
       }
