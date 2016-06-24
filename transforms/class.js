@@ -383,23 +383,41 @@ module.exports = (file, api, options) => {
       .forEach(path => j(path).replaceWith(j.identifier('props')));
 
   const inlineGetInitialState = getInitialState => {
-    const functionExpressionAST = j(getInitialState.value);
+    const functionExpressionCollection = j(getInitialState.value);
 
     // at this point if there exists bindings like `const props = ...`, we
     // already know the RHS must be `this.props` (see `isGetInitialStateConstructorSafe`)
     // so it's safe to just remove them
-    functionExpressionAST.find(j.VariableDeclarator, {id: {name: 'props'}})
+    functionExpressionCollection.find(j.VariableDeclarator, {id: {name: 'props'}})
       .forEach(path => j(path).remove());
 
-    functionExpressionAST.find(j.VariableDeclarator, {id: {name: 'context'}})
+    functionExpressionCollection.find(j.VariableDeclarator, {id: {name: 'context'}})
       .forEach(path => j(path).remove());
 
-    return functionExpressionAST
+    return functionExpressionCollection
       .find(j.ReturnStatement)
+      .filter(path => {
+        // filter out inner function declarations here (helper functions, promises, etc.).
+        const mainBodyCollection = j(getInitialState.value.body);
+        return (
+          mainBodyCollection
+            .find(j.ArrowFunctionExpression)
+            .find(j.ReturnStatement, path.value)
+            .size() === 0 &&
+          mainBodyCollection
+            .find(j.FunctionDeclaration)
+            .find(j.ReturnStatement, path.value)
+            .size() === 0 &&
+          mainBodyCollection
+            .find(j.FunctionExpression)
+            .find(j.ReturnStatement, path.value)
+            .size() === 0
+        );
+      })
       .forEach(path => {
         let shouldInsertReturnAfterAssignment = false;
 
-        // if the return statement is not a direct child of the function body
+        // if the return statement is not a direct child of getInitialState's body
         if (getInitialState.value.body.body.indexOf(path.value) === -1) {
           shouldInsertReturnAfterAssignment = true;
         }

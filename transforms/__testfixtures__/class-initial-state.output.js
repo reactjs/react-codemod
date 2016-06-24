@@ -1,8 +1,6 @@
 import React from 'React';
 
-/*
- * Multiline
- */
+// only needs props
 class MyComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -23,7 +21,7 @@ class ComponentWithBothPropsAndContextAccess extends React.Component {
     name: React.PropTypes.string,
   };
 
-  // we actually _don't_ need a constructor here since this will be
+  // we actually don't need a constructor here since this will be
   // initialized after a proper super(props, context) call.
   // in other words, `this` will be ready when it reaches here.
   state = {
@@ -58,7 +56,7 @@ class App2 extends React.Component {
   constructor(props, context) {
     super(props, context);
     const state = {
-      whatever: this.context.whatever,
+      whatever: this.context.whatever, // needs context
     };
     this.state = state;
   }
@@ -92,7 +90,7 @@ const getContextFromInstance = (x) => x.context; // meh
 class MyComponent3 extends React.Component {
   constructor(props, context) {
     super(props, context);
-    var x = getContextFromInstance(this);
+    var x = getContextFromInstance(this); // `this` is referenced alone
 
     this.state = {
       heyoo: x,
@@ -104,6 +102,8 @@ class MyComponent3 extends React.Component {
   };
 }
 
+// we are not sure what you'll need from `this`,
+// so it's safe to defer `state`'s initialization
 class MyComponent4 extends React.Component {
   foo = (): void => {
     this.setState({heyoo: 24});
@@ -114,6 +114,7 @@ class MyComponent4 extends React.Component {
   };
 }
 
+// intense control flow testing
 class Loader extends React.Component {
   constructor(props, context) {
     super(props, context);
@@ -132,8 +133,49 @@ class Loader extends React.Component {
 
         return;
     }
+    for (let i = 0; i < 100; i++) {
+      if (i === 20) {
+        this.state = {x: i};
+        return;
+      }
+    }
+
+    try {
+      doSomeThingReallyBad();
+    } catch (e) {
+      this.state = {error: e};
+      return;
+    }
 
     this.state = this.lol();
+  }
+
+  render() {
+    return null;
+  }
+}
+
+class FunctionDeclarationInGetInitialState extends React.Component {
+  constructor(props) {
+    super(props);
+    function func() {
+      var x = 1;
+      return x; // dont change me
+    }
+
+    const foo = () => {
+      return 120; // dont change me
+    };
+
+    var q = function() {
+      return 100; // dont change me
+    };
+
+    this.state = {
+      x: func(),
+      y: foo(),
+      z: q(),
+    };
   }
 
   render() {
@@ -152,7 +194,7 @@ class DeferStateInitialization extends React.Component {
 
 var helper = () => {};
 
-var PassGetInitialState = React.createClass({
+var PassGetInitialState = React.createClass({ // bail out here
   getInitialState() {
     return this.lol();
   },
@@ -166,7 +208,7 @@ var PassGetInitialState = React.createClass({
   },
 });
 
-var UseGetInitialState = React.createClass({
+var UseGetInitialState = React.createClass({ // bail out here
   getInitialState() {
     return this.lol();
   },
@@ -180,7 +222,7 @@ var UseGetInitialState = React.createClass({
   },
 });
 
-var UseArguments = React.createClass({
+var UseArguments = React.createClass({ // bail out here
   helper() {
     console.log(arguments);
   },
@@ -190,7 +232,7 @@ var UseArguments = React.createClass({
   },
 });
 
-var ShadowingIssue = React.createClass({
+var ShadowingIssue = React.createClass({ // bail out here
   getInitialState() {
     const props = { x: 123 };
     return { x: props.x };
@@ -201,6 +243,7 @@ var ShadowingIssue = React.createClass({
   },
 });
 
+// will remove unnecessary bindings
 class ShadowingButFine extends React.Component {
   constructor(props, context) {
     super(props, context);

@@ -1,8 +1,6 @@
 import React from 'React';
 
-/*
- * Multiline
- */
+// only needs props
 var MyComponent = React.createClass({
   getInitialState: function() {
     var x = this.props.foo;
@@ -21,7 +19,7 @@ var ComponentWithBothPropsAndContextAccess = React.createClass({
     name: React.PropTypes.string,
   },
 
-  // we actually _don't_ need a constructor here since this will be
+  // we actually don't need a constructor here since this will be
   // initialized after a proper super(props, context) call.
   // in other words, `this` will be ready when it reaches here.
   getInitialState: function() {
@@ -54,7 +52,7 @@ const App = React.createClass({
 const App2 = React.createClass({
   getInitialState() {
     const state = {
-      whatever: this.context.whatever,
+      whatever: this.context.whatever, // needs context
     };
     return state;
   },
@@ -84,7 +82,7 @@ const getContextFromInstance = (x) => x.context; // meh
 
 var MyComponent3 = React.createClass({
   getInitialState: function() {
-    var x = getContextFromInstance(this);
+    var x = getContextFromInstance(this); // `this` is referenced alone
     return {
       heyoo: x,
     };
@@ -95,6 +93,8 @@ var MyComponent3 = React.createClass({
   },
 });
 
+// we are not sure what you'll need from `this`,
+// so it's safe to defer `state`'s initialization
 var MyComponent4 = React.createClass({
   getInitialState: function() {
     return {
@@ -107,6 +107,7 @@ var MyComponent4 = React.createClass({
   },
 });
 
+// intense control flow testing
 var Loader = React.createClass({
   getInitialState() {
     if (this.props.stuff) {
@@ -120,8 +121,46 @@ var Loader = React.createClass({
           {x: 3} :
           this.whatever(this.props);
     }
+    for (let i = 0; i < 100; i++) {
+      if (i === 20) {
+        return {x: i};
+      }
+    }
+
+    try {
+      doSomeThingReallyBad();
+    } catch (e) {
+      return {error: e};
+    }
 
     return this.lol();
+  },
+
+  render() {
+    return null;
+  },
+});
+
+var FunctionDeclarationInGetInitialState = React.createClass({
+  getInitialState() {
+    function func() {
+      var x = 1;
+      return x; // dont change me
+    }
+
+    const foo = () => {
+      return 120; // dont change me
+    };
+
+    var q = function() {
+      return 100; // dont change me
+    };
+
+    return {
+      x: func(),
+      y: foo(),
+      z: q(),
+    };
   },
 
   render() {
@@ -143,7 +182,7 @@ var DeferStateInitialization = React.createClass({
 
 var helper = () => {};
 
-var PassGetInitialState = React.createClass({
+var PassGetInitialState = React.createClass({ // bail out here
   getInitialState() {
     return this.lol();
   },
@@ -157,7 +196,7 @@ var PassGetInitialState = React.createClass({
   },
 });
 
-var UseGetInitialState = React.createClass({
+var UseGetInitialState = React.createClass({ // bail out here
   getInitialState() {
     return this.lol();
   },
@@ -171,7 +210,7 @@ var UseGetInitialState = React.createClass({
   },
 });
 
-var UseArguments = React.createClass({
+var UseArguments = React.createClass({ // bail out here
   helper() {
     console.log(arguments);
   },
@@ -181,7 +220,7 @@ var UseArguments = React.createClass({
   },
 });
 
-var ShadowingIssue = React.createClass({
+var ShadowingIssue = React.createClass({ // bail out here
   getInitialState() {
     const props = { x: 123 };
     return { x: props.x };
@@ -192,6 +231,7 @@ var ShadowingIssue = React.createClass({
   },
 });
 
+// will remove unnecessary bindings
 var ShadowingButFine = React.createClass({
   getInitialState() {
     const props = this.props;
