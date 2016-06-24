@@ -86,9 +86,20 @@ module.exports = function(j) {
         },
       });
 
+  const findReactAnonymousCreateClassInCallExpression = path =>
+    path.find(j.CallExpression, {
+      arguments: [{
+        type: 'CallExpression',
+        callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,
+      }],
+    });
+
   const getReactCreateClassSpec = classPath => {
-    const {value} = classPath;
-    const args = (value.init || value.right || value.declaration).arguments;
+    var callCollection = findReactCreateClassCallExpression(classPath);
+    if (callCollection.size() === 0) {
+      return null;
+    }
+    const args = callCollection.get('arguments').value;
     if (args) {
       const spec = args[0];
       if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
@@ -210,6 +221,7 @@ module.exports = function(j) {
 
   return {
     createCreateReactClassCallExpression,
+    findReactAnonymousCreateClassInCallExpression,
     findReactES6ClassDeclaration,
     findReactCreateClass,
     findReactCreateClassCallExpression,

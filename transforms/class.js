@@ -908,7 +908,11 @@ module.exports = (file, api, options) => {
     const getInitialState = findGetInitialState(specPath);
 
     var path;
-    if (type == 'moduleExports' || type == 'exportDefault') {
+    if (
+      type == 'moduleExports' ||
+      type == 'exportDefault' ||
+      type == 'anonymousInCallExpression'
+    ) {
       path = ReactUtils.findReactCreateClassCallExpression(classPath);
     } else {
       path = j(classPath).closest(j.VariableDeclaration);
@@ -968,6 +972,8 @@ module.exports = (file, api, options) => {
         .forEach(classPath => updateToClass(classPath, type));
 
     const didTransform = (
+      apply(ReactUtils.findReactAnonymousCreateClassInCallExpression(root), 'anonymousInCallExpression')
+        .size() +
       apply(ReactUtils.findReactCreateClass(root), 'var')
         .size() +
       apply(ReactUtils.findReactCreateClassModuleExports(root), 'moduleExports')
