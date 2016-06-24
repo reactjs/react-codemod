@@ -84,13 +84,30 @@ module.exports = (file, api, options) => {
       0
     ) > 0;
 
-  const callsDeprecatedAPIs = classPath => {
+  const hasNoCallsToDeprecatedAPIs = classPath => {
     if (checkDeprecatedAPICalls(classPath)) {
       console.log(
         file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
         'was skipped because of deprecated API calls. Remove calls to ' +
         DEPRECATED_APIS.join(', ') + ' in your React component and re-run ' +
         'this script.'
+      );
+      return false;
+    }
+    return true;
+  };
+
+  const hasNoCallsToAPIsThatWillBeRemoved = classPath => {
+    const hasInvalidCalls = (
+      j(classPath).find(j.Identifier, {name: DEFAULT_PROPS_FIELD}).size() > 1 ||
+      j(classPath).find(j.Identifier, {name: GET_INITIAL_STATE_FIELD}).size() > 1
+    );
+    if (hasInvalidCalls) {
+      console.log(
+        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        'was skipped because of API calls that will be removed. Remove calls to `' +
+        DEFAULT_PROPS_FIELD + '` and/or `' + GET_INITIAL_STATE_FIELD +
+        '` in your React component and re-run this script.'
       );
       return false;
     }
@@ -828,7 +845,8 @@ module.exports = (file, api, options) => {
     const apply = (path, type) =>
       path
         .filter(mixinsFilter)
-        .filter(callsDeprecatedAPIs)
+        .filter(hasNoCallsToDeprecatedAPIs)
+        .filter(hasNoCallsToAPIsThatWillBeRemoved)
         .filter(canConvertToClass)
         .forEach(classPath => updateToClass(classPath, type));
 

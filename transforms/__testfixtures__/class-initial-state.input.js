@@ -128,3 +128,33 @@ var Loader = React.createClass({
     return null;
   },
 });
+
+var helper = () => {};
+
+var PassGetInitialState = React.createClass({
+  getInitialState() {
+    return this.lol();
+  },
+
+  helper1: function() {
+    helper(this.getInitialState);
+  },
+
+  render() {
+    return null;
+  },
+});
+
+var UseGetInitialState = React.createClass({
+  getInitialState() {
+    return this.lol();
+  },
+
+  helper2() {
+    this.setState(this.getInitialState());
+  },
+
+  render() {
+    return null;
+  },
+});
