@@ -180,3 +180,26 @@ var UseArguments = React.createClass({
     return null;
   },
 });
+
+var ShadowingIssue = React.createClass({
+  getInitialState() {
+    const props = { x: 123 };
+    return { x: props.x };
+  },
+
+  render() {
+    return null;
+  },
+});
+
+var ShadowingButFine = React.createClass({
+  getInitialState() {
+    const props = this.props;
+    const context = this.context;
+    return { x: props.x + context.x };
+  },
+
+  render() {
+    return null;
+  },
+});

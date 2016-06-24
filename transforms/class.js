@@ -130,6 +130,68 @@ module.exports = (file, api, options) => {
     return true;
   };
 
+  const isGetInitialStateConstructorSafe = getInitialState => {
+    if (!getInitialState) {
+      return true;
+    }
+
+    const collection = j(getInitialState);
+    let result = true;
+
+    const propsVarDeclarationCount = collection.find(j.VariableDeclarator, {
+      id: {name: 'props'},
+    }).size();
+
+    const contextVarDeclarationCount = collection.find(j.VariableDeclarator, {
+      id: {name: 'context'},
+    }).size();
+
+    if (
+      propsVarDeclarationCount &&
+      propsVarDeclarationCount !== collection.find(j.VariableDeclarator, {
+        id: {name: 'props'},
+        init: {
+          type: 'MemberExpression',
+          object: {type: 'ThisExpression'},
+          property: {name: 'props'},
+        }
+      }).size()
+    ) {
+      result = false;
+    }
+
+    if (
+      contextVarDeclarationCount &&
+      contextVarDeclarationCount !== collection.find(j.VariableDeclarator, {
+        id: {name: 'context'},
+        init: {
+          type: 'MemberExpression',
+          object: {type: 'ThisExpression'},
+          property: {name: 'context'},
+        }
+      }).size()
+    ) {
+      result = false;
+    }
+
+    return result;
+  };
+
+  const isInitialStateConvertible = classPath => {
+    const result = isGetInitialStateConstructorSafe(
+      ReactUtils.getReactCreateClassSpec(classPath)
+    );
+    if (!result) {
+      console.warn(
+        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        'was skipped because of potential shadowing issues were found in ' +
+        'the React component. Rename variable declarations of `props` and/or `context` ' +
+        'in your `getInitialState` and re-run this script.'
+      );
+    }
+    return result;
+  };
+
   const canConvertToClass = classPath => {
     const specPath = ReactUtils.getReactCreateClassSpec(classPath);
     const invalidProperties = specPath.properties.filter(prop => (
@@ -322,6 +384,15 @@ module.exports = (file, api, options) => {
 
   const inlineGetInitialState = getInitialState => {
     const functionExpressionAST = j(getInitialState.value);
+
+    // at this point if there exists bindings like `const props = ...`, we
+    // already know the RHS must be `this.props` (see `isGetInitialStateConstructorSafe`)
+    // so it's safe to just remove them
+    functionExpressionAST.find(j.VariableDeclarator, {id: {name: 'props'}})
+      .forEach(path => j(path).remove());
+
+    functionExpressionAST.find(j.VariableDeclarator, {id: {name: 'context'}})
+      .forEach(path => j(path).remove());
 
     return functionExpressionAST
       .find(j.ReturnStatement)
@@ -880,6 +951,7 @@ module.exports = (file, api, options) => {
         .filter(hasNoCallsToDeprecatedAPIs)
         .filter(hasNoCallsToAPIsThatWillBeRemoved)
         .filter(doesNotUseArguments)
+        .filter(isInitialStateConvertible)
         .filter(canConvertToClass)
         .forEach(classPath => updateToClass(classPath, type));
 

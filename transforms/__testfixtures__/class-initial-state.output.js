@@ -189,3 +189,25 @@ var UseArguments = React.createClass({
     return null;
   },
 });
+
+var ShadowingIssue = React.createClass({
+  getInitialState() {
+    const props = { x: 123 };
+    return { x: props.x };
+  },
+
+  render() {
+    return null;
+  },
+});
+
+class ShadowingButFine extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.state = { x: props.x + context.x };
+  }
+
+  render() {
+    return null;
+  }
+}
