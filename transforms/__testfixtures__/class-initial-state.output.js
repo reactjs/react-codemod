@@ -105,12 +105,12 @@ class MyComponent3 extends React.Component {
 }
 
 class MyComponent4 extends React.Component {
-  state = {
-    heyoo: getContextFromInstance(this),
-  };
-
   foo = (): void => {
     this.setState({heyoo: 24});
+  };
+
+  state = {
+    heyoo: getContextFromInstance(this),
   };
 }
 
@@ -138,6 +138,15 @@ class Loader extends React.Component {
 
   render() {
     return null;
+  }
+}
+
+class DeferStateInitialization extends React.Component {
+  something = 42;
+  state = {x: this.something};
+
+  render() {
+    return <div onClick={this.reset} />;
   }
 }
 

@@ -129,6 +129,18 @@ var Loader = React.createClass({
   },
 });
 
+var DeferStateInitialization = React.createClass({
+  getInitialState() {
+    return {x: this.something};
+  },
+
+  something: 42,
+
+  render() {
+    return <div onClick={this.reset} />;
+  },
+});
+
 var helper = () => {};
 
 var PassGetInitialState = React.createClass({

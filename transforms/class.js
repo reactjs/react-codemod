@@ -645,6 +645,23 @@ module.exports = (file, api, options) => {
     );
   };
 
+  // to ensure that our property initializers' evaluation order is safe
+  const repositionStateProperty = (initialStateProperty, propertiesAndMethods) => {
+    if (j(initialStateProperty).find(j.ThisExpression).size() === 0) {
+      return initialStateProperty.concat(propertiesAndMethods);
+    }
+
+    const result = [].concat(propertiesAndMethods);
+    let lastPropPosition = result.length - 1;
+
+    while (lastPropPosition >= 0 && result[lastPropPosition].kind === 'method') {
+      lastPropPosition--;
+    }
+
+    result.splice(lastPropPosition + 1, 0, initialStateProperty[0]);
+    return result;
+  };
+
   // if there's no `getInitialState` or the `getInitialState` function is simple
   // (i.e., it's just a return statement) then we don't need a constructor.
   // we can simply lift `state = {...}` as a property initializer.
@@ -706,8 +723,7 @@ module.exports = (file, api, options) => {
           flowPropsAnnotation,
           staticProperties,
           maybeConstructor,
-          initialStateProperty,
-          propertiesAndMethods
+          repositionStateProperty(initialStateProperty, propertiesAndMethods)
         )
       ),
       j.memberExpression(
