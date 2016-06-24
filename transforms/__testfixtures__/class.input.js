@@ -152,3 +152,10 @@ var MyComponent5 = React.createClass({
     );
   },
 });
+
+var GoodName = React.createClass({
+  displayName: 'GoodName',
+  render() {
+    return <div/>;
+  },
+});

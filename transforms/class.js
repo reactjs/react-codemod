@@ -344,10 +344,11 @@ module.exports = (file, api, options) => {
     return result;
   };
 
-  const collectProperties = specPath => specPath.properties
+  const collectNonStaticProperties = specPath => specPath.properties
     .filter(prop =>
       !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
     )
+    .filter(prop => (!STATIC_KEYS[prop.key.name]) && prop.key.name !== STATIC_KEY)
     .filter(prop =>
       isFunctionExpression(prop) ||
       isPrimPropertyWithTypeAnnotation(prop) ||
@@ -782,13 +783,6 @@ module.exports = (file, api, options) => {
   // 1. there's a `this.context` access, or
   // 2. there's a direct method call `this.x()`, or
   // 3. `this` is referenced alone
-  //
-  // It creates a class with the following order of properties/methods:
-  // 1. static properties
-  // 2. constructor (if necessary)
-  // 3. new properties (`state = {...};`)
-  // 4. arrow functions
-  // 5. other methods
   const createESClass = (
     name,
     baseClassName,
@@ -908,7 +902,7 @@ module.exports = (file, api, options) => {
     const specPath = ReactUtils.getReactCreateClassSpec(classPath);
     const name = ReactUtils.getComponentName(classPath);
     const statics = collectStatics(specPath);
-    const properties = collectProperties(specPath);
+    const properties = collectNonStaticProperties(specPath);
     const comments = getComments(classPath);
 
     const getInitialState = findGetInitialState(specPath);

@@ -146,3 +146,11 @@ class MyComponent5 extends React.Component {
     );
   }
 }
+
+class GoodName extends React.Component {
+  static displayName = 'GoodName';
+
+  render() {
+    return <div/>;
+  }
+}
