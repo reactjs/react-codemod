@@ -86,7 +86,7 @@ module.exports = (file, api, options) => {
 
   const hasNoCallsToDeprecatedAPIs = classPath => {
     if (checkDeprecatedAPICalls(classPath)) {
-      console.log(
+      console.warn(
         file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
         'was skipped because of deprecated API calls. Remove calls to ' +
         DEPRECATED_APIS.join(', ') + ' in your React component and re-run ' +
@@ -103,11 +103,27 @@ module.exports = (file, api, options) => {
       j(classPath).find(j.Identifier, {name: GET_INITIAL_STATE_FIELD}).size() > 1
     );
     if (hasInvalidCalls) {
-      console.log(
+      console.warn(
         file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
         'was skipped because of API calls that will be removed. Remove calls to `' +
         DEFAULT_PROPS_FIELD + '` and/or `' + GET_INITIAL_STATE_FIELD +
         '` in your React component and re-run this script.'
+      );
+      return false;
+    }
+    return true;
+  };
+
+  const doesNotUseArguments = classPath => {
+    const hasArguments = (
+      j(classPath).find(j.Identifier, {name: 'arguments'}).size() > 0
+    );
+    if (hasArguments) {
+      console.warn(
+        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        'was skipped because `arguments` was found in your functions. ' +
+        'Arrow functions do not expose an `arguments` object; ' +
+        'consider changing to use ES6 spread operator and re-run this script.'
       );
       return false;
     }
@@ -133,7 +149,7 @@ module.exports = (file, api, options) => {
       const invalidText = invalidProperties
         .map(prop => prop.key.name ? prop.key.name : prop.key)
         .join(', ');
-      console.log(
+      console.warn(
         file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
         'was skipped because of invalid field(s) `' + invalidText + '` on ' +
         'the React component. Remove any right-hand-side expressions that ' +
@@ -835,7 +851,7 @@ module.exports = (file, api, options) => {
           return true;
         }
       }
-      console.log(
+      console.warn(
         file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
         'was skipped because of inconvertible mixins.'
       );
@@ -847,6 +863,7 @@ module.exports = (file, api, options) => {
         .filter(mixinsFilter)
         .filter(hasNoCallsToDeprecatedAPIs)
         .filter(hasNoCallsToAPIsThatWillBeRemoved)
+        .filter(doesNotUseArguments)
         .filter(canConvertToClass)
         .forEach(classPath => updateToClass(classPath, type));
 

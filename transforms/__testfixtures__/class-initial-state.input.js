@@ -158,3 +158,13 @@ var UseGetInitialState = React.createClass({
     return null;
   },
 });
+
+var UseArguments = React.createClass({
+  helper() {
+    console.log(arguments);
+  },
+
+  render() {
+    return null;
+  },
+});
