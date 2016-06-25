@@ -624,8 +624,14 @@ module.exports = (file, api, options) => {
       type,
       null
     ),
-    objectOf: (type) => j.objectTypeAnnotation([], [
-      j.objectTypeIndexer(j.identifier('key'), j.stringTypeAnnotation(), type)
+    objectOf: (type, isOptional) => j.objectTypeAnnotation([], [
+      j.objectTypeIndexer(
+        j.identifier('key'),
+        j.stringTypeAnnotation(),
+        isOptional && type !== flowAnyType ?
+          j.nullableTypeAnnotation(type) :
+          type
+      )
     ]),
     oneOf: (typeList) => j.unionTypeAnnotation(typeList),
     oneOfType: (typeList) => j.unionTypeAnnotation(typeList),
@@ -677,9 +683,8 @@ module.exports = (file, api, options) => {
         }
         case 'objectOf': {
           const arg = cursor.arguments[0];
-          typeResult = constructor(
-            propTypeToFlowAnnotation(arg)[0]
-          );
+          const [valueType, isOptional] = propTypeToFlowAnnotation(arg);
+          typeResult = constructor(valueType, isOptional);
           break;
         }
         case 'oneOf': {
@@ -715,7 +720,9 @@ module.exports = (file, api, options) => {
               const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
               flowPropList.push(j.objectTypeProperty(
                 j.identifier(name),
-                valueType,
+                isOptional && valueType !== flowAnyType ?
+                  j.nullableTypeAnnotation(valueType) :
+                  valueType,
                 isOptional
               ));
             });
@@ -751,7 +758,9 @@ module.exports = (file, api, options) => {
       const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
       typePropertyList.push(j.objectTypeProperty(
         j.identifier(name),
-        valueType,
+        isOptional && valueType !== flowAnyType ?
+          j.nullableTypeAnnotation(valueType) :
+          valueType,
         isOptional
       ));
     });

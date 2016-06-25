@@ -9,17 +9,17 @@ const justNeedKeys = {
 
 class Component extends React.Component {
   props: {
-    optionalMessage?: Message,
+    optionalMessage?: ?Message,
     optionalMessageOops?: any,
     optionalEnum?: any,
     optionalEnumOops?: any,
-    optionalUnion?: string | number | Message,
+    optionalUnion?: ?(string | number | Message),
     optionalUnionOops?: any,
     optionalUnionOops2?: any,
-    optionalArrayOf?: Array<number>,
-    optionalObjectOf?: {[key: string]: number,},
-    optionalObjectWithShape?: {
-      color?: string,
+    optionalArrayOf?: ?Array<number>,
+    optionalObjectOf?: ?{[key: string]: ?number,},
+    optionalObjectWithShape?: ?{
+      color?: ?string,
       fontSize?: any,
       name?: any,
     },
