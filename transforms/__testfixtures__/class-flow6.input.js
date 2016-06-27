@@ -29,6 +29,8 @@ var Component = React.createClass({
     }),
     optionalObjectWithShapeOops: React.PropTypes.shape(foo()),
     optionalObjectWithShapeOops2: React.PropTypes.shape(bla),
+    'is-literal-cool': React.PropTypes.bool,
+    'well-fine': React.PropTypes.number.isRequired,
   },
 
   render: function() {

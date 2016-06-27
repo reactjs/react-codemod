@@ -725,10 +725,12 @@ module.exports = (file, api, options) => {
           } else {
             const flowPropList = [];
             rawPropList.forEach(typeProp => {
-              const name = typeProp.key.name;
+              const keyIsLiteral = typeProp.key.type === 'Literal';
+              const name = keyIsLiteral ? typeProp.key.value : typeProp.key.name;
+
               const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
               flowPropList.push(j.objectTypeProperty(
-                j.identifier(name),
+                keyIsLiteral ? j.literal(name) : j.identifier(name),
                 isOptional && valueType !== flowAnyType ?
                   j.nullableTypeAnnotation(valueType) :
                   valueType,
@@ -763,10 +765,12 @@ module.exports = (file, api, options) => {
         return;
       }
 
-      const name = typeProp.key.name;
+      const keyIsLiteral = typeProp.key.type === 'Literal';
+      const name = keyIsLiteral ? typeProp.key.value : typeProp.key.name;
+
       const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
       typePropertyList.push(j.objectTypeProperty(
-        j.identifier(name),
+        keyIsLiteral ? j.literal(name) : j.identifier(name),
         isOptional && valueType !== flowAnyType ?
           j.nullableTypeAnnotation(valueType) :
           valueType,
