@@ -154,3 +154,13 @@ class GoodName extends React.Component {
     return <div/>;
   }
 }
+
+class SingleArgArrowFunction extends React.Component {
+  formatInt = (/*number*/ num) => /*string*/ {
+    return 'foobar';
+  };
+
+  render() {
+    return <div/>;
+  }
+}

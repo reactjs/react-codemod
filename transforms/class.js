@@ -17,7 +17,13 @@ module.exports = (file, api, options) => {
   const ReactUtils = require('./utils/ReactUtils')(j);
 
   const printOptions =
-    options.printOptions || {quote: 'single', trailingComma: true};
+    options.printOptions || {
+      quote: 'single',
+      trailingComma: true,
+      flowUsesCommas: true,
+      arrowParensAlways: true,
+    };
+    
   const root = j(file.source);
 
   const AUTOBIND_IGNORE_KEYS = {

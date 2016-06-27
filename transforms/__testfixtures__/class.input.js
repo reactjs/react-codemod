@@ -159,3 +159,12 @@ var GoodName = React.createClass({
     return <div/>;
   },
 });
+
+var SingleArgArrowFunction = React.createClass({
+  formatInt: function(/*number*/ num) /*string*/ {
+    return 'foobar';
+  },
+  render() {
+    return <div/>;
+  },
+});
