@@ -23,7 +23,7 @@ module.exports = (file, api, options) => {
       flowUsesCommas: true,
       arrowParensAlways: true,
     };
-    
+
   const root = j(file.source);
 
   const AUTOBIND_IGNORE_KEYS = {
@@ -269,6 +269,9 @@ module.exports = (file, api, options) => {
 
   const canConvertToClass = classPath => {
     const specPath = ReactUtils.getReactCreateClassSpec(classPath);
+    if (!specPath) {
+      return false;
+    }
     const invalidProperties = specPath.properties.filter(prop => (
       !prop.key.name || (
         !STATIC_KEYS[prop.key.name] &&

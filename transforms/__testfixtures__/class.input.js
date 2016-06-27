@@ -168,3 +168,6 @@ var SingleArgArrowFunction = React.createClass({
     return <div/>;
   },
 });
+
+var mySpec = {};
+var NotAnObjectLiteral = React.createClass(mySpec);

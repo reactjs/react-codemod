@@ -164,3 +164,6 @@ class SingleArgArrowFunction extends React.Component {
     return <div/>;
   }
 }
+
+var mySpec = {};
+var NotAnObjectLiteral = React.createClass(mySpec);
