@@ -34,7 +34,6 @@ var Component = React.createClass({
     optionalObjectOf: PropTypes.objectOf(PropTypes.number),
     optionalObjectWithShape: PropTypes.shape({
       color: PropTypes.string,
-      fontSize: PropTypes.number,
     }),
     requiredFunc: PropTypes.func.isRequired,
     requiredAny: PropTypes.any.isRequired,

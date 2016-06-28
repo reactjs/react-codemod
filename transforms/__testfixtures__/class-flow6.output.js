@@ -17,7 +17,7 @@ class Component extends React.Component {
     optionalUnionOops?: any,
     optionalUnionOops2?: any,
     optionalArrayOf?: ?Array<number>,
-    optionalObjectOf?: ?{[key: string]: ?number,},
+    optionalObjectOf?: ?{[key: string]: ?number},
     optionalObjectWithShape?: ?{
       color?: ?string,
       fontSize?: any,

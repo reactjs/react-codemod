@@ -30,11 +30,8 @@ class Component extends React.Component {
     optionalEnum?: ?('News' | 'Photos' | 1 | true | null),
     optionalUnion?: any,
     optionalArrayOf?: ?Array<number>,
-    optionalObjectOf?: ?{[key: string]: ?number,},
-    optionalObjectWithShape?: ?{
-      color?: ?string,
-      fontSize?: ?number,
-    },
+    optionalObjectOf?: ?{[key: string]: ?number},
+    optionalObjectWithShape?: ?{color?: ?string},
     requiredFunc: Function,
     requiredAny: any,
   };
@@ -54,7 +51,6 @@ class Component extends React.Component {
     optionalObjectOf: PropTypes.objectOf(PropTypes.number),
     optionalObjectWithShape: PropTypes.shape({
       color: PropTypes.string,
-      fontSize: PropTypes.number,
     }),
     requiredFunc: PropTypes.func.isRequired,
     requiredAny: PropTypes.any.isRequired,
