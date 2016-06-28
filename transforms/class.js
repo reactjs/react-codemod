@@ -20,7 +20,7 @@ module.exports = (file, api, options) => {
     options.printOptions || {
       quote: 'single',
       trailingComma: true,
-      flowUsesCommas: true,
+      flowObjectCommas: true,
       arrowParensAlways: true,
     };
 
