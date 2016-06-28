@@ -2,9 +2,14 @@
 
 var React = require('react');
 
+type SomeStuff<A> = { // TypeParameter
+  fetch: () => Promise<A>,
+};
+
 var Component = React.createClass({
   statics: {
     notTyped: true,
+    nothing: (null: null), // NullTypeAnnotation
     numberOrBool: (true: number | boolean),
     logger: (x: any): void => { console.log(x); },
     logger2: function(x: any): void {

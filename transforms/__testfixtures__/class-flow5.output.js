@@ -2,8 +2,13 @@
 
 var React = require('react');
 
+type SomeStuff<A> = { // TypeParameter
+  fetch: () => Promise<A>,
+};
+
 class Component extends React.Component {
   static notTyped = true;
+  static nothing: null = null; // NullTypeAnnotation
   static numberOrBool: number | boolean = true;
   static logger = (x: any): void => { console.log(x); };
 
