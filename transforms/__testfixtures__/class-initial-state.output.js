@@ -114,6 +114,17 @@ class MyComponent4 extends React.Component {
   };
 }
 
+// but only accessing `this.props` and/or `this.context` is safe
+class MyComponent5 extends React.Component {
+  state = {
+    heyoo: getContextFromInstance(this.props),
+  };
+
+  foo = (): void => {
+    this.setState({heyoo: 24});
+  };
+}
+
 // intense control flow testing
 class Loader extends React.Component {
   constructor(props, context) {

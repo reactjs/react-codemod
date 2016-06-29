@@ -788,7 +788,27 @@ module.exports = (file, api, options) => {
 
   // to ensure that our property initializers' evaluation order is safe
   const repositionStateProperty = (initialStateProperty, propertiesAndMethods) => {
-    if (j(initialStateProperty).find(j.ThisExpression).size() === 0) {
+    const initialStateCollection = j(initialStateProperty);
+    const thisCount = initialStateCollection.find(j.ThisExpression).size();
+    const safeThisMemberCount = initialStateCollection.find(j.MemberExpression, {
+      object: {
+        type: 'ThisExpression',
+      },
+      property: {
+        type: 'Identifier',
+        name: 'props',
+      },
+    }).size() + initialStateCollection.find(j.MemberExpression, {
+      object: {
+        type: 'ThisExpression',
+      },
+      property: {
+        type: 'Identifier',
+        name: 'context',
+      },
+    }).size();
+
+    if (thisCount === safeThisMemberCount) {
       return initialStateProperty.concat(propertiesAndMethods);
     }
 

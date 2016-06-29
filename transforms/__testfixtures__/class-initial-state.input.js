@@ -107,6 +107,19 @@ var MyComponent4 = React.createClass({
   },
 });
 
+// but only accessing `this.props` and/or `this.context` is safe
+var MyComponent5 = React.createClass({
+  getInitialState: function() {
+    return {
+      heyoo: getContextFromInstance(this.props),
+    };
+  },
+
+  foo: function(): void {
+    this.setState({heyoo: 24});
+  },
+});
+
 // intense control flow testing
 var Loader = React.createClass({
   getInitialState() {
