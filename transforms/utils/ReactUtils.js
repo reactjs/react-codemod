@@ -102,7 +102,7 @@ module.exports = function(j) {
     const args = callCollection.get('arguments').value;
     if (args) {
       const spec = args[0];
-      if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
+      if (spec && spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
         return spec;
       }
     }

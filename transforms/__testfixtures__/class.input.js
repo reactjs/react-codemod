@@ -171,3 +171,5 @@ var SingleArgArrowFunction = React.createClass({
 
 var mySpec = {};
 var NotAnObjectLiteral = React.createClass(mySpec);
+
+var WaitWhat = React.createClass();
