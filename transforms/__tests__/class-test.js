@@ -14,19 +14,23 @@ const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
 const pureMixinAlternativeOption = {
   'mixin-module-name': 'ReactComponentWithPureRenderMixin',
+  'pure-component': true,
 };
 
+const enableFlowOption = {flow: true};
+
 defineTest(__dirname, 'class');
-defineTest(__dirname, 'class', {flow: true}, 'class-anonymous');
+defineTest(__dirname, 'class', enableFlowOption, 'class-anonymous');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-test2');
-defineTest(__dirname, 'class', {flow: true}, 'export-default-class');
+defineTest(__dirname, 'class', enableFlowOption, 'export-default-class');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-pure-mixin1');
-defineTest(__dirname, 'class', {flow: true}, 'class-pure-mixin2');
-defineTest(__dirname, 'class', {flow: true}, 'class-initial-state');
-defineTest(__dirname, 'class', {flow: true}, 'class-property-field');
-defineTest(__dirname, 'class', {flow: true}, 'class-flow1');
-defineTest(__dirname, 'class', {flow: true}, 'class-flow2');
-defineTest(__dirname, 'class', {flow: true}, 'class-flow3');
-defineTest(__dirname, 'class', {flow: true}, 'class-flow4');
-defineTest(__dirname, 'class', {flow: true}, 'class-flow5');
-defineTest(__dirname, 'class', {flow: true}, 'class-flow6');
+defineTest(__dirname, 'class', {...enableFlowOption, 'pure-component': true}, 'class-pure-mixin2');
+defineTest(__dirname, 'class', null, 'class-pure-mixin3');
+defineTest(__dirname, 'class', enableFlowOption, 'class-initial-state');
+defineTest(__dirname, 'class', enableFlowOption, 'class-property-field');
+defineTest(__dirname, 'class', enableFlowOption, 'class-flow1');
+defineTest(__dirname, 'class', enableFlowOption, 'class-flow2');
+defineTest(__dirname, 'class', enableFlowOption, 'class-flow3');
+defineTest(__dirname, 'class', enableFlowOption, 'class-flow4');
+defineTest(__dirname, 'class', enableFlowOption, 'class-flow5');
+defineTest(__dirname, 'class', enableFlowOption, 'class-flow6');

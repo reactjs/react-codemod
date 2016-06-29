@@ -998,7 +998,7 @@ module.exports = (file, api, options) => {
     const mixinsFilter = (classPath) => {
       if (!ReactUtils.hasMixins(classPath)) {
         return true;
-      } else if (pureRenderMixinPathAndBinding) {
+      } else if (options['pure-component'] && pureRenderMixinPathAndBinding) {
         const {binding} = pureRenderMixinPathAndBinding;
         if (areMixinsConvertible([binding], classPath)) {
           return true;
