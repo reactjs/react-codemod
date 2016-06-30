@@ -411,18 +411,30 @@ module.exports = (file, api, options) => {
       fn.value
     ), fn);
 
-  const updatePropsAccess = getInitialState =>
-    j(getInitialState)
-      .find(j.MemberExpression, {
-        object: {
-          type: 'ThisExpression',
-        },
-        property: {
-          type: 'Identifier',
-          name: 'props',
-        },
-      })
-      .forEach(path => j(path).replaceWith(j.identifier('props')));
+  const updatePropsAndContextAccess = getInitialState => {
+    const collection = j(getInitialState);
+
+    collection.find(j.MemberExpression, {
+      object: {
+        type: 'ThisExpression',
+      },
+      property: {
+        type: 'Identifier',
+        name: 'props',
+      },
+    }).forEach(path => j(path).replaceWith(j.identifier('props')));
+
+    collection.find(j.MemberExpression, {
+      object: {
+        type: 'ThisExpression',
+      },
+      property: {
+        type: 'Identifier',
+        name: 'context',
+      },
+    }).forEach(path => j(path).replaceWith(j.identifier('context')));
+  };
+
 
   const inlineGetInitialState = getInitialState => {
     const functionExpressionCollection = j(getInitialState.value);
@@ -520,7 +532,7 @@ module.exports = (file, api, options) => {
       hasContextAccess = true;
     }
 
-    updatePropsAccess(getInitialState);
+    updatePropsAndContextAccess(getInitialState);
     const constructorArgs = createConstructorArgs(hasContextAccess);
 
     return [

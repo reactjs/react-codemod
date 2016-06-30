@@ -56,7 +56,7 @@ class App2 extends React.Component {
   constructor(props, context) {
     super(props, context);
     const state = {
-      whatever: this.context.whatever, // needs context
+      whatever: context.whatever, // needs context
     };
     this.state = state;
   }
