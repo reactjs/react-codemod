@@ -253,9 +253,11 @@ module.exports = (file, api, options) => {
   };
 
   const isInitialStateConvertible = classPath => {
-    const result = isGetInitialStateConstructorSafe(
-      ReactUtils.getReactCreateClassSpec(classPath)
-    );
+    const specPath = ReactUtils.getReactCreateClassSpec(classPath);
+    if (!specPath) {
+      return false;
+    }
+    const result = isGetInitialStateConstructorSafe(findGetInitialState(specPath));
     if (!result) {
       console.warn(
         file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
