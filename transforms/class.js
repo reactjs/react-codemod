@@ -601,6 +601,10 @@ module.exports = (file, api, options) => {
   // Flow!
 
   const flowAnyType = j.anyTypeAnnotation();
+  const flowFixMeType = j.genericTypeAnnotation(
+    j.identifier('$FlowFixMe'),
+    null
+  );
 
   const literalToFlowType = node => {
     switch (typeof node.value) {
@@ -612,25 +616,25 @@ module.exports = (file, api, options) => {
         return j.booleanLiteralTypeAnnotation(node.value, node.raw);
       case 'object': // we already know it's a NullLiteral here
         return j.nullLiteralTypeAnnotation();
-      default:
-        return flowAnyType; // meh
+      default: // this should never happen
+        return flowFixMeType;
     }
   };
 
   const propTypeToFlowMapping = {
     // prim types
-    any: flowAnyType,
+    any: flowAnyType, // this is the only real any
     array: j.genericTypeAnnotation(
       j.identifier('Array'),
       j.typeParameterInstantiation([flowAnyType])
     ),
     bool: j.booleanTypeAnnotation(),
-    element: flowAnyType,
+    element: flowAnyType, // flow does the same for `element` type in `propTypes`
     func: j.genericTypeAnnotation(
       j.identifier('Function'),
       null
     ),
-    node: flowAnyType,
+    node: flowAnyType, // flow does the same for `node` type in `propTypes`
     number: j.numberTypeAnnotation(),
     object: j.genericTypeAnnotation(
       j.identifier('Object'),
@@ -664,7 +668,7 @@ module.exports = (file, api, options) => {
   const propTypeToFlowAnnotation = val => {
     let cursor = val;
     let isOptional = true;
-    let typeResult = flowAnyType;
+    let typeResult = flowFixMeType;
 
     if ( // check `.isRequired` first
       cursor.type === 'MemberExpression' &&
@@ -675,68 +679,72 @@ module.exports = (file, api, options) => {
       cursor = cursor.object;
     }
 
-    if (cursor.type === 'CallExpression') { // type class
-      const calleeName = cursor.callee.type === 'MemberExpression' ?
-        cursor.callee.property.name :
-        cursor.callee.name;
+    switch (cursor.type) {
+      case 'CallExpression': { // type class
+        const calleeName = cursor.callee.type === 'MemberExpression' ?
+          cursor.callee.property.name :
+          cursor.callee.name;
 
-      const constructor = propTypeToFlowMapping[calleeName];
-      if (!constructor) {
-        typeResult = flowAnyType;
-        return [typeResult, isOptional];
-      }
-
-      switch (cursor.callee.property.name) {
-        case 'arrayOf': {
-          const arg = cursor.arguments[0];
-          typeResult = constructor(
-            propTypeToFlowAnnotation(arg)[0]
-          );
+        const constructor = propTypeToFlowMapping[calleeName];
+        if (!constructor) { // unknown type class
+          // it's not necessary since `typeResult` defaults to `flowFixMeType`,
+          // but it's more explicit this way
+          typeResult = flowFixMeType;
           break;
         }
-        case 'instanceOf': {
-          const arg = cursor.arguments[0];
-          if (arg.type !== 'Identifier') {
-            typeResult = flowAnyType;
+
+        switch (cursor.callee.property.name) {
+          case 'arrayOf': {
+            const arg = cursor.arguments[0];
+            typeResult = constructor(
+              propTypeToFlowAnnotation(arg)[0]
+            );
             break;
           }
+          case 'instanceOf': {
+            const arg = cursor.arguments[0];
+            if (arg.type !== 'Identifier') {
+              typeResult = flowFixMeType;
+              break;
+            }
 
-          typeResult = constructor(arg);
-          break;
-        }
-        case 'objectOf': {
-          const arg = cursor.arguments[0];
-          const [valueType, isOptional] = propTypeToFlowAnnotation(arg);
-          typeResult = constructor(valueType, isOptional);
-          break;
-        }
-        case 'oneOf': {
-          const argList = cursor.arguments[0].elements;
-          if (!argList || !argList.every(node => node.type === 'Literal')) {
-            typeResult = flowAnyType;
-          } else {
-            typeResult = constructor(
-              argList.map(literalToFlowType)
-            );
+            typeResult = constructor(arg);
+            break;
           }
-          break;
-        }
-        case 'oneOfType': {
-          const argList = cursor.arguments[0].elements;
-          if (!argList) {
-            typeResult = flowAnyType;
-          } else {
-            typeResult = constructor(
-              argList.map(arg => propTypeToFlowAnnotation(arg)[0])
-            );
+          case 'objectOf': {
+            const arg = cursor.arguments[0];
+            const [valueType, isOptional] = propTypeToFlowAnnotation(arg);
+            typeResult = constructor(valueType, isOptional);
+            break;
           }
-          break;
-        }
-        case 'shape': {
-          const rawPropList = cursor.arguments[0].properties;
-          if (!rawPropList) {
-            typeResult = flowAnyType;
-          } else {
+          case 'oneOf': {
+            const argList = cursor.arguments[0].elements;
+            if (!argList || !argList.every(node => node.type === 'Literal')) {
+              typeResult = flowFixMeType;
+            } else {
+              typeResult = constructor(
+                argList.map(literalToFlowType)
+              );
+            }
+            break;
+          }
+          case 'oneOfType': {
+            const argList = cursor.arguments[0].elements;
+            if (!argList) {
+              typeResult = flowFixMeType;
+            } else {
+              typeResult = constructor(
+                argList.map(arg => propTypeToFlowAnnotation(arg)[0])
+              );
+            }
+            break;
+          }
+          case 'shape': {
+            const rawPropList = cursor.arguments[0].properties;
+            if (!rawPropList) {
+              typeResult = flowFixMeType;
+              break;
+            }
             const flowPropList = [];
             rawPropList.forEach(typeProp => {
               const keyIsLiteral = typeProp.key.type === 'Literal';
@@ -745,7 +753,8 @@ module.exports = (file, api, options) => {
               const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
               flowPropList.push(j.objectTypeProperty(
                 keyIsLiteral ? j.literal(name) : j.identifier(name),
-                isOptional && valueType !== flowAnyType ?
+                // it doesn't make sense to have `?any` or `?$FlowFixMe`
+                isOptional && valueType !== flowAnyType && valueType !== flowFixMeType ?
                   j.nullableTypeAnnotation(valueType) :
                   valueType,
                 isOptional
@@ -753,15 +762,32 @@ module.exports = (file, api, options) => {
             });
 
             typeResult = constructor(flowPropList);
+            break;
           }
+          default: {
+            break;
+          }
+        }
+        break;
+      }
+      case 'MemberExpression': { // prim type
+        if (cursor.property.type !== 'Identifier') { // unrecognizable
+          typeResult = flowFixMeType;
           break;
         }
+
+        const maybeType = propTypeToFlowMapping[cursor.property.name];
+        if (maybeType) {
+          typeResult = propTypeToFlowMapping[cursor.property.name];
+        } else { // type not found
+          typeResult = flowFixMeType;
+        }
+
+        break;
       }
-    } else if ( // prim type
-      cursor.type === 'MemberExpression' &&
-      cursor.property.type === 'Identifier'
-    ) {
-      typeResult = propTypeToFlowMapping[cursor.property.name] || flowAnyType;
+      default: { // unrecognizable
+        break;
+      }
     }
 
     return [typeResult, isOptional];
@@ -775,7 +801,7 @@ module.exports = (file, api, options) => {
     }
 
     prop.value.properties.forEach(typeProp => {
-      if (!typeProp.key) { // SpreadProperty
+      if (!typeProp.key) { // stuff like SpreadProperty
         return;
       }
 
@@ -785,7 +811,8 @@ module.exports = (file, api, options) => {
       const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
       typePropertyList.push(j.objectTypeProperty(
         keyIsLiteral ? j.literal(name) : j.identifier(name),
-        isOptional && valueType !== flowAnyType ?
+        // it doesn't make sense to have `?any` or `?$FlowFixMe`
+        isOptional && valueType !== flowAnyType && valueType !== flowFixMeType ?
           j.nullableTypeAnnotation(valueType) :
           valueType,
         isOptional

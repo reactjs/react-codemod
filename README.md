@@ -135,7 +135,7 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
   - Flow actually understands `propTypes` in `createClass` calls but not ES6 class components. Here the transformation logic is identical to [how](https://github.com/facebook/flow/blob/master/src/typing/statement.ml#L3526) Flow treats `propTypes`
   - Notice that `React.PropTypes` and Flow treat optional values differently
     - For example, `foo: React.PropTypes.number` is valid when you pass `{}`, `{foo: null}`, or `{foo: undefined}` as props. The equivalent in Flow is actually `foo?: ?number`; the question mark on the left hand side indicates `{}` is valid
-  - For `propTypes` fields that can't be recognized by Flow, `any` will be used
+  - For `propTypes` fields that can't be recognized by Flow, `$FlowFixMe` will be used
 
 ### Recast Options
 

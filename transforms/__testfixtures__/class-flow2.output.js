@@ -15,11 +15,11 @@ const { func } = React.PropTypes
  */
 class IndexRoute extends React.Component {
   props: {
-    path?: any,
-    component?: any,
-    components?: any,
-    getComponent?: any,
-    getComponents?: any,
+    path?: $FlowFixMe,
+    component?: $FlowFixMe,
+    components?: $FlowFixMe,
+    getComponent?: $FlowFixMe,
+    getComponents?: $FlowFixMe,
   };
 
   static createRouteFromReactElement(element, parentRoute) {

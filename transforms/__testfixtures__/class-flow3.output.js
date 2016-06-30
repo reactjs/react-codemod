@@ -20,15 +20,15 @@ var optionalFuncShortHand = PropTypes.func;
 
 class Component extends React.Component {
   props: {
-    optionalFuncShortHand?: any,
-    optionalNumber?: any,
+    optionalFuncShortHand?: $FlowFixMe,
+    optionalNumber?: $FlowFixMe,
     optionalObject?: ?Object,
-    optionalString?: any,
+    optionalString?: $FlowFixMe,
     optionalNode?: any,
     optionalElement?: any,
     optionalMessage?: ?Message,
     optionalEnum?: ?('News' | 'Photos' | 1 | true | null),
-    optionalUnion?: any,
+    optionalUnion?: $FlowFixMe,
     optionalArrayOf?: ?Array<number>,
     optionalObjectOf?: ?{[key: string]: ?number},
     optionalObjectWithShape?: ?{color?: ?string},
