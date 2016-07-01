@@ -500,7 +500,7 @@ module.exports = (file, api, options) => {
     withComments(j.classProperty(
       j.identifier('state'),
       pickReturnValueOrCreateIIFE(getInitialState.value),
-      null,
+      getInitialState.value.returnType,
       false
     ), getInitialState);
 

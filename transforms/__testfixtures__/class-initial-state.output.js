@@ -265,3 +265,44 @@ class ShadowingButFine extends React.Component {
     return null;
   }
 }
+
+// move type annotations
+class WithSimpleType extends React.Component {
+  state: Object = {
+    x: 12,
+    y: 13,
+    z: 14,
+  };
+
+  render() {
+    return null;
+  }
+}
+
+class WithLongType extends React.Component {
+  state: {name: string, age: number, counter: number} = {
+    name: 'Michael',
+    age: 23,
+    count: 6,
+  };
+
+  render() {
+    return null;
+  }
+}
+
+class WithMultiLineType extends React.Component {
+  state: {
+    nameLists: Array<Array<string>>,
+    age?: ?number,
+    counter?: ?number,
+  } = {
+    nameLists: [['James']],
+    count: 1400,
+    foo: 'bar',
+  };
+
+  render() {
+    return null;
+  }
+}

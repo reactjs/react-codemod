@@ -256,3 +256,50 @@ var ShadowingButFine = React.createClass({
     return null;
   },
 });
+
+// move type annotations
+var WithSimpleType = React.createClass({
+  getInitialState(): Object {
+    return {
+      x: 12,
+      y: 13,
+      z: 14,
+    };
+  },
+
+  render() {
+    return null;
+  },
+});
+
+var WithLongType = React.createClass({
+  getInitialState(): {name: string, age: number, counter: number} {
+    return {
+      name: 'Michael',
+      age: 23,
+      count: 6,
+    };
+  },
+
+  render() {
+    return null;
+  },
+});
+
+var WithMultiLineType = React.createClass({
+  getInitialState(): {
+    nameLists: Array<Array<string>>,
+    age?: ?number,
+    counter?: ?number,
+  } {
+    return {
+      nameLists: [['James']],
+      count: 1400,
+      foo: 'bar',
+    };
+  },
+
+  render() {
+    return null;
+  },
+});
