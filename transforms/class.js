@@ -172,11 +172,18 @@ module.exports = (file, api, options) => {
     return true;
   };
 
-  const hasNoCallsToAPIsThatWillBeRemoved = classPath => {
+  const hasNoRefsToAPIsThatWillBeRemoved = classPath => {
     const hasInvalidCalls = (
-      j(classPath).find(j.Identifier, {name: DEFAULT_PROPS_FIELD}).size() > 1 ||
-      j(classPath).find(j.Identifier, {name: GET_INITIAL_STATE_FIELD}).size() > 1
+      j(classPath).find(j.MemberExpression, {
+        object: {type: 'ThisExpression'},
+        property: {name: DEFAULT_PROPS_FIELD},
+      }).size() > 0 ||
+      j(classPath).find(j.MemberExpression, {
+        object: {type: 'ThisExpression'},
+        property: {name: GET_INITIAL_STATE_FIELD},
+      }).size() > 0
     );
+
     if (hasInvalidCalls) {
       console.warn(
         file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
@@ -1056,7 +1063,7 @@ module.exports = (file, api, options) => {
       path
         .filter(mixinsFilter)
         .filter(hasNoCallsToDeprecatedAPIs)
-        .filter(hasNoCallsToAPIsThatWillBeRemoved)
+        .filter(hasNoRefsToAPIsThatWillBeRemoved)
         .filter(doesNotUseArguments)
         .filter(isInitialStateConvertible)
         .filter(canConvertToClass)
