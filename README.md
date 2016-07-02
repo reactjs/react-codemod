@@ -133,8 +133,8 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
     - It's actually not necessary to transform all methods to arrow functions (i.e., to bind them), but this behavior is the same as `createClass()` and we can make sure that we won't accidentally break stuff
 4. Generate Flow annotations from `propTypes` and put it on the class (this only happens when there's `/* @flow */` in your code and `options['flow']` is `true`)
   - Flow actually understands `propTypes` in `createClass` calls but not ES6 class components. Here the transformation logic is identical to [how](https://github.com/facebook/flow/blob/master/src/typing/statement.ml#L3526) Flow treats `propTypes`
-  - Notice that `React.PropTypes` and Flow treat optional values differently
-    - For example, `foo: React.PropTypes.number` is valid when you pass `{}`, `{foo: null}`, or `{foo: undefined}` as props. The equivalent in Flow is actually `foo?: ?number`; the question mark on the left hand side indicates `{}` is valid
+  - Notice that Flow treats an optional propType as non-nullable
+    - For example, `foo: React.PropTypes.number` is valid when you pass `{}`, `{foo: null}`, or `{foo: undefined}` as props at **runtime**. However, when Flow infers type from a `createClass` call, only `{}` and `{foo: undefined}` are valid; `{foo: null}` is not. Thus the equivalent type annotation in Flow is actually `{foo?: number}`. The question mark on the left hand side indicates `{}` and `{foo: undefined}` are fine, but when `foo` is present it must be a `number`
   - For `propTypes` fields that can't be recognized by Flow, `$FlowFixMe` will be used
 
 ### Recast Options

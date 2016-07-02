@@ -9,23 +9,23 @@ const justNeedKeys = {
 
 class Component extends React.Component {
   props: {
-    optionalMessage?: ?Message,
+    optionalMessage?: Message,
     optionalMessageOops?: $FlowFixMe,
     optionalEnum?: $FlowFixMe,
     optionalEnumOops?: $FlowFixMe,
-    optionalUnion?: ?(string | number | Message),
+    optionalUnion?: string | number | Message,
     optionalUnionOops?: $FlowFixMe,
     optionalUnionOops2?: $FlowFixMe,
-    optionalArrayOf?: ?Array<number>,
-    optionalObjectOf?: ?{[key: string]: ?number},
-    optionalObjectWithShape?: ?{
-      color?: ?string,
+    optionalArrayOf?: Array<number>,
+    optionalObjectOf?: {[key: string]: number},
+    optionalObjectWithShape?: {
+      color?: string,
       fontSize?: $FlowFixMe,
       name?: $FlowFixMe,
     },
     optionalObjectWithShapeOops?: $FlowFixMe,
     optionalObjectWithShapeOops2?: $FlowFixMe,
-    'is-literal-cool'?: ?boolean,
+    'is-literal-cool'?: boolean,
     'well-fine': number,
   };
 

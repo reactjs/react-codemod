@@ -630,7 +630,7 @@ module.exports = (file, api, options) => {
 
   const propTypeToFlowMapping = {
     // prim types
-    any: flowAnyType, // this is the only real any
+    any: flowAnyType,
     array: j.genericTypeAnnotation(
       j.identifier('Array'),
       j.typeParameterInstantiation([flowAnyType])
@@ -658,13 +658,11 @@ module.exports = (file, api, options) => {
       type,
       null
     ),
-    objectOf: (type, isOptional) => j.objectTypeAnnotation([], [
+    objectOf: (type) => j.objectTypeAnnotation([], [
       j.objectTypeIndexer(
         j.identifier('key'),
         j.stringTypeAnnotation(),
-        isOptional && type !== flowAnyType ?
-          j.nullableTypeAnnotation(type) :
-          type
+        type
       )
     ]),
     oneOf: (typeList) => j.unionTypeAnnotation(typeList),
@@ -720,8 +718,9 @@ module.exports = (file, api, options) => {
           }
           case 'objectOf': {
             const arg = cursor.arguments[0];
-            const [valueType, isOptional] = propTypeToFlowAnnotation(arg);
-            typeResult = constructor(valueType, isOptional);
+            typeResult = constructor(
+              propTypeToFlowAnnotation(arg)[0]
+            );
             break;
           }
           case 'oneOf': {
@@ -760,10 +759,7 @@ module.exports = (file, api, options) => {
               const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
               flowPropList.push(j.objectTypeProperty(
                 keyIsLiteral ? j.literal(name) : j.identifier(name),
-                // it doesn't make sense to have `?any` or `?$FlowFixMe`
-                isOptional && valueType !== flowAnyType && valueType !== flowFixMeType ?
-                  j.nullableTypeAnnotation(valueType) :
-                  valueType,
+                valueType,
                 isOptional
               ));
             });
@@ -818,10 +814,7 @@ module.exports = (file, api, options) => {
       const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
       typePropertyList.push(j.objectTypeProperty(
         keyIsLiteral ? j.literal(name) : j.identifier(name),
-        // it doesn't make sense to have `?any` or `?$FlowFixMe`
-        isOptional && valueType !== flowAnyType && valueType !== flowFixMeType ?
-          j.nullableTypeAnnotation(valueType) :
-          valueType,
+        valueType,
         isOptional
       ));
     });
