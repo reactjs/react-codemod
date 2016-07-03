@@ -13,7 +13,7 @@ var Component = React.createClass({
     optionalNode: React.PropTypes.node,
     optionalElement: React.PropTypes.element,
     optionalMessage: React.PropTypes.instanceOf(Message),
-    optionalEnum: React.PropTypes.oneOf(['News', 'Photos', 1, true, null]),
+    optionalEnum: React.PropTypes.oneOf(['News', 'Photos', 1, true, null, undefined]),
     optionalUnion: React.PropTypes.oneOfType([
       React.PropTypes.string,
       React.PropTypes.number,

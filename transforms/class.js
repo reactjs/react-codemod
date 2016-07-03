@@ -614,6 +614,10 @@ module.exports = (file, api, options) => {
   );
 
   const literalToFlowType = node => {
+    if (node.type === 'Identifier' && node.name === 'undefined') {
+      return j.voidTypeAnnotation();
+    }
+
     switch (typeof node.value) {
       case 'string':
         return j.stringLiteralTypeAnnotation(node.value, node.raw);
@@ -725,7 +729,13 @@ module.exports = (file, api, options) => {
           }
           case 'oneOf': {
             const argList = cursor.arguments[0].elements;
-            if (!argList || !argList.every(node => node.type === 'Literal')) {
+            if (
+              !argList ||
+              !argList.every(node =>
+                (node.type === 'Literal') ||
+                (node.type === 'Identifier' && node.name === 'undefined')
+              )
+            ) {
               typeResult = flowFixMeType;
             } else {
               typeResult = constructor(
