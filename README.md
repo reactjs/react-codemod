@@ -38,10 +38,6 @@ Converts calls to `React.createElement` into JSX elements.
 jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <path>
 ```
 
-Note that this script will **destroy comments** within `createElement` usages,
-so you should manually check for any lost comments after running the
-transform.
-
 #### `findDOMNode`
 
 Updates `this.getDOMNode()` or `this.refs.foo.getDOMNode()` calls inside of
