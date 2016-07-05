@@ -1,7 +1,13 @@
+/* @flow */
+
 import React from 'React';
+
+type SomeState = {foo: string};
 
 // only needs props
 class MyComponent extends React.Component {
+  state: {heyoo: number};
+
   constructor(props) {
     super(props);
     var x = props.foo;
@@ -37,6 +43,8 @@ class ComponentWithBothPropsAndContextAccess extends React.Component {
 }
 
 class App extends React.Component {
+  state: SomeState;
+
   constructor(props, context) {
     super(props, context);
     const state = this.calculateState(); // _might_ use `this.context`
@@ -53,6 +61,8 @@ class App extends React.Component {
 }
 
 class App2 extends React.Component {
+  state: Object;
+
   constructor(props, context) {
     super(props, context);
     const state = {
@@ -71,6 +81,8 @@ App.contextTypes = {
 };
 
 class MyComponent2 extends React.Component {
+  state: Object;
+
   constructor(props) {
     super(props);
     var x = props.foo.bar.wow.so.deep;
@@ -88,6 +100,8 @@ class MyComponent2 extends React.Component {
 const getContextFromInstance = (x) => x.context; // meh
 
 class MyComponent3 extends React.Component {
+  state: Object;
+
   constructor(props, context) {
     super(props, context);
     var x = getContextFromInstance(this); // `this` is referenced alone
@@ -127,6 +141,8 @@ class MyComponent5 extends React.Component {
 
 // intense control flow testing
 class Loader extends React.Component {
+  state: Object;
+
   constructor(props, context) {
     super(props, context);
     if (props.stuff) {
@@ -167,6 +183,8 @@ class Loader extends React.Component {
 }
 
 class FunctionDeclarationInGetInitialState extends React.Component {
+  state: Object;
+
   constructor(props) {
     super(props);
     function func() {
@@ -256,6 +274,8 @@ var ShadowingIssue = React.createClass({ // bail out here
 
 // will remove unnecessary bindings
 class ShadowingButFine extends React.Component {
+  state: Object;
+
   constructor(props, context) {
     super(props, context);
     this.state = { x: props.x + context.x };

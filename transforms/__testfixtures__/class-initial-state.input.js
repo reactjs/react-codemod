@@ -1,8 +1,12 @@
+/* @flow */
+
 import React from 'React';
+
+type SomeState = {foo: string};
 
 // only needs props
 var MyComponent = React.createClass({
-  getInitialState: function() {
+  getInitialState: function(): {heyoo: number} {
     var x = this.props.foo;
     return {
       heyoo: 23,
@@ -37,7 +41,7 @@ var ComponentWithBothPropsAndContextAccess = React.createClass({
 });
 
 const App = React.createClass({
-  getInitialState() {
+  getInitialState(): SomeState {
     const state = this.calculateState(); // _might_ use `this.context`
     return state;
   },

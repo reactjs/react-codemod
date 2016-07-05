@@ -892,8 +892,9 @@ module.exports = (file, api, options) => {
     rawProperties,
     comments
   ) => {
-    let maybeConstructor = [];
     const initialStateProperty = [];
+    let maybeConstructor = [];
+    let maybeFlowStateAnnotation = []; // we only need this when we do `this.state = ...`
 
     if (isInitialStateLiftable(getInitialState)) {
       if (getInitialState) {
@@ -901,6 +902,22 @@ module.exports = (file, api, options) => {
       }
     } else {
       maybeConstructor = createConstructor(getInitialState);
+      if (shouldTransformFlow) {
+        let stateType = j.typeAnnotation(
+          j.genericTypeAnnotation(j.identifier('Object'), null)
+        );
+
+        if (getInitialState.value.returnType) {
+          stateType = getInitialState.value.returnType;
+        }
+
+        maybeFlowStateAnnotation.push(j.classProperty(
+          j.identifier('state'),
+          null,
+          stateType,
+          false
+        ));
+      }
     }
 
     const propertiesAndMethods = rawProperties.map(prop => {
@@ -926,6 +943,7 @@ module.exports = (file, api, options) => {
       j.classBody(
         [].concat(
           flowPropsAnnotation,
+          maybeFlowStateAnnotation,
           staticProperties,
           maybeConstructor,
           repositionStateProperty(initialStateProperty, propertiesAndMethods)
