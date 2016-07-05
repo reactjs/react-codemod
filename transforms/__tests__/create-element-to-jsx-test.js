@@ -132,6 +132,12 @@ describe('create-element-to-jsx', () => {
     null,
     'create-element-to-jsx-no-props-arg'
   );
+  defineTest(
+      __dirname,
+      'create-element-to-jsx',
+      null,
+      'create-element-to-jsx-preserve-comments'
+  );
 
   it('throws when it does not recognize a property type', () => {
     const jscodeshift = require('jscodeshift');

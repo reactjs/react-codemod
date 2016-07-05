@@ -20,6 +20,13 @@ module.exports = function(file, api, options) {
       .replace(/>/g, '&gt;');
 
   const convertExpressionToJSXAttributes = (expression) => {
+    if (!expression) {
+      return {
+        attributes: [],
+        extraComments: [],
+      };
+    }
+
     const isReactSpread = expression.type === 'CallExpression' &&
       expression.callee.type === 'MemberExpression' &&
       expression.callee.object.name === 'React' &&
@@ -37,81 +44,129 @@ module.exports = function(file, api, options) {
     ];
 
     if (isReactSpread || isObjectAssign) {
-      const jsxAttributes = [];
+      const resultAttributes = [];
+      const resultExtraComments = expression.comments || [];
+      const {callee} = expression;
+      for (const node of [callee, callee.object, callee.property]) {
+        resultExtraComments.push(...(node.comments || []));
+      }
+      expression.arguments.forEach((expression) => {
+        const {attributes, extraComments} = convertExpressionToJSXAttributes(expression);
+        resultAttributes.push(...attributes);
+        resultExtraComments.push(...extraComments);
+      });
 
-      expression.arguments.forEach((expression) =>
-        jsxAttributes.push(...convertExpressionToJSXAttributes(expression))
-      );
-
-      return jsxAttributes;
+      return {
+        attributes: resultAttributes,
+        extraComments: resultExtraComments,
+      };
     } else if (validSpreadTypes.indexOf(expression.type) != -1) {
-      return [j.jsxSpreadAttribute(expression)];
+      return {
+        attributes: [j.jsxSpreadAttribute(expression)],
+        extraComments: [],
+      };
     } else if (expression.type === 'ObjectExpression') {
       const attributes = expression.properties.map((property) => {
         if (property.type === 'SpreadProperty') {
-          return j.jsxSpreadAttribute(property.argument);
-        }  else if (property.type === 'Property') {
+          const spreadAttribute = j.jsxSpreadAttribute(property.argument);
+          spreadAttribute.comments = property.comments;
+          return spreadAttribute;
+        } else if (property.type === 'Property') {
           const propertyValueType = property.value.type;
 
           let value;
           if (propertyValueType === 'Literal' && typeof property.value.value === 'string') {
             value = j.literal(property.value.value);
+            value.comments = property.value.comments;
           } else {
             value = j.jsxExpressionContainer(property.value);
           }
 
-          let propertyKeyName;
+          let jsxIdentifier;
           if (property.key.type === 'Literal') {
-            propertyKeyName = property.key.value;
+            jsxIdentifier = j.jsxIdentifier(property.key.value);
           } else {
-            propertyKeyName = property.key.name;
+            jsxIdentifier = j.jsxIdentifier(property.key.name);
           }
+          jsxIdentifier.comments = property.key.comments;
 
-          return j.jsxAttribute(
-            j.jsxIdentifier(propertyKeyName),
+          const jsxAttribute = j.jsxAttribute(
+            jsxIdentifier,
             value
           );
+          jsxAttribute.comments = property.comments;
+          return jsxAttribute;
         }
         return null;
       });
 
-      return attributes;
+      return {
+        attributes,
+        extraComments: expression.comments || [],
+      };
     } else if (expression.type === 'Literal' && expression.value === null) {
-      return [];
+      return {
+        attributes: [],
+        extraComments: expression.comments || [],
+      }
     } else {
       throw new Error(`Unexpected attribute of type "${expression.type}"`);
     }
   };
 
   const jsxIdentifierFor = node => {
+    let identifier;
     if (node.type === 'Literal') {
-      return j.jsxIdentifier(node.value);
+      identifier = j.jsxIdentifier(node.value);
     } else if (node.type === 'MemberExpression') {
-      return j.jsxMemberExpression(
+      identifier = j.jsxMemberExpression(
         jsxIdentifierFor(node.object),
         jsxIdentifierFor(node.property)
       );
     } else {
-      return j.jsxIdentifier(node.name);
+      identifier = j.jsxIdentifier(node.name);
     }
+    identifier.comments = node.comments;
+    return identifier;
   };
 
   const convertNodeToJSX = (node) => {
+    const comments = node.value.comments;
+    const {callee} = node.value;
+    for (const calleeNode of [callee, callee.object, callee.property]) {
+      for (const comment of calleeNode.comments || []) {
+        comment.leading = true;
+        comment.trailing = false;
+        comments.push(comment);
+      }
+    }
+
     const args = node.value.arguments;
 
     const jsxIdentifier = jsxIdentifierFor(args[0]);
     const props = args[1];
 
-    const attributes = props ? convertExpressionToJSXAttributes(props) : [];
+    const {attributes, extraComments} = convertExpressionToJSXAttributes(props);
+    jsxIdentifier.comments = jsxIdentifier.comments || [];
+    for (const comment of extraComments) {
+      comment.leading = false;
+      comment.trailing = true;
+      jsxIdentifier.comments.push(comment);
+    }
 
-    const children = node.value.arguments.slice(2).map((child, index) => {
-      if (child.type === 'Literal' && typeof child.value === 'string') {
+    const children = args.slice(2).map((child, index) => {
+      if (child.type === 'Literal' && typeof child.value === 'string' && !child.comments) {
         return j.jsxText(encodeJSXTextValue(child.value));
       } else if (child.type === 'CallExpression' &&
         child.callee.object &&
         child.callee.object.name === 'React' &&
         child.callee.property.name === 'createElement') {
-        return convertNodeToJSX(node.get('arguments', index + 2));
+        const jsxChild = convertNodeToJSX(node.get('arguments', index + 2));
+        if ((jsxChild.comments || []).length > 0) {
+          return j.jsxExpressionContainer(jsxChild);
+        } else {
+          return jsxChild;
+        }
       } else {
         return j.jsxExpressionContainer(child);
       }
@@ -120,14 +175,19 @@ module.exports = function(file, api, options) {
     const openingElement = j.jsxOpeningElement(jsxIdentifier, attributes);
 
     if (children.length) {
-      return j.jsxElement(
+      const endIdentifier = Object.assign({}, jsxIdentifier, {comments: []});
+      const element = j.jsxElement(
         openingElement,
-        j.jsxClosingElement(jsxIdentifier),
+        j.jsxClosingElement(endIdentifier),
         children
       );
+      element.comments = comments;
+      return element;
     } else {
       openingElement.selfClosing = true;
-      return j.jsxElement(openingElement);
+      const element = j.jsxElement(openingElement);
+      element.comments = comments;
+      return element;
     }
   };
 
