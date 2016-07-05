@@ -24,7 +24,10 @@ defineTest(__dirname, 'class', enableFlowOption, 'class-anonymous');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-test2');
 defineTest(__dirname, 'class', enableFlowOption, 'export-default-class');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-pure-mixin1');
-defineTest(__dirname, 'class', {...enableFlowOption, 'pure-component': true}, 'class-pure-mixin2');
+defineTest(__dirname, 'class', {
+  ...enableFlowOption,
+  'pure-component': true,
+}, 'class-pure-mixin2');
 defineTest(__dirname, 'class', null, 'class-pure-mixin3');
 defineTest(__dirname, 'class', enableFlowOption, 'class-initial-state');
 defineTest(__dirname, 'class', enableFlowOption, 'class-property-field');
@@ -34,3 +37,7 @@ defineTest(__dirname, 'class', enableFlowOption, 'class-flow3');
 defineTest(__dirname, 'class', enableFlowOption, 'class-flow4');
 defineTest(__dirname, 'class', enableFlowOption, 'class-flow5');
 defineTest(__dirname, 'class', enableFlowOption, 'class-flow6');
+defineTest(__dirname, 'class', {
+  ...enableFlowOption,
+  'remove-runtime-proptypes': true,
+}, 'class-flow7');

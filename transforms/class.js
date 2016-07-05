@@ -938,13 +938,19 @@ module.exports = (file, api, options) => {
       ) :
       [];
 
+    let finalStaticProperties = staticProperties;
+
+    if (shouldTransformFlow && options['remove-runtime-proptypes']) {
+      finalStaticProperties = staticProperties.filter((prop) => prop.key.name !== 'propTypes');
+    }
+
     return withComments(j.classDeclaration(
       name ? j.identifier(name) : null,
       j.classBody(
         [].concat(
           flowPropsAnnotation,
           maybeFlowStateAnnotation,
-          staticProperties,
+          finalStaticProperties,
           maybeConstructor,
           repositionStateProperty(initialStateProperty, propertiesAndMethods)
         )
