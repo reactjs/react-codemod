@@ -637,15 +637,15 @@ module.exports = (file, api, options) => {
     any: flowAnyType,
     array: j.genericTypeAnnotation(
       j.identifier('Array'),
-      j.typeParameterInstantiation([flowAnyType])
+      j.typeParameterInstantiation([flowFixMeType])
     ),
     bool: j.booleanTypeAnnotation(),
-    element: flowAnyType, // flow does the same for `element` type in `propTypes`
+    element: flowFixMeType, // flow does the same for `element` type in `propTypes`
     func: j.genericTypeAnnotation(
       j.identifier('Function'),
       null
     ),
-    node: flowAnyType, // flow does the same for `node` type in `propTypes`
+    node: flowFixMeType, // flow does the same for `node` type in `propTypes`
     number: j.numberTypeAnnotation(),
     object: j.genericTypeAnnotation(
       j.identifier('Object'),

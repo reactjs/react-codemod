@@ -4,14 +4,14 @@ var React = require('react');
 
 class Component extends React.Component {
   props: {
-    optionalArray?: Array<any>,
+    optionalArray?: Array<$FlowFixMe>,
     optionalBool?: boolean,
     optionalFunc?: Function,
     optionalNumber?: number,
     optionalObject?: Object,
     optionalString?: string,
-    optionalNode?: any,
-    optionalElement?: any,
+    optionalNode?: $FlowFixMe,
+    optionalElement?: $FlowFixMe,
     optionalMessage?: Message,
     optionalEnum?: 'News' | 'Photos' | 1 | true | null | void,
     optionalUnion?: string | number | Message,
