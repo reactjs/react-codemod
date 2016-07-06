@@ -162,7 +162,7 @@ module.exports = (file, api, options) => {
   const hasNoCallsToDeprecatedAPIs = classPath => {
     if (checkDeprecatedAPICalls(classPath)) {
       console.warn(
-        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
         'was skipped because of deprecated API calls. Remove calls to ' +
         DEPRECATED_APIS.join(', ') + ' in your React component and re-run ' +
         'this script.'
@@ -186,7 +186,7 @@ module.exports = (file, api, options) => {
 
     if (hasInvalidCalls) {
       console.warn(
-        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
         'was skipped because of API calls that will be removed. Remove calls to `' +
         DEFAULT_PROPS_FIELD + '` and/or `' + GET_INITIAL_STATE_FIELD +
         '` in your React component and re-run this script.'
@@ -202,7 +202,7 @@ module.exports = (file, api, options) => {
     );
     if (hasArguments) {
       console.warn(
-        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
         'was skipped because `arguments` was found in your functions. ' +
         'Arrow functions do not expose an `arguments` object; ' +
         'consider changing to use ES6 spread operator and re-run this script.'
@@ -260,14 +260,14 @@ module.exports = (file, api, options) => {
   };
 
   const isInitialStateConvertible = classPath => {
-    const specPath = ReactUtils.getReactCreateClassSpec(classPath);
+    const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
     if (!specPath) {
       return false;
     }
     const result = isGetInitialStateConstructorSafe(findGetInitialState(specPath));
     if (!result) {
       console.warn(
-        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
         'was skipped because of potential shadowing issues were found in ' +
         'the React component. Rename variable declarations of `props` and/or `context` ' +
         'in your `getInitialState` and re-run this script.'
@@ -277,7 +277,7 @@ module.exports = (file, api, options) => {
   };
 
   const canConvertToClass = classPath => {
-    const specPath = ReactUtils.getReactCreateClassSpec(classPath);
+    const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
     if (!specPath) {
       return false;
     }
@@ -299,7 +299,7 @@ module.exports = (file, api, options) => {
         .map(prop => prop.key.name ? prop.key.name : prop.key)
         .join(', ');
       console.warn(
-        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
         'was skipped because of invalid field(s) `' + invalidText + '` on ' +
         'the React component. Remove any right-hand-side expressions that ' +
         'are not simple, like: `componentWillUpdate: createWillUpdate()` or ' +
@@ -311,8 +311,8 @@ module.exports = (file, api, options) => {
 
   const areMixinsConvertible = (mixinIdentifierNames, classPath) => {
     if (
-      ReactUtils.hasMixins(classPath) &&
-      !ReactUtils.hasSpecificMixins(classPath, mixinIdentifierNames)
+      ReactUtils.directlyHasMixinsField(classPath) &&
+      !ReactUtils.directlyHasSpecificMixins(classPath, mixinIdentifierNames)
     ) {
       return false;
     }
@@ -1023,34 +1023,40 @@ module.exports = (file, api, options) => {
       );
     });
 
-  const updateToClass = (classPath, type) => {
-    const specPath = ReactUtils.getReactCreateClassSpec(classPath);
-    const name = ReactUtils.getComponentName(classPath);
+  const updateToClass = (classPath) => {
+    const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
+    const name = ReactUtils.directlyGetComponentName(classPath);
     const statics = collectStatics(specPath);
     const properties = collectNonStaticProperties(specPath);
     const comments = getComments(classPath);
 
     const getInitialState = findGetInitialState(specPath);
 
-    var path;
+    var path = classPath;
+
     if (
-      type == 'moduleExports' ||
-      type == 'exportDefault' ||
-      type == 'anonymousInCallExpression'
+      classPath.parentPath &&
+      classPath.parentPath.value &&
+      classPath.parentPath.value.type === 'VariableDeclarator'
     ) {
-      path = ReactUtils.findReactCreateClassCallExpression(classPath);
-    } else {
-      path = j(classPath).closest(j.VariableDeclaration);
+      // the reason that we need to do this awkward dance here is that
+      // for things like `var Foo = React.createClass({...})`, we need to
+      // replace the _entire_ VariableDeclaration with
+      // `class Foo extends React.Component {...}`.
+      // it looks scary but since we already know it's a VariableDeclarator
+      // it's actually safe.
+      // (VariableDeclaration > declarations > VariableDeclarator > CallExpression)
+      path = classPath.parentPath.parentPath.parentPath;
     }
 
     const staticProperties = createStaticClassProperties(statics);
     const baseClassName =
       pureRenderMixinPathAndBinding &&
-      ReactUtils.hasSpecificMixins(classPath, [pureRenderMixinPathAndBinding.binding]) ?
+      ReactUtils.directlyHasSpecificMixins(classPath, [pureRenderMixinPathAndBinding.binding]) ?
         'PureComponent' :
         'Component';
 
-    path.replaceWith(
+    j(path).replaceWith(
       createESClass(
         name,
         baseClassName,
@@ -1071,7 +1077,7 @@ module.exports = (file, api, options) => {
     //   class mixins is an array and only contains the identifier -> true
     //   otherwise -> false
     const mixinsFilter = (classPath) => {
-      if (!ReactUtils.hasMixins(classPath)) {
+      if (!ReactUtils.directlyHasMixinsField(classPath)) {
         return true;
       } else if (options['pure-component'] && pureRenderMixinPathAndBinding) {
         const {binding} = pureRenderMixinPathAndBinding;
@@ -1080,13 +1086,18 @@ module.exports = (file, api, options) => {
         }
       }
       console.warn(
-        file.path + ': `' + ReactUtils.getComponentName(classPath) + '` ' +
+        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
         'was skipped because of inconvertible mixins.'
       );
+
       return false;
     };
 
-    const apply = (path, type) =>
+    // the only time that we can't simply replace the createClass call path
+    // with a new class is when the parent of that is a variable declaration.
+    // let's delay it and figure it out later (by looking at `path.parentPath`)
+    // in `updateToClass`.
+    const apply = (path) =>
       path
         .filter(mixinsFilter)
         .filter(hasNoCallsToDeprecatedAPIs)
@@ -1094,18 +1105,11 @@ module.exports = (file, api, options) => {
         .filter(doesNotUseArguments)
         .filter(isInitialStateConvertible)
         .filter(canConvertToClass)
-        .forEach(classPath => updateToClass(classPath, type));
+        .forEach(updateToClass);
 
-    const didTransform = (
-      apply(ReactUtils.findReactAnonymousCreateClassInCallExpression(root), 'anonymousInCallExpression')
-        .size() +
-      apply(ReactUtils.findReactCreateClass(root), 'var')
-        .size() +
-      apply(ReactUtils.findReactCreateClassModuleExports(root), 'moduleExports')
-        .size() +
-      apply(ReactUtils.findReactCreateClassExportDefault(root), 'exportDefault')
-        .size()
-    ) > 0;
+    const didTransform = apply(
+      ReactUtils.findAllReactCreateClassCalls(root)
+    ).size() > 0;
 
     if (didTransform) {
       // prune removed requires
@@ -1118,7 +1122,6 @@ module.exports = (file, api, options) => {
 
       return root.toSource(printOptions);
     }
-
   }
 
   return null;

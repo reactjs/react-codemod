@@ -86,23 +86,12 @@ module.exports = function(j) {
         },
       });
 
-  const findReactAnonymousCreateClassInCallExpression = path =>
-    path.find(j.CallExpression, {
-      arguments: [{
-        type: 'CallExpression',
-        callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,
-      }],
-    });
-
   const getReactCreateClassSpec = classPath => {
-    var callCollection = findReactCreateClassCallExpression(classPath);
-    if (callCollection.size() === 0) {
-      return null;
-    }
-    const args = callCollection.get('arguments').value;
-    if (args) {
+    const {value} = classPath;
+    const args = (value.init || value.right || value.declaration).arguments;
+    if (args && args.length) {
       const spec = args[0];
-      if (spec && spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
+      if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
         return spec;
       }
     }
@@ -166,40 +155,20 @@ module.exports = function(j) {
 
   // ---------------------------------------------------------------------------
   // Checks if the React class has mixins
-  const isMixinProperty = property => property.key.name === 'mixins';
-
-  const hasMixins = classPath => {
-    const spec = getReactCreateClassSpec(classPath);
-    return spec && spec.properties.some(isMixinProperty);
-  };
-
-  const containSameElements = (ls1, ls2) => {
-    if (ls1.length !== ls2.length) {
-      return false;
-    }
-
-    return (
-      ls1.reduce((res, x) => res && ls2.indexOf(x) !== -1, true) &&
-      ls2.reduce((res, x) => res && ls1.indexOf(x) !== -1, true)
-    );
-  };
-
-  const isSpecificMixinsProperty = (property, mixinIdentifierNames) => {
+  const isMixinProperty = property => {
     const key = property.key;
     const value = property.value;
-
     return (
       key.name === 'mixins' &&
       value.type === 'ArrayExpression' &&
       Array.isArray(value.elements) &&
-      value.elements.every(elem => elem.type === 'Identifier') &&
-      containSameElements(value.elements.map(elem => elem.name), mixinIdentifierNames)
+      value.elements.length
     );
   };
 
-  const hasSpecificMixins = (classPath, mixinIdentifierNames) => {
+  const hasMixins = classPath => {
     const spec = getReactCreateClassSpec(classPath);
-    return spec && spec.properties.some(prop => isSpecificMixinsProperty(prop, mixinIdentifierNames));
+    return spec && spec.properties.some(isMixinProperty);
   };
 
   // ---------------------------------------------------------------------------
@@ -219,9 +188,80 @@ module.exports = function(j) {
   const getComponentName =
     classPath => classPath.node.id && classPath.node.id.name;
 
+  // ---------------------------------------------------------------------------
+  // Direct methods! (see explanation below)
+  const findAllReactCreateClassCalls = path =>
+    path.find(j.CallExpression, {
+      callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,
+    });
+
+  // Mixin Stuff
+  const containSameElements = (ls1, ls2) => {
+    if (ls1.length !== ls2.length) {
+      return false;
+    }
+
+    return (
+      ls1.reduce((res, x) => res && ls2.indexOf(x) !== -1, true) &&
+      ls2.reduce((res, x) => res && ls1.indexOf(x) !== -1, true)
+    );
+  };
+
+  const keyNameIsMixins = property => property.key.name === 'mixins';
+
+  const isSpecificMixinsProperty = (property, mixinIdentifierNames) => {
+    const key = property.key;
+    const value = property.value;
+
+    return (
+      key.name === 'mixins' &&
+      value.type === 'ArrayExpression' &&
+      Array.isArray(value.elements) &&
+      value.elements.every(elem => elem.type === 'Identifier') &&
+      containSameElements(value.elements.map(elem => elem.name), mixinIdentifierNames)
+    );
+  };
+
+  // These following methods assume that the argument is
+  // a `React.createClass` call expression. In other words,
+  // they should only be used with `findAllReactCreateClassCalls`.
+  const directlyGetCreateClassSpec = classPath => {
+    if (!classPath || !classPath.value) {
+      return null;
+    }
+    const args = classPath.value.arguments;
+    if (args && args.length) {
+      const spec = args[0];
+      if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
+        return spec;
+      }
+    }
+    return null;
+  };
+
+  const directlyGetComponentName = classPath => {
+    let result = '';
+    if (
+      classPath.parentPath.value &&
+      classPath.parentPath.value.type === 'VariableDeclarator'
+    ) {
+      result = classPath.parentPath.value.id.name;
+    }
+    return result;
+  };
+
+  const directlyHasMixinsField = classPath => {
+    const spec = directlyGetCreateClassSpec(classPath);
+    return spec && spec.properties.some(keyNameIsMixins);
+  };
+
+  const directlyHasSpecificMixins = (classPath, mixinIdentifierNames) => {
+    const spec = directlyGetCreateClassSpec(classPath);
+    return spec && spec.properties.some(prop => isSpecificMixinsProperty(prop, mixinIdentifierNames));
+  };
+
   return {
     createCreateReactClassCallExpression,
-    findReactAnonymousCreateClassInCallExpression,
     findReactES6ClassDeclaration,
     findReactCreateClass,
     findReactCreateClassCallExpression,
@@ -231,9 +271,15 @@ module.exports = function(j) {
     getReactCreateClassSpec,
     getClassExtendReactSpec,
     hasMixins,
-    hasSpecificMixins,
     hasModule,
     hasReact,
     isMixinProperty,
+
+    // "direct" methods
+    findAllReactCreateClassCalls,
+    directlyGetComponentName,
+    directlyGetCreateClassSpec,
+    directlyHasMixinsField,
+    directlyHasSpecificMixins,
   };
 };

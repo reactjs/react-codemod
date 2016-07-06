@@ -21,6 +21,7 @@ const enableFlowOption = {flow: true};
 
 defineTest(__dirname, 'class');
 defineTest(__dirname, 'class', enableFlowOption, 'class-anonymous');
+defineTest(__dirname, 'class', enableFlowOption, 'class-anonymous2');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-test2');
 defineTest(__dirname, 'class', enableFlowOption, 'export-default-class');
 defineTest(__dirname, 'class', pureMixinAlternativeOption, 'class-pure-mixin1');
