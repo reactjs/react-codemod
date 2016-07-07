@@ -30,6 +30,10 @@ defineTest(__dirname, 'class', {
   'pure-component': true,
 }, 'class-pure-mixin2');
 defineTest(__dirname, 'class', null, 'class-pure-mixin3');
+defineTest(__dirname, 'class', {
+  ...pureMixinAlternativeOption,
+  ...enableFlowOption,
+}, 'class-top-comment');
 defineTest(__dirname, 'class', enableFlowOption, 'class-initial-state');
 defineTest(__dirname, 'class', enableFlowOption, 'class-property-field');
 defineTest(__dirname, 'class', enableFlowOption, 'class-flow1');

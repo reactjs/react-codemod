@@ -1,5 +1,6 @@
-var React = require('React');
+// dont remove me
 var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
+var React = require('React');
 
 var ComponentWithOnlyPureRenderMixin = React.createClass({
   mixins: [ReactComponentWithPureRenderMixin],

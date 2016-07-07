@@ -1,3 +1,10 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule Bar
+ * @typechecks
+ * @flow
+ */
 import React from 'React';
 import dontPruneMe from 'foobar';
 

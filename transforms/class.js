@@ -26,6 +26,9 @@ module.exports = (file, api, options) => {
 
   const root = j(file.source);
 
+  // retain top comments
+  const { comments: topComments } = root.find(j.Program).get('body', 0).node;
+
   const AUTOBIND_IGNORE_KEYS = {
     componentDidMount: true,
     componentDidUpdate: true,
@@ -1132,8 +1135,14 @@ module.exports = (file, api, options) => {
       // prune removed requires
       if (pureRenderMixinPathAndBinding) {
         const {binding, path} = pureRenderMixinPathAndBinding;
+        let shouldReinsertComment = false;
         if (findUnusedVariables(path, binding).size() === 0) {
+          shouldReinsertComment = path.parentPath.value.indexOf(path.value) === 0;
           j(path).remove();
+
+          if (shouldReinsertComment) {
+            root.get().node.comments = topComments;
+          }
         }
       }
 

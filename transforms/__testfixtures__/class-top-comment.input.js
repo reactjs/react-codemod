@@ -1,16 +1,15 @@
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Bar
+ * @providesModule FooBar
  * @typechecks
  * @flow
  */
-import WhateverYouCallIt from 'react-addons-pure-render-mixin';
-import React from 'React';
-import dontPruneMe from 'foobar';
+var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
+var React = require('React');
 
 var ComponentWithOnlyPureRenderMixin = React.createClass({
-  mixins: [WhateverYouCallIt],
+  mixins: [ReactComponentWithPureRenderMixin],
 
   getInitialState: function() {
     return {
@@ -19,7 +18,6 @@ var ComponentWithOnlyPureRenderMixin = React.createClass({
   },
 
   render: function() {
-    dontPruneMe();
     return (
       <div>{this.state.counter}</div>
     );
