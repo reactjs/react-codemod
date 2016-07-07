@@ -173,3 +173,30 @@ var mySpec = {};
 var NotAnObjectLiteral = React.createClass(mySpec);
 
 var WaitWhat = React.createClass();
+
+var HasSpreadArgs = React.createClass({
+  _helper: function(...args) {
+    return args;
+  },
+  _helper2: function(a, b, c, ...args) {
+    return args.concat(a);
+  },
+  _helper3: function(a: number, ...args: Array<string>) {
+    return args.concat('' + a);
+  },
+  render() {
+    return <div/>;
+  },
+});
+
+var HasDefaultArgs = React.createClass({
+  _helper: function(foo = 12) {
+    return foo;
+  },
+  _helper2: function({foo: number = 12, abc}, bar: string = 'hey', ...args: Array<string>) {
+    return args.concat(foo, bar);
+  },
+  render() {
+    return <div/>;
+  },
+});
