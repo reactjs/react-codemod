@@ -38,10 +38,6 @@ defineTest(__dirname, 'class', {
   ...pureMixinAlternativeOption,
   ...enableFlowOption,
 }, 'class-top-comment');
-defineTest(__dirname, 'class', {
-  ...pureMixinAlternativeOption,
-  ...enableFlowOption,
-}, 'class-access-default-props1');
 defineTest(__dirname, 'class', enableFlowOption, 'class-initial-state');
 defineTest(__dirname, 'class', enableFlowOption, 'class-property-field');
 defineTest(__dirname, 'class', enableFlowOption, 'class-flow1');
