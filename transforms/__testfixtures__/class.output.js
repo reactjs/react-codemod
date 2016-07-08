@@ -201,3 +201,23 @@ class HasDefaultArgs extends React.Component {
     return <div/>;
   }
 }
+
+class ManyArgs extends React.Component {
+  _helper = (foo = 12) => {
+    return foo;
+  };
+
+  _helper2 = (
+    {foo: number = 12, abc},
+    bar: string = 'hey',
+    x: number,
+    y: number,
+    ...args: Array<string>
+  ) => {
+    return args.concat(foo, bar);
+  };
+
+  render() {
+    return <div/>;
+  }
+}

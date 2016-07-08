@@ -200,3 +200,15 @@ var HasDefaultArgs = React.createClass({
     return <div/>;
   },
 });
+
+var ManyArgs = React.createClass({
+  _helper: function(foo = 12) {
+    return foo;
+  },
+  _helper2: function({foo: number = 12, abc}, bar: string = 'hey', x: number, y: number, ...args: Array<string>) {
+    return args.concat(foo, bar);
+  },
+  render() {
+    return <div/>;
+  },
+});

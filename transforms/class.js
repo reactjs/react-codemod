@@ -571,33 +571,18 @@ module.exports = (file, api, options) => {
     ];
   };
 
-  const copyReturnType = (to, from) => {
-    to.returnType = from.returnType;
-    return to;
-  };
-
   const createArrowFunctionExpression = fn => {
-    const params = [].concat(fn.params);
-
-    if (fn.defaults && fn.defaults.length) {
-      for (let i = 0; i < fn.defaults.length; i++) {
-        const val = fn.defaults[i];
-        if (val === null) {
-          continue;
-        }
-        params[i] = j.assignmentPattern(params[i], val);
-      }
-    }
-
-    if (fn.rest) { // this is flow-parser specific
-      params.push(j.restElement(fn.rest));
-    }
-
-    return copyReturnType(j.arrowFunctionExpression(
-      params,
+    const arrowFunc = j.arrowFunctionExpression(
+      fn.params,
       fn.body,
       false
-    ), fn);
+    );
+
+    arrowFunc.returnType = fn.returnType;
+    arrowFunc.defaults = fn.defaults;
+    arrowFunc.rest = fn.rest;
+
+    return arrowFunc;
   };
 
   const createArrowProperty = prop =>
