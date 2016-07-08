@@ -4,49 +4,51 @@ var React = require('React');
 var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
 var FooBarMixin = require('FooBarMixin');
 
-class ComponentWithNonSimpleInitialState extends React.Component {
-  static iDontKnowWhyYouNeedThis = true; // but comment it
-  static foo = 'bar';
+var ComponentWithNonSimpleInitialState = React.createClass({
+  statics: {
+    iDontKnowWhyYouNeedThis: true, // but comment it
+    foo: 'bar',
+    dontBindMe: function(count: number): any {
+      return this;
+    },
+  },
 
-  static dontBindMe(count: number): any {
-    return this;
-  }
+  getInitialState: function() {
+    return {
+      counter: this.props.initialNumber + 1,
+    };
+  },
 
-  state = {
-    counter: this.props.initialNumber + 1,
-  };
-
-  render() {
+  render: function() {
     return (
       <div>{this.state.counter}</div>
     );
-  }
-}
+  },
+});
 
 // Comment
-module.exports = class extends React.Component {
-  static propTypes = {
+module.exports = React.createClass({
+  propTypes: {
     foo: React.PropTypes.bool,
-  };
+  },
 
-  static defaultProps = {
-    foo: 12,
-  };
+  getDefaultProps: function() {
+    return {
+      foo: 12,
+    };
+  },
 
-  constructor(props) {
-    super(props);
-    // non-simple getInitialState
+  getInitialState: function() { // non-simple getInitialState
     var data = 'bar';
-
-    this.state = {
+    return {
       bar: data,
     };
-  }
+  },
 
-  render() {
+  render: function() {
     return <div />;
-  }
-};
+  },
+});
 
 var ComponentWithInconvertibleMixins = React.createClass({
   mixins: [ReactComponentWithPureRenderMixin, FooBarMixin],
@@ -83,18 +85,20 @@ var ComponentWithInconvertibleMixins2 = React.createClass({
 });
 
 // taken from https://facebook.github.io/react/docs/context.html#updating-context
-class MediaQuery extends React.Component {
-  static childContextTypes = {
+var MediaQuery = React.createClass({
+  childContextTypes: {
     type: React.PropTypes.string,
-  };
+  },
 
-  state = {type:'desktop'};
+  getInitialState: function() {
+    return {type:'desktop'};
+  },
 
-  getChildContext() {
+  getChildContext: function() {
     return {type: this.state.type};
-  }
+  },
 
-  componentDidMount() {
+  componentDidMount: function() {
     const checkMediaQuery = () => {
       const type = window.matchMedia('(min-width: 1025px)').matches ? 'desktop' : 'mobile';
       if (type !== this.state.type) {
@@ -104,9 +108,9 @@ class MediaQuery extends React.Component {
 
     window.addEventListener('resize', checkMediaQuery);
     checkMediaQuery();
-  }
+  },
 
-  render() {
+  render: function() {
     return this.props.children;
-  }
-}
+  },
+});
