@@ -379,7 +379,7 @@ module.exports = (file, api, options) => {
   const findRequirePathAndBinding = (moduleName) => {
     let result = null;
 
-    const requireStatement = root.find(j.VariableDeclarator, {
+    const requireCall = root.find(j.VariableDeclarator, {
       id: {type: 'Identifier'},
       init: {
         callee: {name: 'require'},
@@ -398,13 +398,15 @@ module.exports = (file, api, options) => {
         result = {
           path,
           binding: path.value.specifiers[0].id.name,
+          type: 'import',
         };
       });
-    } else if (requireStatement.size()) {
-      requireStatement.forEach(path => {
+    } else if (requireCall.size()) {
+      requireCall.forEach(path => {
         result = {
           path,
           binding: path.value.id.name,
+          type: 'require',
         };
       });
     }
@@ -1119,12 +1121,25 @@ module.exports = (file, api, options) => {
     if (didTransform) {
       // prune removed requires
       if (pureRenderMixinPathAndBinding) {
-        const {binding, path} = pureRenderMixinPathAndBinding;
+        const {binding, path, type} = pureRenderMixinPathAndBinding;
         let shouldReinsertComment = false;
         if (findUnusedVariables(path, binding).size() === 0) {
-          shouldReinsertComment = path.parentPath.value.indexOf(path.value) === 0;
-          j(path).remove();
+          var removePath = null;
+          if (type === 'require') {
+            const bodyNode = path.parentPath.parentPath.parentPath.value;
+            const variableDeclarationNode = path.parentPath.parentPath.value;
 
+            removePath = path.parentPath.parentPath;
+            shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+          } else {
+            const importDeclarationNode = path.value;
+            const bodyNode = path.parentPath.value;
+
+            removePath = path;
+            shouldReinsertComment = bodyNode.indexOf(importDeclarationNode) === 0;
+          }
+
+          j(removePath).remove();
           if (shouldReinsertComment) {
             root.get().node.comments = topComments;
           }
