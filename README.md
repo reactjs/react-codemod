@@ -131,7 +131,6 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
         - Add `return;` after the assignment when the return statement is part of a control flow statement (not a direct child of `getInitialState()`'s body) and not in an inner function declaration
   4. Transform all non-lifecycle methods and fields to class property initializers (like `onClick = () => {};`). All your Flow annotations will be preserved
     - It's actually not necessary to transform all methods to arrow functions (i.e., to bind them), but this behavior is the same as `createClass()` and we can make sure that we won't accidentally break stuff
-  5. Rewrite `AnotherClass.getDefaultProps()` to `AnotherClass.defaultProps`
 4. Generate Flow annotations from `propTypes` and put it on the class (this only happens when there's `/* @flow */` in your code and `options['flow']` is `true`)
   - Flow actually understands `propTypes` in `createClass` calls but not ES6 class components. Here the transformation logic is identical to [how](https://github.com/facebook/flow/blob/master/src/typing/statement.ml#L3526) Flow treats `propTypes`
   - Notice that Flow treats an optional propType as non-nullable
