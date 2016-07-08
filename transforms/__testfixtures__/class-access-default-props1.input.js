@@ -12,4 +12,16 @@ var NewThing = React.createClass({
   },
 });
 
+var NewThing2 = React.createClass({
+  getDefaultProps: function() {
+    return OtherClass.defaultProps;
+  },
+  getData() {
+    return OtherClass.getDefaultProps();
+  },
+  render() {
+    return <div/>;
+  },
+});
+
 module.exports = NewThing;
