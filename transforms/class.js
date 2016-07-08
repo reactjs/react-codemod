@@ -132,15 +132,14 @@ module.exports = (file, api, options) => {
     isPrimExpression(prop.value.expression)
   );
 
-  const hasSingleReturnStatementWithObject = value => (
+  const hasSingleReturnStatement = value => (
     value.type === 'FunctionExpression' &&
     value.body &&
     value.body.type === 'BlockStatement' &&
     value.body.body &&
     value.body.body.length === 1 &&
     value.body.body[0].type === 'ReturnStatement' &&
-    value.body.body[0].argument &&
-    value.body.body[0].argument.type === 'ObjectExpression'
+    value.body.body[0].argument
   );
 
   const isInitialStateLiftable = getInitialState => {
@@ -148,7 +147,7 @@ module.exports = (file, api, options) => {
       return true;
     }
 
-    return hasSingleReturnStatementWithObject(getInitialState.value);
+    return hasSingleReturnStatement(getInitialState.value);
   };
 
   // ---------------------------------------------------------------------------
@@ -325,7 +324,7 @@ module.exports = (file, api, options) => {
   // ---------------------------------------------------------------------------
   // Collectors
   const pickReturnValueOrCreateIIFE = value => {
-    if (hasSingleReturnStatementWithObject(value)) {
+    if (hasSingleReturnStatement(value)) {
       return value.body.body[0].argument;
     } else {
       return j.callExpression(
