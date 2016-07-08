@@ -1030,6 +1030,22 @@ module.exports = (file, api, options) => {
       );
     });
 
+  // convert `OtherClass.getDefaultProps()` to `OtherClass.defaultProps`
+  const updateOtherDefaultPropsAccess = (classPath) => {
+    j(classPath)
+      .find(j.CallExpression, {
+        callee: {
+          type: 'MemberExpression',
+          property: { name: 'getDefaultProps' },
+        },
+      })
+      .forEach(path => j(path).replaceWith(
+        j.memberExpression(
+          path.value.callee.object,
+          j.identifier('defaultProps')
+      )));
+  };
+
   const updateToClass = (classPath) => {
     const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
     const name = ReactUtils.directlyGetComponentName(classPath);
@@ -1073,6 +1089,8 @@ module.exports = (file, api, options) => {
         comments
       )
     );
+
+    updateOtherDefaultPropsAccess(path);
   };
 
   if (
