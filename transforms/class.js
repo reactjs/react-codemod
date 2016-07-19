@@ -910,7 +910,7 @@ module.exports = (file, api, options) => {
       maybeConstructor = createConstructor(getInitialState);
       if (shouldTransformFlow) {
         let stateType = j.typeAnnotation(
-          j.genericTypeAnnotation(j.identifier('Object'), null)
+          j.existsTypeAnnotation()
         );
 
         if (getInitialState.value.returnType) {
