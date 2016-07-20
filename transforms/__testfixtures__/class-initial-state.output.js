@@ -61,7 +61,7 @@ class App extends React.Component {
 }
 
 class App2 extends React.Component {
-  state: Object;
+  state: *;
 
   constructor(props, context) {
     super(props, context);
@@ -81,7 +81,7 @@ App.contextTypes = {
 };
 
 class MyComponent2 extends React.Component {
-  state: Object;
+  state: *;
 
   constructor(props) {
     super(props);
@@ -100,7 +100,7 @@ class MyComponent2 extends React.Component {
 const getContextFromInstance = (x) => x.context; // meh
 
 class MyComponent3 extends React.Component {
-  state: Object;
+  state: *;
 
   constructor(props, context) {
     super(props, context);
@@ -141,7 +141,7 @@ class MyComponent5 extends React.Component {
 
 // intense control flow testing
 class Loader extends React.Component {
-  state: Object;
+  state: *;
 
   constructor(props, context) {
     super(props, context);
@@ -183,7 +183,7 @@ class Loader extends React.Component {
 }
 
 class FunctionDeclarationInGetInitialState extends React.Component {
-  state: Object;
+  state: *;
 
   constructor(props) {
     super(props);
@@ -274,7 +274,7 @@ var ShadowingIssue = React.createClass({ // bail out here
 
 // will remove unnecessary bindings
 class ShadowingButFine extends React.Component {
-  state: Object;
+  state: *;
 
   constructor(props, context) {
     super(props, context);
