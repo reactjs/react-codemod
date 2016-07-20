@@ -146,7 +146,8 @@ function selectorMatches(selector, method) {
   const selectorIsRe = regExpRegExp.test(selector);
 
   if (selectorIsRe) {
-    const selectorRe = new RegExp(selector);
+    const match = selector.match(regExpRegExp);
+    const selectorRe = new RegExp(match[1], match[2]);
     return selectorRe.test(methodName);
   }
 
