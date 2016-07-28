@@ -285,7 +285,7 @@ module.exports = (file, api, options) => {
     }
     const invalidProperties = specPath.properties.filter(prop => (
       !prop.key.name || (
-        !STATIC_KEYS[prop.key.name] &&
+        !STATIC_KEYS.hasOwnProperty(prop.key.name) &&
         STATIC_KEY != prop.key.name &&
         !filterDefaultPropsField(prop) &&
         !filterGetInitialStateField(prop) &&
@@ -356,7 +356,7 @@ module.exports = (file, api, options) => {
         result.push(...property.value.properties);
       } else if (createFindPropFn(DEFAULT_PROPS_FIELD)(property)) {
         result.push(createDefaultProps(property));
-      } else if (property.key && STATIC_KEYS[property.key.name]) {
+      } else if (property.key && STATIC_KEYS.hasOwnProperty(property.key.name)) {
         result.push(property);
       }
     }
@@ -368,7 +368,7 @@ module.exports = (file, api, options) => {
     .filter(prop =>
       !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
     )
-    .filter(prop => (!STATIC_KEYS[prop.key.name]) && prop.key.name !== STATIC_KEY)
+    .filter(prop => (!STATIC_KEYS.hasOwnProperty(prop.key.name)) && prop.key.name !== STATIC_KEY)
     .filter(prop =>
       isFunctionExpression(prop) ||
       isPrimPropertyWithTypeAnnotation(prop) ||
@@ -582,6 +582,8 @@ module.exports = (file, api, options) => {
     arrowFunc.returnType = fn.returnType;
     arrowFunc.defaults = fn.defaults;
     arrowFunc.rest = fn.rest;
+    arrowFunc.async = fn.async;
+    arrowFunc.generator = fn.generator;
 
     return arrowFunc;
   };
@@ -931,7 +933,7 @@ module.exports = (file, api, options) => {
         return createClassPropertyWithType(prop);
       } else if (isPrimProperty(prop)) {
         return createClassProperty(prop);
-      } else if (AUTOBIND_IGNORE_KEYS[prop.key.name]) {
+      } else if (AUTOBIND_IGNORE_KEYS.hasOwnProperty(prop.key.name)) {
         return createMethodDefinition(prop);
       }
 
