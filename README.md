@@ -50,6 +50,14 @@ to `getDOMNode` and then manually go through the remaining calls.
 jscodeshift -t react-codemod/transforms/findDOMNode.js <path>
 ```
 
+#### `manual-bind-to-arrow`
+
+Converts manual function bindings in a class (e.g., `this.f = this.f.bind(this)`) to arrow property initializer functions (e.g., `f = () => {}`).
+
+```sh
+jscodeshift -t react-codemod/transforms/manual-bind-to-arrow.js <path>
+```
+
 #### `pure-component`
 
 ```sh
