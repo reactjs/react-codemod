@@ -16,20 +16,6 @@ APIs.
 
 ### Included Scripts
 
-#### `class`
-
-Transforms `React.createClass` calls into ES2015 classes.
-
-```sh
-jscodeshift -t react-codemod/transforms/class.js <path>
-```
-
-  * If `--no-super-class` is specified it will not extend
-    `React.Component` if `setState` and `forceUpdate` aren't being called in a
-    class. We do recommend always extending from `React.Component`, especially
-    if you are using or planning to use [Flow](http://flowtype.org/). Also make
-    sure you are not calling `setState` anywhere outside of your component.
-
 #### `create-element-to-jsx`
 
 Converts calls to `React.createElement` into JSX elements.
@@ -147,7 +133,7 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 
 #### Usage
 ```bash
-./node_modules/.bin/jscodeshift -t ./transforms/class.js --mixin-module-name=react-addons-pure-render-mixin --flow=true --pure-component=true --remove-runtime-proptypes=false <path>
+jscodeshift -t ./transforms/class.js --mixin-module-name=react-addons-pure-render-mixin --flow=true --pure-component=true --remove-runtime-proptypes=false <path>
 ```
 
 ### Recast Options
