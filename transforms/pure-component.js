@@ -83,6 +83,7 @@ module.exports = function(file, api, options) {
   const reportSkipped = path => {
     const name = getClassName(path);
     const fileName = file.path;
+    if (!path.value.loc) return;
     const {line, column} = path.value.loc.start;
 
     console.warn(`Class "${name}" skipped in ${fileName} on ${line}:${column}`);
