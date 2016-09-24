@@ -133,10 +133,16 @@ describe('create-element-to-jsx', () => {
     'create-element-to-jsx-no-props-arg'
   );
   defineTest(
-      __dirname,
-      'create-element-to-jsx',
-      null,
-      'create-element-to-jsx-preserve-comments'
+    __dirname,
+    'create-element-to-jsx',
+    null,
+    'create-element-to-jsx-preserve-comments'
+  );
+  defineTest(
+    __dirname,
+    'create-element-to-jsx',
+    null,
+    'create-element-to-jsx-ignore-bad-capitalization'
   );
 
   it('throws when it does not recognize a property type', () => {
