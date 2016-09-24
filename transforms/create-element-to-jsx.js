@@ -130,6 +130,10 @@ module.exports = function(file, api, options) {
     return identifier;
   };
 
+  const isCapitalizationInvalid = (node) =>
+    (node.type === 'Literal' && !/^[a-z]/.test(node.value)) ||
+    (node.type === 'Identifier' && /^[a-z]/.test(node.name));
+
   const convertNodeToJSX = (node) => {
     const comments = node.value.comments;
     const {callee} = node.value;
@@ -142,6 +146,10 @@ module.exports = function(file, api, options) {
     }
 
     const args = node.value.arguments;
+
+    if (isCapitalizationInvalid(args[0])) {
+      return node.value;
+    }
 
     const jsxIdentifier = jsxIdentifierFor(args[0]);
     const props = args[1];
