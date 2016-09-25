@@ -175,6 +175,8 @@ module.exports = function(file, api, options) {
         } else {
           return jsxChild;
         }
+      } else if (child.type === 'SpreadElement') {
+        return j.jsxExpressionContainer(child.argument);
       } else {
         return j.jsxExpressionContainer(child);
       }
