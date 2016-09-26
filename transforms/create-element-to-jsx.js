@@ -19,6 +19,10 @@ module.exports = function(file, api, options) {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
+  const canLiteralBePropString = node =>
+    node.raw.indexOf('\\') === -1 &&
+    node.value.indexOf('"') === -1;
+
   const convertExpressionToJSXAttributes = (expression) => {
     if (!expression) {
       return {
@@ -75,7 +79,9 @@ module.exports = function(file, api, options) {
           const propertyValueType = property.value.type;
 
           let value;
-          if (propertyValueType === 'Literal' && typeof property.value.value === 'string') {
+          if (propertyValueType === 'Literal' &&
+              typeof property.value.value === 'string' &&
+              canLiteralBePropString(property.value)) {
             value = j.literal(property.value.value);
             value.comments = property.value.comments;
           } else {

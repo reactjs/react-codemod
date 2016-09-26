@@ -130,6 +130,12 @@ describe('create-element-to-jsx', () => {
     __dirname,
     'create-element-to-jsx',
     null,
+    'create-element-to-jsx-escaped-string'
+  );
+  defineTest(
+    __dirname,
+    'create-element-to-jsx',
+    null,
     'create-element-to-jsx-no-props-arg'
   );
   defineTest(
