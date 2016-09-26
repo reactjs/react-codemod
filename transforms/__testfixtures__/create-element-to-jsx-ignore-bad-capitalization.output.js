@@ -7,3 +7,4 @@ React.createElement('Foo');
 <_foo />;
 React.createElement('_foo');
 <foo.bar />;
+<Foo>{React.createElement(foo)}</Foo>;

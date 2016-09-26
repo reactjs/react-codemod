@@ -170,7 +170,7 @@ module.exports = function(file, api, options) {
         child.callee.object.name === 'React' &&
         child.callee.property.name === 'createElement') {
         const jsxChild = convertNodeToJSX(node.get('arguments', index + 2));
-        if ((jsxChild.comments || []).length > 0) {
+        if (jsxChild.type !== 'JSXElement' || (jsxChild.comments || []).length > 0) {
           return j.jsxExpressionContainer(jsxChild);
         } else {
           return jsxChild;
