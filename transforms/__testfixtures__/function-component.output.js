@@ -98,3 +98,11 @@ function ComponentWithReferenceToProps(props) {
     <div>Hello { props.name }</div>
   );
 }
+
+class ComponentPassingThis extends Component {
+  render() {
+    return (
+      <SomeOtherComponent someComponent={this} />
+    );
+  }
+}

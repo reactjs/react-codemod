@@ -8,7 +8,11 @@ function getConstructor(path) {
   return path.value.body.body.find(method => method.key.name === 'constructor');
 }
 
-function hasNoUnknownMethods(j, file) {
+function getRenderMethod(path) {
+  return path.value.body.body.find(method => method.key.name === 'render');
+}
+
+function unknownMethods(j, file) {
   const ReactUtils = require('./utils/ReactUtils')(j);
 
   return path => {
@@ -53,7 +57,7 @@ function hasNoRefs(j, file) {
   };
 }
 
-function hasNoComplexConstructor(j, file) {
+function unknownConstructor(j, file) {
   const ReactUtils = require('./utils/ReactUtils')(j);
 
   return path => {
@@ -71,8 +75,30 @@ function hasNoComplexConstructor(j, file) {
   };
 }
 
-function getRenderMethod(path) {
-  return path.value.body.body.find(method => method.key.name === 'render');
+function unknownThisReference(j, file) {
+  const ReactUtils = require('./utils/ReactUtils')(j);
+
+  return path => {
+    const thisCount = j(getRenderMethod(path))
+       .find(j.ThisExpression)
+       .size();
+
+    const thisPropsCount = j(getRenderMethod(path))
+      .find(j.MemberExpression)
+      .filter(path => path.value.object.type === 'ThisExpression' && path.value.property.name === 'props')
+      .size();
+
+    if (thisCount > thisPropsCount) {
+      console.warn(
+        file.path + ': `' + ReactUtils.getComponentName(path) + '` ' +
+        'was skipped because it has a reference to `this` other than `this.props`'
+      );
+
+      return false;
+    }
+
+    return true;
+  };
 }
 
 // find the nearest collection this item is inside
@@ -88,9 +114,10 @@ module.exports = (file, api, options) => {
   const root = j(file.source);
 
   ReactUtils.findReactES6ClassDeclaration(root)
-    .filter(hasNoUnknownMethods(j, file))
+    .filter(unknownMethods(j, file))
     .filter(hasNoRefs(j, file))
-    .filter(hasNoComplexConstructor(j, file))
+    .filter(unknownConstructor(j, file))
+    .filter(unknownThisReference(j, file))
     .replaceWith(classPath => {
       const destructuredProps = new Set();
 

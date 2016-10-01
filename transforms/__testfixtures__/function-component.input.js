@@ -104,3 +104,11 @@ class ComponentWithReferenceToProps extends Component {
     );
   }
 }
+
+class ComponentPassingThis extends Component {
+  render() {
+    return (
+      <SomeOtherComponent someComponent={this} />
+    );
+  }
+}

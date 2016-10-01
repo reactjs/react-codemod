@@ -61,6 +61,10 @@ Attempt to destructure props where possible.
 jscodeshift -t react-codemod/transforms/function-component.js <path>
 ```
 
+NOTE:
+
+Although this codemod detects when refs are used within a function component, it unfortunately cannot detect cases where a ref is put on a function component. This is because this may happen outside the file that the function component is defined.
+
 #### `pure-component`
 
 ```sh
