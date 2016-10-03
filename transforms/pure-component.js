@@ -36,16 +36,21 @@ module.exports = function(file, api, options) {
     node.key.name === 'props'
   );
 
+  const isStaticProperty = node => (
+    node.type === 'ClassProperty' &&
+    node.static
+  );
+
   const onlyHasRenderMethod = path =>
     j(path)
       .find(j.MethodDefinition)
       .filter(p => !isRenderMethod(p.value))
-      .size() === 0
+      .size() === 0;
 
-  const onlyHasPropsClassProperty = path =>
+  const onlyHasSafeClassProperties = path =>
     j(path)
       .find(j.ClassProperty)
-      .filter(p => !isPropsProperty(p.value))
+      .filter(p => !(isPropsProperty(p.value) || isStaticProperty(p.value)))
       .size() === 0;
 
   const hasRefs = path =>
@@ -78,13 +83,13 @@ module.exports = function(file, api, options) {
       identifier.typeAnnotation = j.typeAnnotation(typeAnnotation);
     }
     return identifier;
-  }
+  };
 
   const findPropsTypeAnnotation = body => {
     const property = body.find(isPropsProperty);
 
     return property && property.typeAnnotation.typeAnnotation;
-  }
+  };
 
   const buildPureComponentFunction = (name, body, typeAnnotation) =>
     j.functionDeclaration(
@@ -106,6 +111,16 @@ module.exports = function(file, api, options) {
       ]
     );
 
+  const buildStatics = (name, properties) => properties.map(prop => (
+    j.expressionStatement(
+      j.assignmentExpression(
+        '=',
+        j.memberExpression(j.identifier(name), prop.key),
+        prop.value
+      )
+    )
+  ));
+
   const reportSkipped = path => {
     const name = getClassName(path);
     const fileName = file.path;
@@ -118,7 +133,7 @@ module.exports = function(file, api, options) {
 
   const pureClasses = ReactUtils.findReactES6ClassDeclaration(f)
     .filter(path => {
-      const isPure = onlyHasRenderMethod(path) && onlyHasPropsClassProperty(path) && !hasRefs(path);
+      const isPure = onlyHasRenderMethod(path) && onlyHasSafeClassProperties(path) && !hasRefs(path);
       if (!isPure && !silenceWarnings) {
         reportSkipped(path);
       }
@@ -134,13 +149,20 @@ module.exports = function(file, api, options) {
     const renderMethod = p.value.body.body.filter(isRenderMethod)[0];
     const renderBody = renderMethod.value.body;
     const propsTypeAnnotation = findPropsTypeAnnotation(p.value.body.body);
+    const statics = p.value.body.body.filter(isStaticProperty);
 
     replaceThisProps(renderBody);
 
     if (useArrows) {
-      return buildPureComponentArrowFunction(name, renderBody, propsTypeAnnotation);
+      return [
+        buildPureComponentArrowFunction(name, renderBody, propsTypeAnnotation),
+        ...buildStatics(name, statics)
+      ];
     } else {
-      return buildPureComponentFunction(name, renderBody, propsTypeAnnotation);
+      return [
+        buildPureComponentFunction(name, renderBody, propsTypeAnnotation),
+        ...buildStatics(name, statics)
+      ];
     }
   });
 

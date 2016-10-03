@@ -53,4 +53,17 @@ class ImpureClassPropertyWithTypes extends React.Component {
   }
 }
 
+function PureWithPropTypes(props) {
+  return <div />;
+}
+
+PureWithPropTypes.propTypes = { foo: React.PropTypes.string };
+PureWithPropTypes.foo = 'bar';
+
+function PureWithPropTypes2(props: { foo: string }) {
+  return <div />;
+}
+
+PureWithPropTypes2.propTypes = { foo: React.PropTypes.string };
+
 var A = props => <div className={props.foo} />;
