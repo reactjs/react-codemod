@@ -30,10 +30,22 @@ module.exports = function(file, api, options) {
     node.key.name == 'render'
   );
 
+  const isPropsProperty = node => (
+    node.type === 'ClassProperty' &&
+    node.key.type === 'Identifier' &&
+    node.key.name === 'props'
+  );
+
   const onlyHasRenderMethod = path =>
     j(path)
       .find(j.MethodDefinition)
       .filter(p => !isRenderMethod(p.value))
+      .size() === 0
+
+  const onlyHasPropsClassProperty = path =>
+    j(path)
+      .find(j.ClassProperty)
+      .filter(p => !isPropsProperty(p.value))
       .size() === 0;
 
   const hasRefs = path =>
@@ -60,20 +72,34 @@ module.exports = function(file, api, options) {
       .find(j.MemberExpression, THIS_PROPS)
       .replaceWith(j.identifier('props'));
 
-  const buildPureComponentFunction = (name, body) =>
+  const buildIdentifierWithTypeAnnotation = (name, typeAnnotation) => {
+    const identifier = j.identifier(name);
+    if (typeAnnotation) {
+      identifier.typeAnnotation = j.typeAnnotation(typeAnnotation);
+    }
+    return identifier;
+  }
+
+  const findPropsTypeAnnotation = body => {
+    const property = body.find(isPropsProperty);
+
+    return property && property.typeAnnotation.typeAnnotation;
+  }
+
+  const buildPureComponentFunction = (name, body, typeAnnotation) =>
     j.functionDeclaration(
       j.identifier(name),
-      [j.identifier('props')],
+      [buildIdentifierWithTypeAnnotation('props', typeAnnotation)],
       body
     );
 
-  const buildPureComponentArrowFunction = (name, body) =>
+  const buildPureComponentArrowFunction = (name, body, typeAnnotation) =>
     j.variableDeclaration(
       'const', [
         j.variableDeclarator(
           j.identifier(name),
           j.arrowFunctionExpression(
-            [j.identifier('props')],
+            [buildIdentifierWithTypeAnnotation('props', typeAnnotation)],
             body
           )
         ),
@@ -92,7 +118,7 @@ module.exports = function(file, api, options) {
 
   const pureClasses = ReactUtils.findReactES6ClassDeclaration(f)
     .filter(path => {
-      const isPure = onlyHasRenderMethod(path) && !hasRefs(path);
+      const isPure = onlyHasRenderMethod(path) && onlyHasPropsClassProperty(path) && !hasRefs(path);
       if (!isPure && !silenceWarnings) {
         reportSkipped(path);
       }
@@ -107,13 +133,14 @@ module.exports = function(file, api, options) {
     const name = p.node.id.name;
     const renderMethod = p.value.body.body.filter(isRenderMethod)[0];
     const renderBody = renderMethod.value.body;
+    const propsTypeAnnotation = findPropsTypeAnnotation(p.value.body.body);
 
     replaceThisProps(renderBody);
 
     if (useArrows) {
-      return buildPureComponentArrowFunction(name, renderBody);
+      return buildPureComponentArrowFunction(name, renderBody, propsTypeAnnotation);
     } else {
-      return buildPureComponentFunction(name, renderBody);
+      return buildPureComponentFunction(name, renderBody, propsTypeAnnotation);
     }
   });
 
