@@ -31,4 +31,50 @@ class ImpureWithRef extends React.Component {
   }
 }
 
+class PureWithTypes extends React.Component {
+  props: { foo: string };
+  render() {
+    return <div className={this.props.foo} />;
+  }
+}
+
+type Props = { foo: string };
+
+class PureWithTypes2 extends React.Component {
+  props: Props;
+  render() {
+    return <div className={this.props.foo} />;
+  }
+}
+
+class ImpureClassProperty extends React.Component {
+  state = { foo: 2 };
+  render() {
+    return <div />;
+  }
+}
+
+class ImpureClassPropertyWithTypes extends React.Component {
+  state: { x: string };
+  render() {
+    return <div />;
+  }
+}
+
+class PureWithPropTypes extends React.Component {
+  static propTypes = { foo: React.PropTypes.string };
+  static foo = 'bar';
+  render() {
+    return <div />;
+  }
+}
+
+class PureWithPropTypes2 extends React.Component {
+  props: { foo: string };
+  static propTypes = { foo: React.PropTypes.string };
+  render() {
+    return <div />;
+  }
+}
+
 var A = props => <div className={props.foo} />;
