@@ -1,3 +1,5 @@
+const buildReactUtils = require('./utils/ReactUtils');
+
 function isSimpleReactConstructor(path) {
   return path
     && path.value.body.body.length === 1
@@ -13,7 +15,7 @@ function getRenderMethod(path) {
 }
 
 function unknownMethods(j, file) {
-  const ReactUtils = require('./utils/ReactUtils')(j);
+  const ReactUtils = buildReactUtils(j);
 
   return path => {
     const methodNames = new Set(j(path).find(j.MethodDefinition).nodes().map(node => node.key.name));
@@ -34,7 +36,7 @@ function unknownMethods(j, file) {
 }
 
 function hasNoRefs(j, file) {
-  const ReactUtils = require('./utils/ReactUtils')(j);
+  const ReactUtils = buildReactUtils(j);
 
   return path => {
     const noRefs = j(path)
@@ -58,7 +60,7 @@ function hasNoRefs(j, file) {
 }
 
 function unknownConstructor(j, file) {
-  const ReactUtils = require('./utils/ReactUtils')(j);
+  const ReactUtils = buildReactUtils(j);
 
   return path => {
     const componentConstructor = getConstructor(path);
@@ -76,7 +78,7 @@ function unknownConstructor(j, file) {
 }
 
 function unknownThisReference(j, file) {
-  const ReactUtils = require('./utils/ReactUtils')(j);
+  const ReactUtils = buildReactUtils(j);
 
   return path => {
     const thisCount = j(getRenderMethod(path))
@@ -106,6 +108,31 @@ function findCollectionForItem(path) {
   return Array.isArray(path.parentPath.value) ? path : findCollectionForItem(path.parentPath);
 }
 
+function findComponentImportSpecifiers(j, path) {
+  return j(path).find(j.ImportSpecifier, {
+    imported: {
+      name: 'Component'
+    }
+  });
+}
+
+function clearUpImports(j, root) {
+  const ReactUtils = buildReactUtils(j);
+
+  if (ReactUtils.findReactES6ClassDeclaration(root).size() === 0) {
+      root
+        .find(j.ImportDeclaration, {
+          source: {
+            value: 'react'
+          }
+        })
+        .filter(path => findComponentImportSpecifiers(j, path).size() > 0)
+        .forEach(path => {
+          findComponentImportSpecifiers(j, path).remove();
+        });
+  }
+}
+
 
 module.exports = (file, api, options) => {
   const j = api.jscodeshift;
@@ -133,21 +160,32 @@ module.exports = (file, api, options) => {
         });
 
       const thisPropsPaths = j(getRenderMethod(classPath))
-        .find(j.MemberExpression)
-        .filter(path => path.value.object.type === 'ThisExpression' && path.value.property.name === 'props');
+        .find(j.MemberExpression, {
+          object: {
+            type: 'ThisExpression'
+          },
+          property: {
+            name: 'props'
+          }
+        });
 
       thisPropsPaths.replaceWith(() => j.identifier('props'));
 
       if (thisPropsPaths.size() > 0) {
         const usesPropsStandalone = j(getRenderMethod(classPath))
-          .find(j.Identifier)
-          .filter(path => path.value.name === 'props' && path.parentPath.value.type !== 'MemberExpression')
+          .find(j.Identifier, {
+            name: 'props'
+          })
+          .filter(path => path.parentPath.value.type !== 'MemberExpression')
           .size() > 0;
 
         if (!usesPropsStandalone) {
           const propsSuitableForDestructuring = j(getRenderMethod(classPath))
-            .find(j.MemberExpression)
-            .filter(path => path.value.object.name === 'props');
+            .find(j.MemberExpression, {
+              object: {
+                name: 'props'
+              }
+            });
 
           propsSuitableForDestructuring.forEach(path => destructuredProps.add(path.value.property.name));
           propsSuitableForDestructuring.replaceWith(path => j.identifier(path.value.property.name));
@@ -157,15 +195,17 @@ module.exports = (file, api, options) => {
       const createFunction = classPath.type === 'ClassExpression' ? j.functionExpression : j.functionDeclaration;
 
       return createFunction(
-          j.identifier(classPath.value.id.name),
-          destructuredProps.size > 0 ? [j.objectExpression([...destructuredProps.values()].map(prop => {
-            const property = j.property('init', j.identifier(prop), j.identifier(prop));
-            property.shorthand = true;
-
-            return property;
-          }))] : thisPropsPaths.size() > 0 ? [j.identifier('props')] : [],
-          getRenderMethod(classPath).value.body);
+        j.identifier(classPath.value.id.name),
+        destructuredProps.size > 0 ? [j.objectExpression([...destructuredProps.values()].map(prop => {
+          const property = j.property('init', j.identifier(prop), j.identifier(prop));
+          property.shorthand = true;
+          return property;
+        }))] : thisPropsPaths.size() > 0 ? [j.identifier('props')] : [],
+        getRenderMethod(classPath).value.body
+      );
     });
+
+  clearUpImports(j, root);
 
   return root.toSource(options.printOptions || {
     quote: 'single'
