@@ -396,7 +396,7 @@ module.exports = (file, api, options) => {
       importStatement.forEach(path => {
         result = {
           path,
-          binding: path.value.specifiers[0].id.name,
+          binding: path.value.specifiers[0].local.name,
           type: 'import',
         };
       });
@@ -1020,7 +1020,7 @@ module.exports = (file, api, options) => {
     // Ignore import bindings
     .filter(identifierPath => !(
       path.value.type === 'ImportDeclaration' &&
-      path.value.specifiers.some(specifier => specifier.id === identifierPath.value)
+      path.value.specifiers.some(specifier => specifier.local === identifierPath.value)
     ))
     // Ignore properties in MemberExpressions
     .filter(identifierPath => {
