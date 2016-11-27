@@ -106,3 +106,20 @@ class ComponentPassingThis extends Component {
     );
   }
 }
+
+function ComponentWithContext(
+  {
+    children
+  },
+  context
+) {
+  return (
+    <button style={{background: context.color}}>
+      {children}
+    </button>
+  );
+}
+
+ComponentWithContext.contextTypes = {
+  color: PropTypes.string
+};

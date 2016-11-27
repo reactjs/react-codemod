@@ -112,3 +112,17 @@ class ComponentPassingThis extends Component {
     );
   }
 }
+
+class ComponentWithContext extends Component {
+  render() {
+    return (
+      <button style={{background: this.context.color}}>
+        {this.props.children}
+      </button>
+    );
+  }
+}
+
+ComponentWithContext.contextTypes = {
+  color: PropTypes.string
+};
