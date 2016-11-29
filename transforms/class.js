@@ -22,6 +22,8 @@ module.exports = (file, api, options) => {
       trailingComma: true,
       flowObjectCommas: true,
       arrowParensAlways: true,
+      arrayBracketSpacing: false,
+      objectCurlySpacing: false,
     };
 
   const root = j(file.source);
