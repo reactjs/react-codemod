@@ -10,6 +10,8 @@ APIs.
   * `git clone https://github.com/reactjs/react-codemod.git` or download a zip file
     from `https://github.com/reactjs/react-codemod/archive/master.zip`
   * Run `npm install` in the react-codemod directory
+    * Alternatively, run [`yarn`](https://yarnpkg.com/) to install in the
+      react-codemod directory for a reliable dependency resolution
   * `jscodeshift -t <codemod-script> <path>`
   * Use the `-d` option for a dry-run and use `-p` to print the output
     for comparison
