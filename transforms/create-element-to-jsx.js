@@ -120,6 +120,12 @@ module.exports = function(file, api, options) {
     }
   };
 
+  const canConvertToJSXIdentifier = node =>
+    (node.type === 'Literal' && typeof node.value === 'string') ||
+    node.type === 'Identifier' ||
+    (node.type === 'MemberExpression' && !node.computed &&
+      canConvertToJSXIdentifier(node.object) && canConvertToJSXIdentifier(node.property));
+
   const jsxIdentifierFor = node => {
     let identifier;
     if (node.type === 'Literal') {
@@ -153,7 +159,7 @@ module.exports = function(file, api, options) {
 
     const args = node.value.arguments;
 
-    if (isCapitalizationInvalid(args[0])) {
+    if (isCapitalizationInvalid(args[0]) || !canConvertToJSXIdentifier(args[0])) {
       return node.value;
     }
 
