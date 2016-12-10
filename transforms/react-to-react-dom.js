@@ -70,6 +70,8 @@ module.exports = function(file, api) {
     var domServerAlreadyDeclared = false;
 
     var coreRequireDeclarator;
+    var coreImportDeclaration;
+    var coreName = null;
     root
       .find(j.CallExpression)
       .filter(p => isRequire(p, coreModuleName))
@@ -113,6 +115,7 @@ module.exports = function(file, api) {
             domServerAlreadyDeclared = true;
           }
           coreRequireDeclarator = p.parent;
+          coreName = coreRequireDeclarator.value.id.name;
         } else if (p.parent.value.type === 'AssignmentExpression') {
           if (p.parent.value.left.type !== 'Identifier') {
             reportError(
@@ -129,6 +132,7 @@ module.exports = function(file, api) {
             );
           }
           coreRequireDeclarator = reactBindings[0].parent;
+          coreName = coreRequireDeclarator.value.id.name;
           if (coreRequireDeclarator.value.init &&
               !isRequire(coreRequireDeclarator.get('init'), coreModuleName)) {
             reportError(
@@ -146,7 +150,31 @@ module.exports = function(file, api) {
           }
         }
       });
-    if (!coreRequireDeclarator) {
+    root
+      .find(j.ImportDeclaration, { source: { value: coreModuleName } })
+      .forEach(p => {
+        if (coreImportDeclaration) {
+          reportError(p.value, 'Multiple declarations of React');
+        }
+        coreImportDeclaration = p;
+        var defaultSpecifier = p.value.specifiers.find(sp => sp.type === j.ImportDefaultSpecifier.name);
+        var specifiers = p.value.specifiers.filter(sp => sp.type === j.ImportSpecifier.name);
+        if (defaultSpecifier) {
+          var name = defaultSpecifier.local.name;
+          var scope = p.scope.lookup(name);
+          if (scope.declares('ReactDOM')) {
+            console.log('Using existing ReactDOM var in ' + file.path);
+            domAlreadyDeclared = true;
+          }
+          if (scope.declares('ReactDOMServer')) {
+            console.log('Using existing ReactDOMServer var in ' + file.path);
+            domServerAlreadyDeclared = true;
+          }
+          coreName = j(coreImportDeclaration).find(j.ImportDefaultSpecifier).get().value.local.name;
+        }
+      });
+
+    if (!coreRequireDeclarator && !coreImportDeclaration) {
       return;
     }
 
@@ -162,8 +190,6 @@ module.exports = function(file, api) {
         'ReactDOMServer is already defined in a different scope than React'
       );
     }
-
-    var coreName = coreRequireDeclarator.value.id.name;
 
     var processed = new Set();
     var requireAssignments = [];
@@ -277,6 +303,8 @@ module.exports = function(file, api) {
           } else {
             throw new Error('unimplemented');
           }
+        } else if (p.parent.value.type === 'ImportDefaultSpecifier') {
+          // import React from "react";
         } else {
           reportError(p.value, 'unimplemented ' + p.parent.value.type);
         }
@@ -305,15 +333,63 @@ module.exports = function(file, api) {
       ));
     }
 
-    if (domServerUses > 0 && !domServerAlreadyDeclared) {
-      insertRequire('ReactDOMServer', domServerModuleName);
-    }
-    if (domUses > 0 && !domAlreadyDeclared) {
-      insertRequire('ReactDOM', domModuleName);
-    }
-    if ((domUses > 0 || domServerUses > 0) && coreUses === 0) {
-      j(coreRequireDeclarator).remove();
-      requireAssignments.forEach(r => j(r).remove());
+    if (coreRequireDeclarator) {
+      if (domServerUses > 0 && !domServerAlreadyDeclared) {
+        insertRequire('ReactDOMServer', domServerModuleName);
+      }
+      if (domUses > 0 && !domAlreadyDeclared) {
+        insertRequire('ReactDOM', domModuleName);
+      }
+      if ((domUses > 0 || domServerUses > 0) && coreUses === 0) {
+        j(coreRequireDeclarator).remove();
+        requireAssignments.forEach(r => j(r).remove());
+      }
+    } else {
+      function findImportPath(name, path) {
+        return root
+          .find(j.ImportDeclaration, { source: { value: path } })
+          .filter(p => p.value.specifiers.find(sp => sp.type === 'ImportDefaultSpecifier' && sp.local.name === name));
+      }
+
+      function emitImport(name, path, knownProperties, uses) {
+        const usedProperties = coreImportDeclaration.value.specifiers.filter(sp => sp.type === j.ImportSpecifier.name).filter(sp =>
+          sp.imported.type === 'Identifier' && knownProperties.indexOf(sp.imported.name) !== -1
+        ).map(sp => sp.imported.name);
+
+        const importDeclaration = findImportPath(name, path);
+        const specifiers = [];
+
+        // if ReactDOM needs to be in scope and it's not declared, or we're going to
+        // replace its declaration to add import specifiers...
+        if (uses > 0 && (!domAlreadyDeclared || importDeclaration.length > 0)) {
+          specifiers.push(j.importDefaultSpecifier(j.identifier(name)));
+        }
+        if (usedProperties.length > 0) {
+          j(coreImportDeclaration).find(j.ImportSpecifier)
+            .filter(p => usedProperties.indexOf(p.value.local.name) !== -1)
+            .remove();
+          specifiers.push(...usedProperties.map(prop =>
+            j.importSpecifier(j.identifier(prop))
+          ));
+        }
+        if (specifiers.length > 0) {
+          if (importDeclaration.length > 0) {
+            importDeclaration.replaceWith(j.importDeclaration(specifiers, j.literal(path)));
+          } else {
+            coreImportDeclaration.insertAfter(j.importDeclaration(specifiers, j.literal(path)));
+          }
+        }
+      }
+
+      emitImport('ReactDOM', domModuleName, DOM_PROPERTIES, domUses);
+      emitImport('ReactDOMServer', domServerModuleName, DOM_SERVER_PROPERTIES, domServerUses);
+
+      const coreImportSpecifiers = j(coreImportDeclaration).find(j.ImportSpecifier);
+      if (coreImportSpecifiers.length === 0 && coreUses === 0) {
+        j(coreImportDeclaration).remove();
+      } else if (coreImportSpecifiers.length > 0 && coreUses === 0) {
+        j(coreImportDeclaration).find(j.ImportDefaultSpecifier).remove();
+      }
     }
   });
 
