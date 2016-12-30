@@ -48,6 +48,11 @@ jscodeshift -t react-codemod/transforms/manual-bind-to-arrow.js <path>
 
 #### `pure-component`
 
+Converts ES6 classes that only have a render method, only have safe properties
+(statics and props), and do not have refs to Stateless Functional Components.
+
+Option `useArrows` converts to arrow function. Converts to `function` by default.
+
 ```sh
 jscodeshift -t react-codemod/transforms/pure-component.js <path>
 ```
