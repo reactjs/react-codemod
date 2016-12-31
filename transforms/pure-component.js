@@ -99,6 +99,13 @@ module.exports = function(file, api, options) {
     return property;
   };
 
+  const isDuplicateDeclaration = path => {
+    if (path && path.value && path.value.id && path.value.init) {
+      return path.value.id.name === path.value.init.name;
+    }
+    return false;
+  };
+
   const destructureProps = body => {
     const toDestructure = body.find(j.MemberExpression, {
       object: {
@@ -107,9 +114,15 @@ module.exports = function(file, api, options) {
     });
     if (toDestructure) {
       const propNames = [];
-      toDestructure.forEach(path => propNames.push(path.value.property.name));
-      toDestructure.replaceWith(path => j.identifier(path.value.property.name));
+      toDestructure.replaceWith(path => {
+        const propName = path.value.property.name;
+        propNames.push(propName);
+        return j.identifier(propName);
+      });
       if (propNames.length > 0) {
+        const assignments = body.find(j.VariableDeclarator);
+        const duplicateAssignments = assignments.filter(isDuplicateDeclaration);
+        duplicateAssignments.remove();
         return j.objectExpression(propNames.map(createShorthandProperty(j)));
       }
     }
@@ -150,29 +163,6 @@ module.exports = function(file, api, options) {
   const buildPureComponentFunction = build({ functionType: 'fn' });
 
   const buildPureComponentArrowFunction = build({ functionType: 'arrow' });
-
-  const oldbuildPureComponentFunction = (name, body, typeAnnotation) =>
-    j.functionDeclaration(
-      j.identifier(name),
-      [buildIdentifierWithTypeAnnotation('props', typeAnnotation)],
-      body
-    );
-
-  const oldbuildPureComponentArrowFunction = (name, body, typeAnnotation, destructure) => {
-    const propsIdentifier = buildIdentifierWithTypeAnnotation('props', typeAnnotation);
-    const arg = (destructure && destructureProps(j(body))) || propsIdentifier;
-    return j.variableDeclaration(
-      'const', [
-        j.variableDeclarator(
-          j.identifier(name),
-          j.arrowFunctionExpression(
-            [arg],
-            body
-          )
-        ),
-      ]
-    );
-  };
 
   const buildStatics = (name, properties) => properties.map(prop => (
     j.expressionStatement(
