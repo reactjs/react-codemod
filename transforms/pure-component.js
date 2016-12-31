@@ -74,9 +74,9 @@ module.exports = function(file, api, options) {
   };
 
   const replaceThisProps = path =>
-  j(path)
-    .find(j.MemberExpression, THIS_PROPS)
-    .replaceWith(j.identifier('props'));
+    j(path)
+      .find(j.MemberExpression, THIS_PROPS)
+      .replaceWith(j.identifier('props'));
 
   const buildIdentifierWithTypeAnnotation = (name, typeAnnotation) => {
     const identifier = j.identifier(name);
