@@ -15,6 +15,7 @@ module.exports = function(file, api, options) {
   const ReactUtils = require('./utils/ReactUtils')(j);
 
   const useArrows = options.useArrows || false;
+  const destructureEnabled = options.destructure || false;
   const silenceWarnings = options.silenceWarnings || false;
   const printOptions = options.printOptions || {
     quote: 'single',
@@ -73,9 +74,9 @@ module.exports = function(file, api, options) {
   };
 
   const replaceThisProps = path =>
-    j(path)
-      .find(j.MemberExpression, THIS_PROPS)
-      .replaceWith(j.identifier('props'));
+  j(path)
+    .find(j.MemberExpression, THIS_PROPS)
+    .replaceWith(j.identifier('props'));
 
   const buildIdentifierWithTypeAnnotation = (name, typeAnnotation) => {
     const identifier = j.identifier(name);
@@ -85,31 +86,93 @@ module.exports = function(file, api, options) {
     return identifier;
   };
 
+  const canDestructure = path => path
+    .find(j.Identifier, {
+      name: 'props'
+    })
+    .filter(p => p.parentPath.parentPath.value.type !== 'MemberExpression')
+    .size() === 0;
+
+  const createShorthandProperty = j => prop => {
+    const property = j.property('init', j.identifier(prop), j.identifier(prop));
+    property.shorthand = true;
+    return property;
+  };
+
+  const destructureProps = body => {
+    const toDestructure = body.find(j.MemberExpression, {
+      object: {
+        name: 'props'
+      }
+    });
+    if (toDestructure) {
+      const propNames = [];
+      toDestructure.forEach(path => propNames.push(path.value.property.name));
+      toDestructure.replaceWith(path => j.identifier(path.value.property.name));
+      if (propNames.length > 0) {
+        return j.objectExpression(propNames.map(createShorthandProperty(j)));
+      }
+    }
+    return false;
+  };
+
   const findPropsTypeAnnotation = body => {
     const property = body.find(isPropsProperty);
 
     return property && property.typeAnnotation.typeAnnotation;
   };
 
-  const buildPureComponentFunction = (name, body, typeAnnotation) =>
+  const build = ({ functionType }) => (name, body, typeAnnotation, destructure) => {
+    const identifier = j.identifier(name);
+    const propsIdentifier = buildIdentifierWithTypeAnnotation('props', typeAnnotation);
+    const propsArg = [(destructure && destructureProps(j(body))) || propsIdentifier];
+    if (functionType === 'fn') {
+      return j.functionDeclaration(
+        identifier,
+        propsArg,
+        body
+      );
+    } else { 
+      return j.variableDeclaration(
+        'const', [
+          j.variableDeclarator(
+            identifier,
+            j.arrowFunctionExpression(
+              propsArg,
+              body
+            )
+          ),
+        ]
+      );
+    }
+  };
+
+  const buildPureComponentFunction = build({ functionType: 'fn' });
+
+  const buildPureComponentArrowFunction = build({ functionType: 'arrow' });
+
+  const oldbuildPureComponentFunction = (name, body, typeAnnotation) =>
     j.functionDeclaration(
       j.identifier(name),
       [buildIdentifierWithTypeAnnotation('props', typeAnnotation)],
       body
     );
 
-  const buildPureComponentArrowFunction = (name, body, typeAnnotation) =>
-    j.variableDeclaration(
+  const oldbuildPureComponentArrowFunction = (name, body, typeAnnotation, destructure) => {
+    const propsIdentifier = buildIdentifierWithTypeAnnotation('props', typeAnnotation);
+    const arg = (destructure && destructureProps(j(body))) || propsIdentifier;
+    return j.variableDeclaration(
       'const', [
         j.variableDeclarator(
           j.identifier(name),
           j.arrowFunctionExpression(
-            [buildIdentifierWithTypeAnnotation('props', typeAnnotation)],
+            [arg],
             body
           )
         ),
       ]
     );
+  };
 
   const buildStatics = (name, properties) => properties.map(prop => (
     j.expressionStatement(
@@ -154,17 +217,22 @@ module.exports = function(file, api, options) {
     const renderBody = renderMethod.value.body;
     const propsTypeAnnotation = findPropsTypeAnnotation(p.value.body.body);
     const statics = p.value.body.body.filter(isStaticProperty);
+    const destructure = destructureEnabled && canDestructure(j(renderMethod));
+
+    if (destructureEnabled && !destructure) {
+      console.warn(`Unable to destructure ${name} props. Render method references \`this.props\`.`);
+    }
 
     replaceThisProps(renderBody);
-
+    
     if (useArrows) {
       return [
-        buildPureComponentArrowFunction(name, renderBody, propsTypeAnnotation),
+        buildPureComponentArrowFunction(name, renderBody, propsTypeAnnotation, destructure),
         ...buildStatics(name, statics)
       ];
     } else {
       return [
-        buildPureComponentFunction(name, renderBody, propsTypeAnnotation),
+        buildPureComponentFunction(name, renderBody, propsTypeAnnotation, destructure),
         ...buildStatics(name, statics)
       ];
     }
