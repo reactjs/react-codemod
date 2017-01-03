@@ -123,7 +123,7 @@ module.exports = function(file, api, options) {
         const assignments = body.find(j.VariableDeclarator);
         const duplicateAssignments = assignments.filter(isDuplicateDeclaration);
         duplicateAssignments.remove();
-        return j.objectExpression(Arrays.from(propNames).map(createShorthandProperty(j)));
+        return j.objectExpression(Array.from(propNames).map(createShorthandProperty(j)));
       }
     }
     return false;
