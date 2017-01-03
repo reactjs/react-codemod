@@ -113,17 +113,17 @@ module.exports = function(file, api, options) {
       }
     });
     if (toDestructure) {
-      const propNames = [];
+      const propNames = new Set();
       toDestructure.replaceWith(path => {
         const propName = path.value.property.name;
-        propNames.push(propName);
+        propNames.add(propName);
         return j.identifier(propName);
       });
-      if (propNames.length > 0) {
+      if (propNames.size > 0) {
         const assignments = body.find(j.VariableDeclarator);
         const duplicateAssignments = assignments.filter(isDuplicateDeclaration);
         duplicateAssignments.remove();
-        return j.objectExpression(propNames.map(createShorthandProperty(j)));
+        return j.objectExpression(Arrays.from(propNames).map(createShorthandProperty(j)));
       }
     }
     return false;
