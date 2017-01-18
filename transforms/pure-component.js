@@ -86,24 +86,79 @@ module.exports = function(file, api, options) {
     return identifier;
   };
 
-  const canDestructure = path => path
-    .find(j.Identifier, {
+  const isDuplicateDeclaration = (path, pre) => {
+    if (path && path.value && path.value.id && path.value.init) {
+      const initName = pre ? path.value.init.property && path.value.init.property.name :
+        path.value.init.name;
+      return path.value.id.name === initName;
+    }
+    return false;
+  };
+
+  const needsThisDotProps = path => 
+    path.find(j.Identifier, {
       name: 'props'
     })
     .filter(p => p.parentPath.parentPath.value.type !== 'MemberExpression')
-    .size() === 0;
+    .size() > 0;
+
+  const getPropNames = path => {
+    const propNames = new Set();
+    path.find(j.MemberExpression, {
+      object: { 
+        property: {
+          name: 'props',
+        },
+      },
+    })
+    .forEach(p => { 
+      propNames.add(p.value.property.name); 
+    });
+    return propNames;
+  };
+
+  const getDuplicateNames = path => {
+    const duplicates = new Set();
+    path
+      .find(j.VariableDeclarator)
+      .filter(p => isDuplicateDeclaration(p, true))
+      .forEach(p => {
+        duplicates.add(p.value.id.name);
+      });
+    return duplicates;
+  };
+
+  const getAssignmentNames = path => {
+    const assignmentNames = new Set();
+    path
+      .find(j.Identifier)
+      .filter(p => {
+        if (p.value.type === 'JSXIdentifier') { return false; }
+        if (!(p.parentPath.value.object && p.parentPath.value.object.property)) {
+          return true; 
+        }
+        return p.parentPath.value.object.property.name !== 'props';
+      })
+      .forEach(p => { 
+        assignmentNames.add(p.value.name);
+      });
+    return assignmentNames;
+  };
+
+  const hasAssignmentsThatShadowProps = path =>  {
+    const propNames = getPropNames(path);
+    const assignmentNames = getAssignmentNames(path);
+    const duplicates = getDuplicateNames(path);
+    return (Array.from(propNames).some(prop => !duplicates.has(prop) && assignmentNames.has(prop)));
+  };
+
+  const canDestructure = path =>
+    !needsThisDotProps(path) && !hasAssignmentsThatShadowProps(path);
 
   const createShorthandProperty = j => prop => {
     const property = j.property('init', j.identifier(prop), j.identifier(prop));
     property.shorthand = true;
     return property;
-  };
-
-  const isDuplicateDeclaration = path => {
-    if (path && path.value && path.value.id && path.value.init) {
-      return path.value.id.name === path.value.init.name;
-    }
-    return false;
   };
 
   const destructureProps = body => {
@@ -121,7 +176,7 @@ module.exports = function(file, api, options) {
       });
       if (propNames.size > 0) {
         const assignments = body.find(j.VariableDeclarator);
-        const duplicateAssignments = assignments.filter(isDuplicateDeclaration);
+        const duplicateAssignments = assignments.filter(a => isDuplicateDeclaration(a, false));
         duplicateAssignments.remove();
         return j.objectExpression(Array.from(propNames).map(createShorthandProperty(j)));
       }
@@ -209,7 +264,7 @@ module.exports = function(file, api, options) {
     const destructure = destructuringEnabled && canDestructure(j(renderMethod));
 
     if (destructuringEnabled && !destructure) {
-      console.warn(`Unable to destructure ${name} props. Render method references \`this.props\`.`);
+      console.warn(`Unable to destructure ${name} props.`);
     }
 
     replaceThisProps(renderBody);

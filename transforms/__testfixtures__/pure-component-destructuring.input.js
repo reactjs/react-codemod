@@ -2,6 +2,8 @@
 
 var React = require('React');
 
+const shadow = 'shadow';
+
 function doSomething(props) { return props; }
 
 class ShouldDestsructure extends React.Component {
@@ -32,5 +34,11 @@ class DestructuresThisDotProps extends React.Component {
   render() {
     const { bar } = this.props;
     return <div className={this.props.foo} bar={bar} />;
+  }
+}
+
+class HasShadowProps extends React.Component {
+  render() {
+    return <div shadow={shadow} propsShadow={this.props.shadow} />;
   }
 }

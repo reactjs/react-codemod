@@ -2,6 +2,8 @@
 
 var React = require('React');
 
+const shadow = 'shadow';
+
 function doSomething(props) { return props; }
 
 function ShouldDestsructure(
@@ -33,4 +35,8 @@ function UsesThisDotProps(props) {
 function DestructuresThisDotProps(props) {
   const { bar } = props;
   return <div className={props.foo} bar={bar} />;
+}
+
+function HasShadowProps(props) {
+  return <div shadow={shadow} propsShadow={props.shadow} />;
 }
