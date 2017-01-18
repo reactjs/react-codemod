@@ -135,17 +135,11 @@ module.exports = function(file, api, options) {
     return property && property.typeAnnotation.typeAnnotation;
   };
 
-  const build = ({ functionType }) => (name, body, typeAnnotation, destructure) => {
+  const build = useArrows => (name, body, typeAnnotation, destructure) => {
     const identifier = j.identifier(name);
     const propsIdentifier = buildIdentifierWithTypeAnnotation('props', typeAnnotation);
     const propsArg = [(destructure && destructureProps(j(body))) || propsIdentifier];
-    if (functionType === 'fn') {
-      return j.functionDeclaration(
-        identifier,
-        propsArg,
-        body
-      );
-    } else { 
+    if (useArrows) {
       return j.variableDeclaration(
         'const', [
           j.variableDeclarator(
@@ -158,11 +152,16 @@ module.exports = function(file, api, options) {
         ]
       );
     }
+    return j.functionDeclaration(
+      identifier,
+      propsArg,
+      body
+    );
   };
 
-  const buildPureComponentFunction = build({ functionType: 'fn' });
+  const buildPureComponentFunction = build();
 
-  const buildPureComponentArrowFunction = build({ functionType: 'arrow' });
+  const buildPureComponentArrowFunction = build(true);
 
   const buildStatics = (name, properties) => properties.map(prop => (
     j.expressionStatement(
