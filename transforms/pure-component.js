@@ -155,13 +155,20 @@ module.exports = function(file, api, options) {
   const canDestructure = path =>
     !needsThisDotProps(path) && !hasAssignmentsThatShadowProps(path);
 
-  const createShorthandProperty = j => prop => {
+  const createShorthandProperty = (j, typeAnnotation) => prop => {
     const property = j.property('init', j.identifier(prop), j.identifier(prop));
     property.shorthand = true;
+    if (typeAnnotation) {
+      typeAnnotation.properties.forEach(t => {
+        if (t.key.name === prop) {
+          property.key.typeAnnotation = j.typeAnnotation(t.value);
+        }
+      });
+    }
     return property;
   };
 
-  const destructureProps = body => {
+  const destructureProps = (body, typeAnnotation) => {
     const toDestructure = body.find(j.MemberExpression, {
       object: {
         name: 'props'
@@ -178,7 +185,7 @@ module.exports = function(file, api, options) {
         const assignments = body.find(j.VariableDeclarator);
         const duplicateAssignments = assignments.filter(a => isDuplicateDeclaration(a, false));
         duplicateAssignments.remove();
-        return j.objectExpression(Array.from(propNames).map(createShorthandProperty(j)));
+        return j.objectExpression(Array.from(propNames).map(createShorthandProperty(j, typeAnnotation)));
       }
     }
     return false;
@@ -193,7 +200,7 @@ module.exports = function(file, api, options) {
   const build = useArrows => (name, body, typeAnnotation, destructure) => {
     const identifier = j.identifier(name);
     const propsIdentifier = buildIdentifierWithTypeAnnotation('props', typeAnnotation);
-    const propsArg = [(destructure && destructureProps(j(body))) || propsIdentifier];
+    const propsArg = [(destructure && destructureProps(j(body), typeAnnotation)) || propsIdentifier];
     if (useArrows) {
       return j.variableDeclaration(
         'const', [

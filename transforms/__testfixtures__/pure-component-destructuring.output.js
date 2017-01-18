@@ -40,3 +40,11 @@ function DestructuresThisDotProps(props) {
 function HasShadowProps(props) {
   return <div shadow={shadow} propsShadow={props.shadow} />;
 }
+
+function PureWithTypes(
+  {
+    foo: string,
+  },
+) {
+  return <div className={foo} />;
+}

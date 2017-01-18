@@ -42,3 +42,10 @@ class HasShadowProps extends React.Component {
     return <div shadow={shadow} propsShadow={this.props.shadow} />;
   }
 }
+
+class PureWithTypes extends React.Component {
+  props: { foo: string };
+  render() {
+    return <div className={this.props.foo} />;
+  }
+}
