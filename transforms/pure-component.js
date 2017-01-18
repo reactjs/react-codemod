@@ -15,7 +15,7 @@ module.exports = function(file, api, options) {
   const ReactUtils = require('./utils/ReactUtils')(j);
 
   const useArrows = options.useArrows || false;
-  const destructureEnabled = options.destructure || false;
+  const destructuringEnabled = options.destructuring || false;
   const silenceWarnings = options.silenceWarnings || false;
   const printOptions = options.printOptions || {
     quote: 'single',
@@ -207,9 +207,9 @@ module.exports = function(file, api, options) {
     const renderBody = renderMethod.value.body;
     const propsTypeAnnotation = findPropsTypeAnnotation(p.value.body.body);
     const statics = p.value.body.body.filter(isStaticProperty);
-    const destructure = destructureEnabled && canDestructure(j(renderMethod));
+    const destructure = destructuringEnabled && canDestructure(j(renderMethod));
 
-    if (destructureEnabled && !destructure) {
+    if (destructuringEnabled && !destructure) {
       console.warn(`Unable to destructure ${name} props. Render method references \`this.props\`.`);
     }
 

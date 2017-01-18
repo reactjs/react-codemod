@@ -13,4 +13,4 @@
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 defineTest(__dirname, 'pure-component');
 defineTest(__dirname, 'pure-component', { useArrows: true }, 'pure-component2');
-defineTest(__dirname, 'pure-component', { destructure: true }, 'pure-component-destructure');
+defineTest(__dirname, 'pure-component', { destructuring: true }, 'pure-component-destructuring');
