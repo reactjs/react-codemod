@@ -1,4 +1,9 @@
 var React = require('React');
 
-<Foo>{children}</Foo>;
-<Foo>{firstChild}{otherChildren}</Foo>;
+<Foo>
+  {children}
+</Foo>;
+<Foo>
+  {firstChild}
+  {otherChildren}
+</Foo>;
