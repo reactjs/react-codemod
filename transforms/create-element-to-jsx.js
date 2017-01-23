@@ -175,7 +175,11 @@ module.exports = function(file, api, options) {
     }
 
     const children = args.slice(2).map((child, index) => {
-      if (child.type === 'Literal' && typeof child.value === 'string' && !child.comments) {
+      if (child.type === 'Literal' &&
+          typeof child.value === 'string' &&
+          !child.comments &&
+          child.value !== '' &&
+          child.value.trim() === child.value) {
         return j.jsxText(encodeJSXTextValue(child.value));
       } else if (child.type === 'CallExpression' &&
         child.callee.object &&
@@ -198,10 +202,16 @@ module.exports = function(file, api, options) {
 
     if (children.length) {
       const endIdentifier = Object.assign({}, jsxIdentifier, {comments: []});
+      // Add text newline nodes between elements so recast formats one child per
+      // line instead of all children on one line.
+      const paddedChildren = [j.jsxText('\n')];
+      for (const child of children) {
+        paddedChildren.push(child, j.jsxText('\n'));
+      }
       const element = j.jsxElement(
         openingElement,
         j.jsxClosingElement(endIdentifier),
-        children
+        paddedChildren
       );
       element.comments = comments;
       return element;
