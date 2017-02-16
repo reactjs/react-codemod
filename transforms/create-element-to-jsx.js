@@ -128,18 +128,24 @@ module.exports = function(file, api, options) {
 
   const jsxIdentifierFor = node => {
     let identifier;
+    let comments = node.comments || [];
     if (node.type === 'Literal') {
       identifier = j.jsxIdentifier(node.value);
     } else if (node.type === 'MemberExpression') {
-      identifier = j.jsxMemberExpression(
-        jsxIdentifierFor(node.object),
-        jsxIdentifierFor(node.property)
-      );
+      let {
+        identifier: objectIdentifier,
+        comments: objectComments
+      } = jsxIdentifierFor(node.object);
+      let {
+        identifier: propertyIdentifier,
+        comments: propertyComments
+      } = jsxIdentifierFor(node.property);
+      identifier = j.jsxMemberExpression(objectIdentifier, propertyIdentifier);
+      comments.push(...objectComments, ...propertyComments)
     } else {
       identifier = j.jsxIdentifier(node.name);
     }
-    identifier.comments = node.comments;
-    return identifier;
+    return {identifier, comments};
   };
 
   const isCapitalizationInvalid = (node) =>
@@ -147,7 +153,7 @@ module.exports = function(file, api, options) {
     (node.type === 'Identifier' && /^[a-z]/.test(node.name));
 
   const convertNodeToJSX = (node) => {
-    const comments = node.value.comments;
+    const comments = node.value.comments || [];
     const {callee} = node.value;
     for (const calleeNode of [callee, callee.object, callee.property]) {
       for (const comment of calleeNode.comments || []) {
@@ -163,15 +169,18 @@ module.exports = function(file, api, options) {
       return node.value;
     }
 
-    const jsxIdentifier = jsxIdentifierFor(args[0]);
+    const {
+      identifier: jsxIdentifier,
+      comments: identifierComments
+    } = jsxIdentifierFor(args[0]);
     const props = args[1];
 
     const {attributes, extraComments} = convertExpressionToJSXAttributes(props);
-    jsxIdentifier.comments = jsxIdentifier.comments || [];
-    for (const comment of extraComments) {
+
+    for (const comment of [...identifierComments, ...extraComments]) {
       comment.leading = false;
       comment.trailing = true;
-      jsxIdentifier.comments.push(comment);
+      comments.push(comment);
     }
 
     const children = args.slice(2).map((child, index) => {
