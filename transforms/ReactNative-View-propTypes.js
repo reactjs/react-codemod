@@ -20,7 +20,10 @@ const isReactNativeRequire = path => (
 
 const isRootViewReference = path => (
   path.node.name === 'View' &&
-  path.parent.node.type !== 'MemberExpression' &&
+  (
+    path.parent.node.type !== 'MemberExpression' ||
+    path.parent.node.object === path.node
+  ) &&
   (
     path.node.type !== 'JSXIdentifier' ||
     path.parent.node.type === 'JSXOpeningElement'
@@ -140,7 +143,8 @@ module.exports = function(file, api, options) {
 
     // If the only View reference left is the import/require(), replace it
     // Else insert our new import/require() after it
-    const replaceExistingImportOrRequireStatement = viewReferenceCount <= numMatchedPaths;
+    // Add one to avoid counting the import/require() statement itself
+    const replaceExistingImportOrRequireStatement = viewReferenceCount <= numMatchedPaths + 1;
 
     if (fileUsesImports) {
       root
