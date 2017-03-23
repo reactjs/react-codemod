@@ -1,9 +1,5 @@
 const PropTypes = require('react');
-const {
-  Animated
-} = require('react-native');
-
-const ViewPropTypes = require('ViewPropTypes');
+const { Animated, ViewPropTypes } = require('react-native');
 
 function MyComponent(props) {
   return <Animated.View {...props} />;

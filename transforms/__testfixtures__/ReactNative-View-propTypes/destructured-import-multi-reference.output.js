@@ -1,7 +1,5 @@
 import { PropTypes } from 'react';
-import { requireNativeComponent, View } from 'react-native';
-
-import ViewPropTypes from 'ViewPropTypes';
+import { requireNativeComponent, View, ViewPropTypes } from 'react-native';
 
 const Foo = requireNativeComponent('Foo');
 
