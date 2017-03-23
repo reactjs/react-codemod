@@ -19,6 +19,7 @@ const tests = [
   'destructured-import-only-reference',
   'destructured-require-multi-reference',
   'destructured-require-only-reference',
+  'import-flow-type-with-require',
   'noop-import',
   'noop-require',
 ];

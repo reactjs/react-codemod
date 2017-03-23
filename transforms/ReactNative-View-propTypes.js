@@ -95,8 +95,8 @@ module.exports = function(file, api, options) {
   // Add ViewPropTypes import/require()
   if (numMatchedPaths > 0) {
     const fileUsesImports = root
-      .find(j.ImportDeclaration)
-      .length > 0;
+      .find(j.CallExpression, {callee: {name: 'require'}})
+      .length === 0;
 
     // Determine which kind of import/require() we should create based on file contents
     let useHasteModules = false
