@@ -1159,38 +1159,45 @@ module.exports = (file, api, options) => {
 
       if (reactPathAndBinding) {
         const {path, type} = reactPathAndBinding;
-        const noReactReferences = root
-          .find(j.Identifier)
-          .filter(path => path.value.name === 'React')
-          .length === 1;
-        const noJSX = root.find(j.JSXElement).length === 0;
-        const shouldRemoveReactImport = noReactReferences && noJSX;
-        if (shouldRemoveReactImport) {
-          if (type === 'require') {
-            const kind = path.parent.value.kind;
-            j(path.parent).replaceWith(j.template.statement([
-              `${kind} ReactCreateClass = require('${CREATE_CLASS_MODULE_NAME}');`
-            ]));
-          } else {
-            j(path).replaceWith(j.template.statement([
-              `import ReactCreateClass from '${CREATE_CLASS_MODULE_NAME}';`
-            ]));
-          }
-          reinsertTopComments();
+        let removePath = null;
+        let shouldReinsertComment = false;
+        if (type === 'require') {
+          const kind = path.parent.value.kind;
+          j(path.parent).insertAfter(j.template.statement([
+            `${kind} ReactCreateClass = require('${CREATE_CLASS_MODULE_NAME}');`
+          ]));
+          const bodyNode = path.parentPath.parentPath.parentPath.value;
+          const variableDeclarationNode = path.parentPath.parentPath.value;
+          shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+          removePath = path.parent;
         } else {
-          if (type === 'require') {
-            const kind = path.parent.value.kind;
-            j(path.parent).insertAfter(j.template.statement([
-              `${kind} ReactCreateClass = require('${CREATE_CLASS_MODULE_NAME}');`
-            ]));
+          j(path).insertAfter(j.template.statement([
+            `import ReactCreateClass from '${CREATE_CLASS_MODULE_NAME}';`
+          ]));
+          const importDeclarationNode = path.value;
+          const bodyNode = path.parentPath.value;
+          removePath = path;
+          const specifiers = path.value.specifiers;
+          if (specifiers.length === 1) {
+            shouldReinsertComment = bodyNode.indexOf(importDeclarationNode) === 0;
+            removePath = path;
           } else {
-            j(path).insertAfter(j.template.statement([
-              `import ReactCreateClass from '${CREATE_CLASS_MODULE_NAME}';`
-            ]));
+            j(path).find(j.ImportDefaultSpecifier).remove();
+          }
+        }
+
+        const shouldRemoveReactImport = (
+          removePath &&
+          root.find(j.Identifier).filter(path => path.value.name === 'React').length === 1 &&
+          root.find(j.JSXElement).length === 0
+        );
+        if (shouldRemoveReactImport && removePath) {
+          j(removePath).remove();
+          if (shouldReinsertComment) {
+            reinsertTopComments();
           }
         }
       }
-
     }
 
     if (didTransform) {
