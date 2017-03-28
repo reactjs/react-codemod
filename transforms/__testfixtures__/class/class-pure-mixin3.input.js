@@ -1,5 +1,5 @@
 // for this file we disable the `pure-component` option
-// so the output should be just nothing
+// so we should not convert to a plain class
 var React = require('React');
 var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
 

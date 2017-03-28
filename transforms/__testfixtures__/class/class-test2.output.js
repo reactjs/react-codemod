@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('React');
+var ReactCreateClass = require('react-create-class');
 var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
 var FooBarMixin = require('FooBarMixin');
 
@@ -48,7 +49,7 @@ module.exports = class extends React.Component {
   }
 };
 
-var ComponentWithInconvertibleMixins = React.createClass({
+var ComponentWithInconvertibleMixins = ReactCreateClass({
   mixins: [ReactComponentWithPureRenderMixin, FooBarMixin],
 
   getInitialState: function() {
@@ -66,7 +67,7 @@ var ComponentWithInconvertibleMixins = React.createClass({
 
 var listOfInconvertibleMixins = [ReactComponentWithPureRenderMixin, FooBarMixin];
 
-var ComponentWithInconvertibleMixins2 = React.createClass({
+var ComponentWithInconvertibleMixins2 = ReactCreateClass({
   mixins: listOfInconvertibleMixins,
 
   getInitialState: function() {
