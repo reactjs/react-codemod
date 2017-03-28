@@ -51,3 +51,4 @@ defineTest(__dirname, 'class', {
   'remove-runtime-proptypes': true,
 }, 'class/class-flow7');
 defineTest(__dirname, 'class', null, 'class/class-prune-react');
+defineTest(__dirname, 'class', null, 'class/class-prune-react2');

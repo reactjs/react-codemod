@@ -1159,10 +1159,12 @@ module.exports = (file, api, options) => {
 
       if (reactPathAndBinding) {
         const {path, type} = reactPathAndBinding;
-        const shouldRemoveReactImport = root
+        const noReactReferences = root
           .find(j.Identifier)
           .filter(path => path.value.name === 'React')
           .length === 1;
+        const noJSX = root.find(j.JSXElement).length === 0;
+        const shouldRemoveReactImport = noReactReferences && noJSX;
         if (shouldRemoveReactImport) {
           if (type === 'require') {
             const kind = path.parent.value.kind;
