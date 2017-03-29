@@ -60,6 +60,9 @@ module.exports = (file, api, options) => {
   const PURE_MIXIN_MODULE_NAME = options['mixin-module-name'] ||
     'react-addons-pure-render-mixin';
 
+  const CREATE_CLASS_MODULE_NAME = options['create-class-module-name'] ||
+    'react-create-class';
+
   const STATIC_KEY = 'statics';
 
   const STATIC_KEYS = {
@@ -379,7 +382,6 @@ module.exports = (file, api, options) => {
 
   const findRequirePathAndBinding = (moduleName) => {
     let result = null;
-
     const requireCall = root.find(j.VariableDeclarator, {
       id: {type: 'Identifier'},
       init: {
@@ -1078,6 +1080,19 @@ module.exports = (file, api, options) => {
     );
   };
 
+  const fallbackToCreateClassModule = (classPath) => {
+    const comments = getComments(classPath);
+    withComments(
+      j(classPath).replaceWith(
+        j.callExpression(
+          j.identifier('ReactCreateClass'),
+          classPath.value.arguments
+        )
+      ),
+      {comments},
+    );
+  };
+
   if (
     options['explicit-require'] === false || ReactUtils.hasReact(root)
   ) {
@@ -1103,23 +1118,87 @@ module.exports = (file, api, options) => {
       return false;
     };
 
+    const reinsertTopComments = () => {
+      root.get().node.comments = topComments;
+    };
+
     // the only time that we can't simply replace the createClass call path
     // with a new class is when the parent of that is a variable declaration.
     // let's delay it and figure it out later (by looking at `path.parentPath`)
     // in `updateToClass`.
-    const apply = (path) =>
-      path
-        .filter(mixinsFilter)
-        .filter(hasNoCallsToDeprecatedAPIs)
-        .filter(hasNoRefsToAPIsThatWillBeRemoved)
-        .filter(doesNotUseArguments)
-        .filter(isInitialStateConvertible)
-        .filter(canConvertToClass)
-        .forEach(updateToClass);
+    const apply = (path) => {
+      const result = {};
+      path.forEach(childPath => {
+        if (
+          mixinsFilter(childPath) &&
+          hasNoCallsToDeprecatedAPIs(childPath) &&
+          hasNoRefsToAPIsThatWillBeRemoved(childPath) &&
+          doesNotUseArguments(childPath) &&
+          isInitialStateConvertible(childPath) &&
+          canConvertToClass(childPath)
+        ) {
+          result.didTransform = true;
+          updateToClass(childPath);
+        } else {
+          result.didFallback = true;
+          fallbackToCreateClassModule(childPath);
+        }
+      });
+      return result;
+    };
 
-    const didTransform = apply(
-      ReactUtils.findAllReactCreateClassCalls(root)
-    ).size() > 0;
+    const {
+      didTransform,
+      didFallback,
+    } = apply(ReactUtils.findAllReactCreateClassCalls(root));
+
+    if (didFallback) {
+      const reactPathAndBinding =
+        findRequirePathAndBinding('react') ||
+        findRequirePathAndBinding('React');
+
+      if (reactPathAndBinding) {
+        const {path, type} = reactPathAndBinding;
+        let removePath = null;
+        let shouldReinsertComment = false;
+        if (type === 'require') {
+          const kind = path.parent.value.kind;
+          j(path.parent).insertAfter(j.template.statement([
+            `${kind} ReactCreateClass = require('${CREATE_CLASS_MODULE_NAME}');`
+          ]));
+          const bodyNode = path.parentPath.parentPath.parentPath.value;
+          const variableDeclarationNode = path.parentPath.parentPath.value;
+          shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+          removePath = path.parent;
+        } else {
+          j(path).insertAfter(j.template.statement([
+            `import ReactCreateClass from '${CREATE_CLASS_MODULE_NAME}';`
+          ]));
+          const importDeclarationNode = path.value;
+          const bodyNode = path.parentPath.value;
+          removePath = path;
+          const specifiers = path.value.specifiers;
+          if (specifiers.length === 1) {
+            shouldReinsertComment = bodyNode.indexOf(importDeclarationNode) === 0;
+            removePath = path;
+          } else {
+            j(path).find(j.ImportDefaultSpecifier).remove();
+          }
+        }
+
+        const shouldRemoveReactImport = (
+          removePath &&
+          root.find(j.Identifier).filter(path => path.value.name === 'React').length === 1 &&
+          root.find(j.JSXElement).length === 0
+        );
+        if (shouldRemoveReactImport && removePath) {
+          j(removePath).remove();
+          if (shouldReinsertComment) {
+            reinsertTopComments();
+          }
+        }
+      }
+    }
 
     if (didTransform) {
       // prune removed requires
@@ -1144,16 +1223,13 @@ module.exports = (file, api, options) => {
 
           j(removePath).remove();
           if (shouldReinsertComment) {
-            root.get().node.comments = topComments;
+            reinsertTopComments();
           }
         }
       }
-
-      return root.toSource(printOptions);
     }
   }
-
-  return null;
+  return root.toSource(printOptions);
 };
 
 module.exports.parser = 'flow';
