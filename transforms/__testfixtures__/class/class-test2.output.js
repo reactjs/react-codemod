@@ -50,6 +50,7 @@ module.exports = class extends React.Component {
 };
 
 var ComponentWithInconvertibleMixins = createReactClass({
+  displayName: 'class-test2.input',
   mixins: [ReactComponentWithPureRenderMixin, FooBarMixin],
 
   getInitialState: function() {
@@ -68,6 +69,7 @@ var ComponentWithInconvertibleMixins = createReactClass({
 var listOfInconvertibleMixins = [ReactComponentWithPureRenderMixin, FooBarMixin];
 
 var ComponentWithInconvertibleMixins2 = createReactClass({
+  displayName: 'class-test2.input',
   mixins: listOfInconvertibleMixins,
 
   getInitialState: function() {

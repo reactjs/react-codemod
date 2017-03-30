@@ -5,6 +5,7 @@ var createReactClass = require('react-create-class');
 var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
 
 var ComponentWithOnlyPureRenderMixin = createReactClass({
+  displayName: 'class-pure-mixin3.input',
   mixins: [ReactComponentWithPureRenderMixin],
 
   getInitialState: function() {

@@ -110,6 +110,7 @@ class MyComponent3 extends React.Component {
 }
 
 var MyComponent4 = createReactClass({
+  displayName: 'class.input',
   foo: callMeMaybe(),
   render: function() {},
 });

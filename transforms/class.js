@@ -10,6 +10,8 @@
 
 'use strict';
 
+const path = require('path');
+
 module.exports = (file, api, options) => {
   const j = api.jscodeshift;
 
@@ -1083,14 +1085,42 @@ module.exports = (file, api, options) => {
     );
   };
 
+  const addDisplayName = (displayName, specPath) => {
+    const props = specPath.properties;
+    let safe = true;
+
+    for (let i = 0; i < props.length; i++) {
+      const prop = props[i];
+      if (prop.key.name === 'displayName') {
+        safe = false;
+        break;
+      }
+    }
+
+    if (safe) {
+      props.unshift(j.objectProperty(j.identifier('displayName'), j.stringLiteral(displayName)));
+    }
+  };
+
   const fallbackToCreateClassModule = (classPath) => {
     const comments = getComments(classPath);
+    const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
+
+    if (specPath) {
+      // Add a displayName property to the spec object
+      let displayName = path.basename(file.path, path.extname(file.path));
+      // ./{module name}/index.js
+      if (displayName === "index") {
+        displayName = path.basename(path.dirname(file.path));
+      }
+      addDisplayName(displayName, specPath);
+    }
+
     withComments(
       j(classPath).replaceWith(
-        j.callExpression(
-          j.identifier(CREATE_CLASS_VARIABLE_NAME),
-          classPath.value.arguments
-        )
+        specPath
+         ? j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), [specPath])
+         : j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), classPath.value.arguments)
       ),
       {comments},
     );

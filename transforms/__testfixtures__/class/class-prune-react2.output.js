@@ -11,7 +11,9 @@ const SomeMixin = {
 };
 
 export default createReactClass({
+  displayName: 'class-prune-react2.input',
   mixins: [SomeMixin],
+
   render: function() {
     return <div />;
   },
