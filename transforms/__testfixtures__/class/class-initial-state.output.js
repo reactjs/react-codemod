@@ -227,7 +227,7 @@ var helper = () => {};
 
 // fallback
 var PassGetInitialState = createReactClass({
-  displayName: 'class-initial-state.input',
+  displayName: 'PassGetInitialState',
 
   getInitialState() {
     return this.lol();
@@ -244,7 +244,7 @@ var PassGetInitialState = createReactClass({
 
 // fallback
 var UseGetInitialState = createReactClass({
-  displayName: 'class-initial-state.input',
+  displayName: 'UseGetInitialState',
 
   getInitialState() {
     return this.lol();
@@ -261,7 +261,7 @@ var UseGetInitialState = createReactClass({
 
 // fallback
 var UseArguments = createReactClass({
-  displayName: 'class-initial-state.input',
+  displayName: 'UseArguments',
 
   helper() {
     console.log(arguments);
@@ -274,7 +274,7 @@ var UseArguments = createReactClass({
 
 // fallback
 var ShadowingIssue = createReactClass({
-  displayName: 'class-initial-state.input',
+  displayName: 'ShadowingIssue',
 
   getInitialState() {
     const props = { x: 123 };

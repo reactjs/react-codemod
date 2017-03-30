@@ -10,7 +10,7 @@
 
 'use strict';
 
-const path = require('path');
+const { basename, extname, dirname } = require('path');
 
 module.exports = (file, api, options) => {
   const j = api.jscodeshift;
@@ -1108,12 +1108,35 @@ module.exports = (file, api, options) => {
 
     if (specPath) {
       // Add a displayName property to the spec object
-      let displayName = path.basename(file.path, path.extname(file.path));
-      // ./{module name}/index.js
-      if (displayName === "index") {
-        displayName = path.basename(path.dirname(file.path));
+      let path = classPath;
+      let displayName;
+      while (path && displayName === undefined) {
+        switch (path.node.type) {
+          case 'ExportDefaultDeclaration':
+            displayName = basename(file.path, extname(file.path));
+            if (displayName === 'index') {
+              // ./{module name}/index.js
+              displayName = basename(dirname(file.path));
+            }
+            break;
+          case 'VariableDeclarator':
+            displayName = path.node.id.name;
+            break;
+          case 'AssignmentExpression':
+            displayName = path.node.left.name;
+            break;
+          case 'Property':
+            displayName = path.node.key.name;
+            break;
+          case 'Statement':
+            displayName = null;
+            break;
+        }
+        path = path.parent;
       }
-      addDisplayName(displayName, specPath);
+      if (displayName) {
+        addDisplayName(displayName, specPath);
+      }
     }
 
     withComments(
