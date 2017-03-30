@@ -10,6 +10,8 @@
 
 'use strict';
 
+const { basename, extname, dirname } = require('path');
+
 module.exports = (file, api, options) => {
   const j = api.jscodeshift;
 
@@ -1083,14 +1085,65 @@ module.exports = (file, api, options) => {
     );
   };
 
+  const addDisplayName = (displayName, specPath) => {
+    const props = specPath.properties;
+    let safe = true;
+
+    for (let i = 0; i < props.length; i++) {
+      const prop = props[i];
+      if (prop.key.name === 'displayName') {
+        safe = false;
+        break;
+      }
+    }
+
+    if (safe) {
+      props.unshift(j.objectProperty(j.identifier('displayName'), j.stringLiteral(displayName)));
+    }
+  };
+
   const fallbackToCreateClassModule = (classPath) => {
     const comments = getComments(classPath);
+    const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
+
+    if (specPath) {
+      // Add a displayName property to the spec object
+      let path = classPath;
+      let displayName;
+      while (path && displayName === undefined) {
+        switch (path.node.type) {
+          case 'ExportDefaultDeclaration':
+            displayName = basename(file.path, extname(file.path));
+            if (displayName === 'index') {
+              // ./{module name}/index.js
+              displayName = basename(dirname(file.path));
+            }
+            break;
+          case 'VariableDeclarator':
+            displayName = path.node.id.name;
+            break;
+          case 'AssignmentExpression':
+            displayName = path.node.left.name;
+            break;
+          case 'Property':
+            displayName = path.node.key.name;
+            break;
+          case 'Statement':
+            displayName = null;
+            break;
+        }
+        path = path.parent;
+      }
+      if (displayName) {
+        addDisplayName(displayName, specPath);
+      }
+    }
+
     withComments(
       j(classPath).replaceWith(
-        j.callExpression(
-          j.identifier(CREATE_CLASS_VARIABLE_NAME),
-          classPath.value.arguments
-        )
+        specPath
+         ? j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), [specPath])
+         : j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), classPath.value.arguments)
       ),
       {comments},
     );

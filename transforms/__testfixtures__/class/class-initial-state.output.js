@@ -225,7 +225,10 @@ class DeferStateInitialization extends React.Component {
 
 var helper = () => {};
 
-var PassGetInitialState = createReactClass({ // bail out here
+// fallback
+var PassGetInitialState = createReactClass({
+  displayName: 'PassGetInitialState',
+
   getInitialState() {
     return this.lol();
   },
@@ -239,7 +242,10 @@ var PassGetInitialState = createReactClass({ // bail out here
   },
 });
 
-var UseGetInitialState = createReactClass({ // bail out here
+// fallback
+var UseGetInitialState = createReactClass({
+  displayName: 'UseGetInitialState',
+
   getInitialState() {
     return this.lol();
   },
@@ -253,7 +259,10 @@ var UseGetInitialState = createReactClass({ // bail out here
   },
 });
 
-var UseArguments = createReactClass({ // bail out here
+// fallback
+var UseArguments = createReactClass({
+  displayName: 'UseArguments',
+
   helper() {
     console.log(arguments);
   },
@@ -263,7 +272,10 @@ var UseArguments = createReactClass({ // bail out here
   },
 });
 
-var ShadowingIssue = createReactClass({ // bail out here
+// fallback
+var ShadowingIssue = createReactClass({
+  displayName: 'ShadowingIssue',
+
   getInitialState() {
     const props = { x: 123 };
     return { x: props.x };

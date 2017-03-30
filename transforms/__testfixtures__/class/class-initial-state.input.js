@@ -199,7 +199,8 @@ var DeferStateInitialization = React.createClass({
 
 var helper = () => {};
 
-var PassGetInitialState = React.createClass({ // bail out here
+// fallback
+var PassGetInitialState = React.createClass({
   getInitialState() {
     return this.lol();
   },
@@ -213,7 +214,8 @@ var PassGetInitialState = React.createClass({ // bail out here
   },
 });
 
-var UseGetInitialState = React.createClass({ // bail out here
+// fallback
+var UseGetInitialState = React.createClass({
   getInitialState() {
     return this.lol();
   },
@@ -227,7 +229,8 @@ var UseGetInitialState = React.createClass({ // bail out here
   },
 });
 
-var UseArguments = React.createClass({ // bail out here
+// fallback
+var UseArguments = React.createClass({
   helper() {
     console.log(arguments);
   },
@@ -237,7 +240,8 @@ var UseArguments = React.createClass({ // bail out here
   },
 });
 
-var ShadowingIssue = React.createClass({ // bail out here
+// fallback
+var ShadowingIssue = React.createClass({
   getInitialState() {
     const props = { x: 123 };
     return { x: props.x };
