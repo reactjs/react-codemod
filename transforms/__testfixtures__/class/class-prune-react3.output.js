@@ -2,7 +2,7 @@
 
 import {PropTypes} from 'React';
 
-import ReactCreateClass from 'react-create-class';
+import createReactClass from 'react-create-class';
 
 const SomeMixin = {
   componentDidMount() {
@@ -10,7 +10,7 @@ const SomeMixin = {
   },
 };
 
-export default ReactCreateClass({
+export default createReactClass({
   mixins: [SomeMixin],
   propTypes: {
     foo: PropTypes.string,

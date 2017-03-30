@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('React');
-var ReactCreateClass = require('react-create-class');
+var createReactClass = require('react-create-class');
 var Relay = require('Relay');
 
 var Image = require('Image.react');
@@ -109,7 +109,7 @@ class MyComponent3 extends React.Component {
   }
 }
 
-var MyComponent4 = ReactCreateClass({
+var MyComponent4 = createReactClass({
   foo: callMeMaybe(),
   render: function() {},
 });
@@ -167,9 +167,9 @@ class SingleArgArrowFunction extends React.Component {
 }
 
 var mySpec = {};
-var NotAnObjectLiteral = ReactCreateClass(mySpec);
+var NotAnObjectLiteral = createReactClass(mySpec);
 
-var WaitWhat = ReactCreateClass();
+var WaitWhat = createReactClass();
 
 class HasSpreadArgs extends React.Component {
   _helper = (...args) => {

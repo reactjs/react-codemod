@@ -63,6 +63,9 @@ module.exports = (file, api, options) => {
   const CREATE_CLASS_MODULE_NAME = options['create-class-module-name'] ||
     'react-create-class';
 
+  const CREATE_CLASS_VARIABLE_NAME = options['create-class-variable-name'] ||
+    'createReactClass';
+
   const STATIC_KEY = 'statics';
 
   const STATIC_KEYS = {
@@ -1085,7 +1088,7 @@ module.exports = (file, api, options) => {
     withComments(
       j(classPath).replaceWith(
         j.callExpression(
-          j.identifier('ReactCreateClass'),
+          j.identifier(CREATE_CLASS_VARIABLE_NAME),
           classPath.value.arguments
         )
       ),
@@ -1164,7 +1167,7 @@ module.exports = (file, api, options) => {
         if (type === 'require') {
           const kind = path.parent.value.kind;
           j(path.parent).insertAfter(j.template.statement([
-            `${kind} ReactCreateClass = require('${CREATE_CLASS_MODULE_NAME}');`
+            `${kind} ${CREATE_CLASS_VARIABLE_NAME} = require('${CREATE_CLASS_MODULE_NAME}');`
           ]));
           const bodyNode = path.parentPath.parentPath.parentPath.value;
           const variableDeclarationNode = path.parentPath.parentPath.value;
@@ -1172,7 +1175,7 @@ module.exports = (file, api, options) => {
           removePath = path.parent;
         } else {
           j(path).insertAfter(j.template.statement([
-            `import ReactCreateClass from '${CREATE_CLASS_MODULE_NAME}';`
+            `import ${CREATE_CLASS_VARIABLE_NAME} from '${CREATE_CLASS_MODULE_NAME}';`
           ]));
           const importDeclarationNode = path.value;
           const bodyNode = path.parentPath.value;

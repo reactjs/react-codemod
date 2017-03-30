@@ -53,3 +53,7 @@ defineTest(__dirname, 'class', {
 defineTest(__dirname, 'class', null, 'class/class-prune-react');
 defineTest(__dirname, 'class', null, 'class/class-prune-react2');
 defineTest(__dirname, 'class', null, 'class/class-prune-react3');
+defineTest(__dirname, 'class', {
+  'create-class-module-name': 'createReactClass__deprecated',
+  'create-class-variable-name': 'createReactClass__deprecated',
+}, 'class/class-create-class-naming');

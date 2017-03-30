@@ -2,7 +2,7 @@
 
 import React from 'React';
 
-import ReactCreateClass from 'react-create-class';
+import createReactClass from 'react-create-class';
 
 type SomeState = {foo: string};
 
@@ -225,7 +225,7 @@ class DeferStateInitialization extends React.Component {
 
 var helper = () => {};
 
-var PassGetInitialState = ReactCreateClass({ // bail out here
+var PassGetInitialState = createReactClass({ // bail out here
   getInitialState() {
     return this.lol();
   },
@@ -239,7 +239,7 @@ var PassGetInitialState = ReactCreateClass({ // bail out here
   },
 });
 
-var UseGetInitialState = ReactCreateClass({ // bail out here
+var UseGetInitialState = createReactClass({ // bail out here
   getInitialState() {
     return this.lol();
   },
@@ -253,7 +253,7 @@ var UseGetInitialState = ReactCreateClass({ // bail out here
   },
 });
 
-var UseArguments = ReactCreateClass({ // bail out here
+var UseArguments = createReactClass({ // bail out here
   helper() {
     console.log(arguments);
   },
@@ -263,7 +263,7 @@ var UseArguments = ReactCreateClass({ // bail out here
   },
 });
 
-var ShadowingIssue = ReactCreateClass({ // bail out here
+var ShadowingIssue = createReactClass({ // bail out here
   getInitialState() {
     const props = { x: 123 };
     return { x: props.x };
