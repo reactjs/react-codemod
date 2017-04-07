@@ -39,6 +39,20 @@ const isReactPropTypes = path => (
   path.parent.node.object.name === 'React'
 );
 
+// Program uses ES import syntax
+function useImportSyntax(j, root) {
+  return root
+    .find(j.CallExpression, {callee: {name: 'require'}})
+    .length === 0;
+}
+
+// Program uses var keywords
+function useVar(j, root) {
+  return root
+    .find(j.VariableDeclaration, {kind: 'const'})
+    .length === 0;
+}
+
 // If any PropTypes references exist, add a 'prop-types' import (or require)
 function addPropTypesImport(j, root) {
   if (useImportSyntax(j, root)) {
@@ -137,20 +151,6 @@ function replacePropTypesReferences(j, root) {
     });
 
   return hasModifications;
-}
-
-// Program uses ES import syntax
-function useImportSyntax(j, root) {
-  return root
-    .find(j.CallExpression, {callee: {name: 'require'}})
-    .length === 0;
-}
-
-// Program uses var keywords
-function useVar(j, root) {
-  return root
-    .find(j.VariableDeclaration, {kind: 'const'})
-    .length === 0;
 }
 
 module.exports = function(file, api, options) {
