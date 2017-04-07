@@ -68,6 +68,16 @@ jscodeshift -t react-codemod/transforms/pure-render-mixin.js <path>
    namespaced name for the mixin. `mixins: [React.addons.PureRenderMixin]` will
    not currently work.
 
+#### `React-PropTypes-to-prop-types`
+
+Replaces `React.PropTypes` references with `prop-types` and adds the appropriate `import` or `require` statement. This codemod is intended for React 15.5+.
+
+```sh
+jscodeshift -t react-codemod/transforms/React-PropTypes-to-prop-types.js <path>
+```
+
+  * In addition to running the above codemod you will also need to install the 'prop-types' NPM package.
+
 #### `react-to-react-dom`
 
 Updates code for the split of the `react` and `react-dom` packages (e.g.,
@@ -85,6 +95,14 @@ jscodeshift -t react-codemod/transforms/react-to-react-dom.js <path>
     as `codemod.py -m -d src --extensions js '(var
     React\s*=\s*require\(.react.\);)\n\n(\s*var ReactDOM)' '\1\n\2'` using
     https://github.com/facebook/codemod.
+
+#### `ReactNative-View-propTypes`
+
+Replaces `View.propTypes` references with `ViewPropTypes` and adds the appropriate `import` or `require` statement. This codemod is intended for ReactNative 44+.
+
+```sh
+jscodeshift -t react-codemod/transforms/ReactNative-View-propTypes.js <path>
+```
 
 #### `sort-comp`
 

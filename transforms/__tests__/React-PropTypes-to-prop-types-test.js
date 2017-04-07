@@ -22,13 +22,13 @@ const tests = [
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
-describe('React-propTypes-to-prop-types', () => {
+describe('React-PropTypes-to-prop-types', () => {
   tests.forEach(test =>
     defineTest(
       __dirname,
-      'React-propTypes-to-prop-types',
+      'React-PropTypes-to-prop-types',
       null,
-      `React-propTypes-to-prop-types/${ test }`
+      `React-PropTypes-to-prop-types/${ test }`
     )
   );
 });
