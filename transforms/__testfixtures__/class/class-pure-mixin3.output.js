@@ -1,7 +1,7 @@
 // for this file we disable the `pure-component` option
 // so we should not convert to a plain class
 var React = require('React');
-var createReactClass = require('react-create-class');
+var createReactClass = require('create-react-class');
 var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
 
 var ComponentWithOnlyPureRenderMixin = createReactClass({

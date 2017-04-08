@@ -1,6 +1,6 @@
 const React = require('React');
 
-const createReactClass = require('react-create-class');
+const createReactClass = require('create-react-class');
 
 let A = createReactClass({
   displayName: 'A',

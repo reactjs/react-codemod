@@ -2,7 +2,7 @@
 
 import {PropTypes} from 'React';
 
-import createReactClass from 'react-create-class';
+import createReactClass from 'create-react-class';
 
 const SomeMixin = {
   componentDidMount() {

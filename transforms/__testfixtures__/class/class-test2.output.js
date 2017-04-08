@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('React');
-var createReactClass = require('react-create-class');
+var createReactClass = require('create-react-class');
 var ReactComponentWithPureRenderMixin = require('ReactComponentWithPureRenderMixin');
 var FooBarMixin = require('FooBarMixin');
 

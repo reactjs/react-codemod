@@ -63,7 +63,7 @@ module.exports = (file, api, options) => {
     'react-addons-pure-render-mixin';
 
   const CREATE_CLASS_MODULE_NAME = options['create-class-module-name'] ||
-    'react-create-class';
+    'create-react-class';
 
   const CREATE_CLASS_VARIABLE_NAME = options['create-class-variable-name'] ||
     'createReactClass';

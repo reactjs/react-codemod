@@ -150,9 +150,9 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
   - Notice that Flow treats an optional propType as non-nullable
     - For example, `foo: React.PropTypes.number` is valid when you pass `{}`, `{foo: null}`, or `{foo: undefined}` as props at **runtime**. However, when Flow infers type from a `createClass` call, only `{}` and `{foo: undefined}` are valid; `{foo: null}` is not. Thus the equivalent type annotation in Flow is actually `{foo?: number}`. The question mark on the left hand side indicates `{}` and `{foo: undefined}` are fine, but when `foo` is present it must be a `number`
   - For `propTypes` fields that can't be recognized by Flow, `$FlowFixMe` will be used
-5. `React.createClass` is no longer present in React 16. So, if a `createClass` call cannot be converted to a plain class, the script will fallback to using the `react-create-class` package.
+5. `React.createClass` is no longer present in React 16. So, if a `createClass` call cannot be converted to a plain class, the script will fallback to using the `create-react-class` package.
   - Replaces `React.createClass` with `ReactCreateClass`.
-  - Adds a `require` or `import` statement for `react-create-class`. The import style is inferred from the import style of the `react` import. The default module name can be overridden with the `--create-class-module-name` option.
+  - Adds a `require` or `import` statement for `create-react-class`. The import style is inferred from the import style of the `react` import. The default module name can be overridden with the `--create-class-module-name` option.
   - Prunes the `react` import if there are no more references to it.
 
 #### Usage
