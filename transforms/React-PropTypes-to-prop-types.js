@@ -10,14 +10,6 @@
 
 'use strict';
 
-// import React from 'react';
-const isReactImport = path => (
-  path.node.specifiers.some(specifier => (
-    specifier.type === 'ImportDefaultSpecifier' &&
-    specifier.local.name === 'React'
-  ))
-);
-
 // const React = require('react');
 const isReactRequire = path => (
   path.node.callee.type === 'Identifier' &&
@@ -63,7 +55,7 @@ function addPropTypesImport(j, root) {
 
     root
       .find(j.ImportDeclaration)
-      .filter(isReactImport)
+      .filter(path => path.node.source.value.toLowerCase() === 'react')
       .forEach(path => {
         j(path).insertAfter(importStatement);
       });
