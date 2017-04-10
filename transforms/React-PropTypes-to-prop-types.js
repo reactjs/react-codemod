@@ -88,6 +88,7 @@ function removeDestructuredPropTypeStatements(j, root) {
   root
     .find(j.ObjectPattern)
     .filter(path => (
+      path.parent.node.type === 'VariableDeclarator' &&
       path.parent.node.init.name === 'React' &&
       path.node.properties.some(
           property => property.key.name === 'PropTypes'
