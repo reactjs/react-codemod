@@ -39,13 +39,6 @@ const isReactPropTypes = path => (
   path.parent.node.object.name === 'React'
 );
 
-// Program uses ES import syntax
-function useImportSyntax(j, root) {
-  return root
-    .find(j.CallExpression, {callee: {name: 'require'}})
-    .length === 0;
-}
-
 // Program uses var keywords
 function useVar(j, root) {
   return root
@@ -55,30 +48,37 @@ function useVar(j, root) {
 
 // If any PropTypes references exist, add a 'prop-types' import (or require)
 function addPropTypesImport(j, root) {
-  if (useImportSyntax(j, root)) {
-    const importStatement = j.importDeclaration(
-      [j.importDefaultSpecifier(j.identifier('PropTypes'))],
-      j.literal('prop-types')
-    );
+  const importStatement = j.importDeclaration(
+    [j.importDefaultSpecifier(j.identifier('PropTypes'))],
+    j.literal('prop-types')
+  );
 
-    root
-      .find(j.ImportDeclaration)
-      .filter(isReactImport)
-      .forEach(path => {
-        j(path).insertAfter(importStatement);
-      });
-  } else {
-    const requireStatement = useVar(j, root)
-      ? j.template.statement`var PropTypes = require('prop-types');`
-      : j.template.statement`const PropTypes = require('prop-types');`;
+  const requireStatement = useVar(j, root)
+    ? j.template.statement`var PropTypes = require('prop-types');`
+    : j.template.statement`const PropTypes = require('prop-types');`;
 
-    root
-      .find(j.CallExpression, {callee: {name: 'require'}})
-      .filter(isReactRequire)
-      .forEach(path => {
-        j(path.parent.parent).insertAfter(requireStatement);
-      });
+  let hasAddedImport = false;
+
+  root
+    .find(j.ImportDeclaration)
+    .filter(isReactImport)
+    .forEach(path => {
+      j(path).insertAfter(importStatement);
+      hasAddedImport = true;
+    });
+
+  if (hasAddedImport) {
+    // early exit if added proptype import
+    return;
   }
+
+  root
+    .find(j.CallExpression, {callee: {name: 'require'}})
+    .filter(isReactRequire)
+    .forEach(path => {
+      j(path.parent.parent).insertAfter(requireStatement);
+      hasAddedImport = true;
+    });
 }
 
 // Remove PropTypes destructure statements (eg const { ProptTypes } = React)
@@ -88,6 +88,7 @@ function removeDestructuredPropTypeStatements(j, root) {
   root
     .find(j.ObjectPattern)
     .filter(path => (
+      path.parent.node.init &&
       path.parent.node.init.name === 'React' &&
       path.node.properties.some(
           property => property.key.name === 'PropTypes'
