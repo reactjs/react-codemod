@@ -13,6 +13,7 @@
 const tests = [
   'default-and-named-import',
   'default-import',
+  'named-import',
   'no-change-import',
   'no-change-require',
   'require-destructured-multi',

@@ -11,12 +11,7 @@
 'use strict';
 
 // import React from 'react';
-const isReactImport = path => (
-  path.node.specifiers.some(specifier => (
-    specifier.type === 'ImportDefaultSpecifier' &&
-    specifier.local.name === 'React'
-  ))
-);
+const isReactImport = path => path.node.source.value.toLowerCase() === 'react';
 
 // const React = require('react');
 const isReactRequire = path => (
@@ -88,6 +83,7 @@ function removeDestructuredPropTypeStatements(j, root) {
   root
     .find(j.ObjectPattern)
     .filter(path => (
+      path.parent.node.init &&
       path.parent.node.init.name === 'React' &&
       path.node.properties.some(
           property => property.key.name === 'PropTypes'
@@ -153,6 +149,13 @@ function replacePropTypesReferences(j, root) {
   return hasModifications;
 }
 
+function removeEmptyReactImport(j, root) {
+  root
+    .find(j.ImportDeclaration)
+    .filter(path => path.node.specifiers.length === 0 && path.node.source.value === 'react')
+    .replaceWith();
+}
+
 module.exports = function(file, api, options) {
   const j = api.jscodeshift;
   const root = j(file.source);
@@ -164,6 +167,7 @@ module.exports = function(file, api, options) {
 
   if (hasModifications) {
     addPropTypesImport(j, root);
+    removeEmptyReactImport(j, root);
   }
 
   return hasModifications
