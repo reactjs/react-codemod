@@ -1,5 +1,5 @@
+import PropTypes from 'prop-types';
 import React from 'React';
-import PropTypes from 'prop-types'
 
 class ClassComponent extends React.Component {
   static propTypes = {

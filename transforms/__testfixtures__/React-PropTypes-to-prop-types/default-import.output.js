@@ -1,18 +1,19 @@
-import React from 'React';
-
+import Abc from 'abc';
 import PropTypes from 'prop-types';
+import React from 'React';
+import Xzy from 'xyz';
 
 class ClassComponent extends React.Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
   };
   render() {
-    return <div>{this.props.text}</div>;
+    return <Abc>{this.props.text}</Abc>;
   }
 }
 
 function FunctionalComponent (props) {
-  return <div>{props.text}</div>;
+  return <Xzy>{props.text}</Xzy>;
 }
 FunctionalComponent.propTypes = {
   text: PropTypes.string.isRequired,
