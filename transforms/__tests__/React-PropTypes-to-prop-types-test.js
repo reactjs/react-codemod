@@ -15,6 +15,7 @@ const tests = [
   'default-import',
   'no-change-import',
   'no-change-require',
+  'object-pattern-in-function-args',
   'require-destructured-multi',
   'require-destructured-only',
   'require',
