@@ -10,27 +10,45 @@
 
 'use strict';
 
-// import React from 'react';
-const isReactImport = path => (
-  path.node.specifiers.some(specifier => (
-    specifier.type === 'ImportDefaultSpecifier' &&
-    specifier.local.name === 'React'
-  ))
-);
+// Find alpha-sorted import that would follow prop-types
+function findImportAfterPropTypes(j, root) {
+  let target, targetName;
 
-// const React = require('react');
-const isReactRequire = path => (
-  path.node.callee.type === 'Identifier' &&
-  path.parent.node.type === 'VariableDeclarator' &&
-  (
-    path.parent.node.id.type === 'Identifier' &&
-    path.parent.node.id.name === 'React' ||
-    path.parent.node.id.type === 'ObjectPattern' &&
-    path.parent.node.id.properties.some(
-      property => property.value.name === 'React'
-    )
-  )
-);
+  root
+    .find(j.ImportDeclaration)
+    .forEach(path => {
+      const name = path.value.source.value.toLowerCase();
+      if (
+        name > 'prop-types' &&
+        (!target || name < targetName)
+      ) {
+        targetName = name;
+        target = path;
+      }
+    });
+
+  return target;
+}
+
+// Find alpha-sorted require that would follow prop-types
+function findRequireAfterPropTypes(j, root) {
+  let target, targetName;
+
+  root
+    .find(j.CallExpression, {callee: {name: 'require'}})
+    .forEach(path => {
+      const name = path.node.arguments[0].value.toLowerCase();
+      if (
+        name > 'prop-types' &&
+        (!target || name < targetName)
+      ) {
+        targetName = name;
+        target = path;
+      }
+    });
+
+  return target;
+}
 
 // React.PropTypes
 const isReactPropTypes = path => (
@@ -61,23 +79,17 @@ function addPropTypesImport(j, root) {
       j.literal('prop-types')
     );
 
-    root
-      .find(j.ImportDeclaration)
-      .filter(isReactImport)
-      .forEach(path => {
-        j(path).insertAfter(importStatement);
-      });
+    const path = findImportAfterPropTypes(j, root);
+
+    j(path).insertBefore(importStatement);
   } else {
     const requireStatement = useVar(j, root)
-      ? j.template.statement`var PropTypes = require('prop-types');`
-      : j.template.statement`const PropTypes = require('prop-types');`;
+      ? j.template.statement`var PropTypes = require('prop-types');\n`
+      : j.template.statement`const PropTypes = require('prop-types');\n`;
 
-    root
-      .find(j.CallExpression, {callee: {name: 'require'}})
-      .filter(isReactRequire)
-      .forEach(path => {
-        j(path.parent.parent).insertAfter(requireStatement);
-      });
+    const path = findRequireAfterPropTypes(j, root);
+
+    j(path.parent.parent).insertBefore(requireStatement);
   }
 }
 

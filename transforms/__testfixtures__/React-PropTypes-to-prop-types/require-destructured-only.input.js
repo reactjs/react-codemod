@@ -1,17 +1,19 @@
+const Abc = require('abc');
 const React = require('react');
 const { PropTypes } = React;
+const Xyz = require('xyz');
 
 class ClassComponent extends React.Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
   };
   render() {
-    return <div>{this.props.text}</div>;
+    return <Abc>{this.props.text}</Abc>;
   }
 }
 
 function FunctionalComponent (props) {
-  return <div>{props.text}</div>;
+  return <Xyz>{props.text}</Xyz>;
 }
 FunctionalComponent.propTypes = {
   text: PropTypes.string.isRequired,
