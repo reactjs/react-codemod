@@ -60,8 +60,8 @@ const isReactPropTypes = path => (
 // Program uses ES import syntax
 function useImportSyntax(j, root) {
   return root
-    .find(j.CallExpression, {callee: {name: 'require'}})
-    .length === 0;
+    .find(j.ImportDeclaration)
+    .length > 0;
 }
 
 // Program uses var keywords
