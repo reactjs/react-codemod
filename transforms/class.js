@@ -79,7 +79,9 @@ module.exports = (file, api, options) => {
 
   const MIXIN_KEY = 'mixins';
 
-  const NO_CONVERSION = options['no-conversion'];
+  const NO_CONVERSION = options.conversion === false;
+
+  const NO_DISPLAY_NAME = options['display-name'] === false;
 
   let shouldTransformFlow = false;
 
@@ -1108,36 +1110,38 @@ module.exports = (file, api, options) => {
     const comments = getComments(classPath);
     const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
 
-    if (specPath) {
-      // Add a displayName property to the spec object
-      let path = classPath;
-      let displayName;
-      while (path && displayName === undefined) {
-        switch (path.node.type) {
-          case 'ExportDefaultDeclaration':
-            displayName = basename(file.path, extname(file.path));
-            if (displayName === 'index') {
-              // ./{module name}/index.js
-              displayName = basename(dirname(file.path));
-            }
-            break;
-          case 'VariableDeclarator':
-            displayName = path.node.id.name;
-            break;
-          case 'AssignmentExpression':
-            displayName = path.node.left.name;
-            break;
-          case 'Property':
-            displayName = path.node.key.name;
-            break;
-          case 'Statement':
-            displayName = null;
-            break;
+    if (!NO_DISPLAY_NAME) {
+      if (specPath) {
+        // Add a displayName property to the spec object
+        let path = classPath;
+        let displayName;
+        while (path && displayName === undefined) {
+          switch (path.node.type) {
+            case 'ExportDefaultDeclaration':
+              displayName = basename(file.path, extname(file.path));
+              if (displayName === 'index') {
+                // ./{module name}/index.js
+                displayName = basename(dirname(file.path));
+              }
+              break;
+            case 'VariableDeclarator':
+              displayName = path.node.id.name;
+              break;
+            case 'AssignmentExpression':
+              displayName = path.node.left.name;
+              break;
+            case 'Property':
+              displayName = path.node.key.name;
+              break;
+            case 'Statement':
+              displayName = null;
+              break;
+          }
+          path = path.parent;
         }
-        path = path.parent;
-      }
-      if (displayName) {
-        addDisplayName(displayName, specPath);
+        if (displayName) {
+          addDisplayName(displayName, specPath);
+        }
       }
     }
 

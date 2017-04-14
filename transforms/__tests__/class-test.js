@@ -59,5 +59,8 @@ defineTest(__dirname, 'class', {
 }, 'class/class-create-class-naming');
 defineTest(__dirname, 'class', null, 'class/class-displayName');
 defineTest(__dirname, 'class', {
-  'no-conversion': true,
+  'conversion': false,
 }, 'class/class-no-conversion');
+defineTest(__dirname, 'class', {
+  'display-name': false,
+}, 'class/class-no-display-name');
