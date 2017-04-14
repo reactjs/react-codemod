@@ -158,9 +158,17 @@ function replacePropTypesReferences(j, root) {
     .forEach(path => {
       hasModifications = true;
 
-      j(path.parent).replaceWith(
-        j.identifier('PropTypes')
-      );
+      // VariableDeclarator should be removed entirely
+      // eg 'PropTypes = React.PropTypes'
+      if (path.parent.parent.node.type === 'VariableDeclarator') {
+        j(path.parent.parent).remove();
+      } else {
+        // MemberExpression should be updated
+        // eg 'foo = React.PropTypes.string'
+        j(path.parent).replaceWith(
+          j.identifier('PropTypes')
+        );
+      }
     });
 
   return hasModifications;
