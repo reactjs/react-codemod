@@ -166,6 +166,16 @@ function replacePropTypesReferences(j, root) {
   return hasModifications;
 }
 
+function removeEmptyReactImport(j, root) {
+  root
+    .find(j.ImportDeclaration)
+    .filter(path => (
+      path.node.specifiers.length === 0 &&
+      path.node.source.value === 'react'
+    ))
+    .replaceWith();
+}
+
 module.exports = function(file, api, options) {
   const j = api.jscodeshift;
   const root = j(file.source);
@@ -177,6 +187,7 @@ module.exports = function(file, api, options) {
 
   if (hasModifications) {
     addPropTypesImport(j, root);
+    removeEmptyReactImport(j, root);
   }
 
   return hasModifications
