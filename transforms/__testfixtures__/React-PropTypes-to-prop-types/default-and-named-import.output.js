@@ -6,6 +6,7 @@ class ClassComponent extends Component {
     text: PropTypes.string.isRequired,
   };
   render() {
+    const s = require('./ClassComponent.scss');
     return <div>{this.props.text}</div>;
   }
 }
