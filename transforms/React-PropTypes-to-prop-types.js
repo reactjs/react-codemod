@@ -74,23 +74,27 @@ function useVar(j, root) {
 // If any PropTypes references exist, add a 'prop-types' import (or require)
 function addPropTypesImport(j, root) {
   if (useImportSyntax(j, root)) {
-    const importStatement = j.importDeclaration(
-      [j.importDefaultSpecifier(j.identifier('PropTypes'))],
-      j.literal('prop-types')
-    );
-
     const path = findImportAfterPropTypes(j, root);
+    if (path) {
+      const importStatement = j.importDeclaration(
+        [j.importDefaultSpecifier(j.identifier('PropTypes'))],
+        j.literal('prop-types')
+      );
+      j(path).insertBefore(importStatement);
+      return;
+    }
+  }
 
-    j(path).insertBefore(importStatement);
-  } else {
+  const path = findRequireAfterPropTypes(j, root);
+  if (path) {
     const requireStatement = useVar(j, root)
       ? j.template.statement`var PropTypes = require('prop-types');\n`
       : j.template.statement`const PropTypes = require('prop-types');\n`;
-
-    const path = findRequireAfterPropTypes(j, root);
-
     j(path.parent.parent).insertBefore(requireStatement);
+    return;
   }
+
+  throw new Error('No PropTypes import found!');
 }
 
 // Remove PropTypes destructure statements (eg const { ProptTypes } = React)
