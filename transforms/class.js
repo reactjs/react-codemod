@@ -79,6 +79,8 @@ module.exports = (file, api, options) => {
 
   const MIXIN_KEY = 'mixins';
 
+  const NO_CONVERSION = options['no-conversion'];
+
   let shouldTransformFlow = false;
 
   if (options['flow']) {
@@ -1178,12 +1180,20 @@ module.exports = (file, api, options) => {
       root.get().node.comments = topComments;
     };
 
-    // the only time that we can't simply replace the createClass call path
-    // with a new class is when the parent of that is a variable declaration.
-    // let's delay it and figure it out later (by looking at `path.parentPath`)
-    // in `updateToClass`.
-    const apply = (path) => {
-      const result = {};
+    let didTransform = false;
+    let didFallback = false;
+
+    const path = ReactUtils.findAllReactCreateClassCalls(root);
+    if (NO_CONVERSION) {
+      path.forEach(childPath => {
+        fallbackToCreateClassModule(childPath);
+      });
+      didFallback = true;
+    } else {
+      // the only time that we can't simply replace the createClass call path
+      // with a new class is when the parent of that is a variable declaration.
+      // let's delay it and figure it out later (by looking at `path.parentPath`)
+      // in `updateToClass`.
       path.forEach(childPath => {
         if (
           mixinsFilter(childPath) &&
@@ -1193,20 +1203,14 @@ module.exports = (file, api, options) => {
           isInitialStateConvertible(childPath) &&
           canConvertToClass(childPath)
         ) {
-          result.didTransform = true;
+          didTransform = true;
           updateToClass(childPath);
         } else {
-          result.didFallback = true;
+          didFallback = true;
           fallbackToCreateClassModule(childPath);
         }
       });
-      return result;
-    };
-
-    const {
-      didTransform,
-      didFallback,
-    } = apply(ReactUtils.findAllReactCreateClassCalls(root));
+    }
 
     if (didFallback) {
       const reactPathAndBinding =

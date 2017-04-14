@@ -58,3 +58,6 @@ defineTest(__dirname, 'class', {
   'create-class-variable-name': 'createReactClass__deprecated',
 }, 'class/class-create-class-naming');
 defineTest(__dirname, 'class', null, 'class/class-displayName');
+defineTest(__dirname, 'class', {
+  'no-conversion': true,
+}, 'class/class-no-conversion');
