@@ -36,4 +36,11 @@ describe('React-PropTypes-to-prop-types', () => {
       `React-PropTypes-to-prop-types/${ test }`
     )
   );
+
+  defineTest(
+    __dirname,
+    'React-PropTypes-to-prop-types',
+    { 'module-name': 'PropTypes' },
+    'React-PropTypes-to-prop-types/module-name'
+  );
 });
