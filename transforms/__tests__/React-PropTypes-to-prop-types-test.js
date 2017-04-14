@@ -11,6 +11,7 @@
 'use strict';
 
 const tests = [
+  'assigned-from-react-var',
   'default-and-named-import',
   'default-import',
   'destructured-proptypes-import',
