@@ -13,6 +13,7 @@
 const tests = [
   'default-and-named-import',
   'default-import',
+  'mixed-import-and-require',
   'named-parameters',
   'no-change-import',
   'no-change-require',
