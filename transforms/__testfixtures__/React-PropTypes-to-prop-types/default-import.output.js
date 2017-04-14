@@ -8,12 +8,14 @@ class ClassComponent extends React.Component {
     text: PropTypes.string.isRequired,
   };
   render() {
-    return <Abc>{this.props.text}</Abc>;
+    const { text, ...rest } = this.props;
+    return <Abc>{text}</Abc>;
   }
 }
 
 function FunctionalComponent (props) {
-  return <Xzy>{props.text}</Xzy>;
+    const { text, ...rest } = props;
+    return <Xzy>{text}</Xzy>;
 }
 FunctionalComponent.propTypes = {
   text: PropTypes.string.isRequired,
