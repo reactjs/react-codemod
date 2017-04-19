@@ -147,13 +147,21 @@ module.exports = (file, api, options) => {
   );
 
   const hasSingleReturnStatement = value => (
-    value.type === 'FunctionExpression' &&
-    value.body &&
-    value.body.type === 'BlockStatement' &&
-    value.body.body &&
-    value.body.body.length === 1 &&
-    value.body.body[0].type === 'ReturnStatement' &&
-    value.body.body[0].argument
+    (
+      value.type === 'ArrowFunctionExpression' &&
+      value.body &&
+      value.body.type === 'ObjectExpression'
+    ) || (
+      (
+        value.type === 'FunctionExpression' || value.type === 'ArrowFunctionExpression'
+      ) &&
+      value.body &&
+      value.body.type === 'BlockStatement' &&
+      value.body.body &&
+      value.body.body.length === 1 &&
+      value.body.body[0].type === 'ReturnStatement' &&
+      value.body.body[0].argument
+    )
   );
 
   const isInitialStateLiftable = getInitialState => {
@@ -339,7 +347,11 @@ module.exports = (file, api, options) => {
   // Collectors
   const pickReturnValueOrCreateIIFE = value => {
     if (hasSingleReturnStatement(value)) {
-      return value.body.body[0].argument;
+      if (value.body.type === 'ObjectExpression') {
+        return value.body;
+      } else {
+        return value.body.body[0].argument;
+      }
     } else {
       return j.callExpression(
         value,

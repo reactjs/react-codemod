@@ -311,3 +311,25 @@ var WithMultiLineType = React.createClass({
     return null;
   },
 });
+
+var WithArrowFunction = React.createClass({
+  getInitialState: (): {heyoo: number} => {
+    return {
+      heyoo: 23,
+    };
+  },
+
+  render() {
+    return null;
+  },
+});
+
+var WithArrowFunctionAndObject = React.createClass({
+  getInitialState: (): {heyoo: number} => ({
+    heyoo: 23,
+  }),
+
+  render() {
+    return null;
+  },
+});
