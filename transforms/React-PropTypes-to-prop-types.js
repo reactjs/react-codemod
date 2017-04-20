@@ -16,6 +16,8 @@ module.exports = function(file, api, options) {
 
   const MODULE_NAME = options['module-name'] || 'prop-types';
 
+  let localPropTypesName = 'PropTypes';
+
   // Find alpha-sorted import that would follow prop-types
   function findImportAfterPropTypes(j, root) {
     let target, targetName;
@@ -83,7 +85,7 @@ module.exports = function(file, api, options) {
       const path = findImportAfterPropTypes(j, root);
       if (path) {
         const importStatement = j.importDeclaration(
-          [j.importDefaultSpecifier(j.identifier('PropTypes'))],
+          [j.importDefaultSpecifier(j.identifier(localPropTypesName))],
           j.literal(MODULE_NAME)
         );
         j(path).insertBefore(importStatement);
@@ -94,8 +96,8 @@ module.exports = function(file, api, options) {
     const path = findRequireAfterPropTypes(j, root);
     if (path) {
       const requireStatement = useVar(j, root)
-        ? j.template.statement([`var PropTypes = require('${MODULE_NAME}');\n`])
-        : j.template.statement([`const PropTypes = require('${MODULE_NAME}');\n`]);
+        ? j.template.statement([`var ${localPropTypesName} = require('${MODULE_NAME}');\n`])
+        : j.template.statement([`const ${localPropTypesName} = require('${MODULE_NAME}');\n`]);
       j(path.parent.parent).insertBefore(requireStatement);
       return;
     }
@@ -113,22 +115,31 @@ module.exports = function(file, api, options) {
         path.parent.node.init &&
         path.parent.node.init.name === 'React' &&
         path.node.properties.some(
-            property => property.key.name === 'PropTypes'
-          )
+          property => property.key.name === 'PropTypes'
+        )
       ))
       .forEach(path => {
         hasModifications = true;
 
         // Remove the PropTypes key
         path.node.properties = path.node.properties.filter(
-          property => property.key.name !== 'PropTypes'
+          property => {
+            if (property.key.name === 'PropTypes') {
+              if (property.value) {
+                localPropTypesName = property.value.name;
+              }
+              return false;
+            } else {
+              return true;
+            }
+          }
         );
 
         // If this was the only property, remove the entire statement.
         if (path.node.properties.length === 0) {
           path.parent.parent.replace('');
         }
-    });
+      });
 
     return hasModifications;
   }
@@ -145,6 +156,7 @@ module.exports = function(file, api, options) {
       ))
       .forEach(path => {
         hasModifications = true;
+        localPropTypesName = path.parent.node.local.name;
 
         const importDeclaration = path.parent.parent.node;
         importDeclaration.specifiers = importDeclaration.specifiers.filter(
@@ -176,7 +188,7 @@ module.exports = function(file, api, options) {
           // MemberExpression should be updated
           // eg 'foo = React.PropTypes.string'
           j(path.parent).replaceWith(
-            j.identifier('PropTypes')
+            j.identifier(localPropTypesName)
           );
         }
       });
@@ -195,8 +207,8 @@ module.exports = function(file, api, options) {
   }
 
   let hasModifications = false;
-  hasModifications = replacePropTypesReferences(j, root) || hasModifications;
   hasModifications = removePropTypesImport(j, root) || hasModifications;
+  hasModifications = replacePropTypesReferences(j, root) || hasModifications;
   hasModifications = removeDestructuredPropTypeStatements(j, root) || hasModifications;
 
   if (hasModifications) {
