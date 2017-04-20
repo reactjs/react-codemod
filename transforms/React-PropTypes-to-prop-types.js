@@ -15,8 +15,8 @@ module.exports = function(file, api, options) {
   const root = j(file.source);
 
   const MODULE_NAME = options['module-name'] || 'prop-types';
-  let localPropTypesName = 'PropTypes';
 
+  let localPropTypesName = 'PropTypes';
 
   // Find alpha-sorted import that would follow prop-types
   function findImportAfterPropTypes(j, root) {
@@ -96,8 +96,8 @@ module.exports = function(file, api, options) {
     const path = findRequireAfterPropTypes(j, root);
     if (path) {
       const requireStatement = useVar(j, root)
-        ? j.template.statement([`var PropTypes = require('${MODULE_NAME}');\n`])
-        : j.template.statement([`const PropTypes = require('${MODULE_NAME}');\n`]);
+        ? j.template.statement([`var ${localPropTypesName} = require('${MODULE_NAME}');\n`])
+        : j.template.statement([`const ${localPropTypesName} = require('${MODULE_NAME}');\n`]);
       j(path.parent.parent).insertBefore(requireStatement);
       return;
     }
@@ -123,7 +123,16 @@ module.exports = function(file, api, options) {
 
         // Remove the PropTypes key
         path.node.properties = path.node.properties.filter(
-          property => property.key.name !== 'PropTypes'
+          property => {
+            if (property.key.name === 'PropTypes') {
+              if (property.value) {
+                localPropTypesName = property.value.name;
+              }
+              return false;
+            } else {
+              return true;
+            }
+          }
         );
 
         // If this was the only property, remove the entire statement.

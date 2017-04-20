@@ -1,5 +1,5 @@
-import React, { Component, PropTypes as PT } from 'react';
-
+const React = require('react');
+const { Component, PropTypes: PT } = React;
 
 class ClassComponent extends Component {
     static propTypes = {

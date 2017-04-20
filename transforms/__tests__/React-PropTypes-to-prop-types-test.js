@@ -11,16 +11,17 @@
 'use strict';
 
 const tests = [
-  'alias',
   'assigned-from-react-var',
   'default-and-named-import',
   'default-import',
   'destructured-proptypes-import',
+  'import-alias',
   'mixed-import-and-require',
   'mixed-import-and-require-2',
   'named-parameters',
   'no-change-import',
   'no-change-require',
+  'require-alias',
   'require-destructured-multi',
   'require-destructured-only',
   'require',
