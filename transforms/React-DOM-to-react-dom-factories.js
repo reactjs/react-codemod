@@ -18,14 +18,11 @@ module.exports = function(file, api, options) {
 
   const DOMModuleName = 'DOM';
 
-  const isDOMSpecifier = specifier => (
-    specifier.imported &&
-    specifier.imported.name === DOMModuleName
-  );
-
   /**
    * Replaces 'DOM' with 'createElement' in places where we grab 'DOM' out of
    * 'React' with destructuring.
+   * Note that this only picks up 'DOM' when required from React or
+   * require('react')
    */
   const replaceDestructuredDOMStatement = (j, root) => {
     let hasModifications = false;
@@ -38,7 +35,10 @@ module.exports = function(file, api, options) {
     root
       .find(j.ImportDeclaration)
       .filter(path => (
-        path.node.specifiers.filter(isDOMSpecifier).length > 0 &&
+        path.node.specifiers.filter(specifier => (
+          specifier.imported &&
+          specifier.imported.name === DOMModuleName
+        )).length > 0 &&
         path.node.source.value === 'react'
       ))
       .forEach(path => {
@@ -105,54 +105,47 @@ module.exports = function(file, api, options) {
   hasModifications =
     replaceDestructuredDOMStatement(j, root) || hasModifications;
 
-  const isDOMIdentifier = path => (
-    path.node.name === DOMModuleName &&
-    path.parent.parent.node.type === 'CallExpression'
-  );
-
-  /**
-   * Update cases where DOM.div is being called
-   * eg 'foo = DOM.div('a'...'
-   * replace with 'foo = createElement('div', 'a'...'
-   */
-  function replaceDOMReferences(j, root) {
-    let hasModifications = false;
-
-    root
-      .find(j.Identifier)
-      .filter(isDOMIdentifier)
-      .forEach(path => {
-        hasModifications = true;
-
-        const DOMargs = path.parent.parent.node.arguments;
-        const DOMFactoryPath = path.parent.node.property;
-        const DOMFactoryType = DOMFactoryPath.name;
-
-        // DOM.div(... -> createElement(...
-        j(path.parent).replaceWith(
-          j.identifier('createElement')
-        );
-        // createElement(... -> createElement('div', ...
-        DOMargs.unshift(j.literal(DOMFactoryType));
-      });
-
-    return hasModifications;
-  }
-
-  // We only need to update 'DOM.div' syntax if there was a deconstructed
-  // reference to React.DOM
   if (hasModifications) {
+    // if we 'hasModifications' then we found and replaced a reference to
+    // '{DOM} = React;' or '{DOM} = require('react');'
+    // In this case we need to update 'DOM.<element>' syntax
+
+    /**
+     * Update cases where DOM.div is being called
+     * eg 'foo = DOM.div('a'...'
+     * replace with 'foo = createElement('div', 'a'...'
+     */
+    function replaceDOMReferences(j, root) {
+      let hasModifications = false;
+
+      const isDOMIdentifier = path => (
+        path.node.name === DOMModuleName &&
+        path.parent.parent.node.type === 'CallExpression'
+      );
+
+      root
+        .find(j.Identifier)
+        .filter(isDOMIdentifier)
+        .forEach(path => {
+          hasModifications = true;
+
+          const DOMargs = path.parent.parent.node.arguments;
+          const DOMFactoryPath = path.parent.node.property;
+          const DOMFactoryType = DOMFactoryPath.name;
+
+          // DOM.div(... -> createElement(...
+          j(path.parent).replaceWith(
+            j.identifier('createElement')
+          );
+          // createElement(... -> createElement('div', ...
+          DOMargs.unshift(j.literal(DOMFactoryType));
+        });
+
+      return hasModifications;
+    }
+
     hasModifications = replaceDOMReferences(j, root) || hasModifications;
   }
-
-  // matches 'React.DOM'
-  const isReactDOMIdentifier = path => (
-    path.node.name === DOMModuleName &&
-    (
-    path.parent.node.type === 'MemberExpression' &&
-    path.parent.node.object.name === 'React'
-    )
-  );
 
   /**
    * Update React.DOM references
@@ -161,6 +154,15 @@ module.exports = function(file, api, options) {
    */
   function replaceReactDOMReferences(j, root) {
     let hasModifications = false;
+
+    // matches 'React.DOM'
+    const isReactDOMIdentifier = path => (
+      path.node.name === DOMModuleName &&
+      (
+      path.parent.node.type === 'MemberExpression' &&
+      path.parent.node.object.name === 'React'
+      )
+    );
 
     root
       .find(j.Identifier)
