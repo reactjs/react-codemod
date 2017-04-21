@@ -105,7 +105,7 @@ module.exports = function(file, api, options) {
     throw new Error('No PropTypes import found!');
   }
 
-  // Remove PropTypes destructure statements (eg const { ProptTypes } = React)
+  // Remove PropTypes destructure statements (eg const { PropTypes } = React)
   function removeDestructuredPropTypeStatements(j, root) {
     let hasModifications = false;
 
@@ -121,11 +121,15 @@ module.exports = function(file, api, options) {
       .forEach(path => {
         hasModifications = true;
 
+        // Find any nested destructures hanging off of the PropTypes node
+        const nestedPropTypesChildren = path.node.properties.find(
+          property => property.key.name === 'PropTypes' && property.value.type === 'ObjectPattern');
+
         // Remove the PropTypes key
         path.node.properties = path.node.properties.filter(
           property => {
             if (property.key.name === 'PropTypes') {
-              if (property.value) {
+              if (property.value && property.value.type === 'Identifier') {
                 localPropTypesName = property.value.name;
               }
               return false;
@@ -134,6 +138,15 @@ module.exports = function(file, api, options) {
             }
           }
         );
+
+        // Add back any nested destructured children.
+        if (nestedPropTypesChildren) {
+          // TODO: This shouldn't just use a template string but the `ast-types` docs were too opaque for me to follow.
+          const propTypeChildren = nestedPropTypesChildren.value.properties.map(property => property.key.name).join(', ');
+          const importStatement = j.template.statement([`const { ${propTypeChildren} } = ${localPropTypesName};`]);
+
+          j(path.parent.parent).insertBefore(importStatement);
+        }
 
         // If this was the only property, remove the entire statement.
         if (path.node.properties.length === 0) {

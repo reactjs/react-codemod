@@ -19,6 +19,7 @@ const tests = [
   'mixed-import-and-require',
   'mixed-import-and-require-2',
   'named-parameters',
+  'nested-destructured-proptypes-import',
   'no-change-import',
   'no-change-require',
   'require-alias',
