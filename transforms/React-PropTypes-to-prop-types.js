@@ -143,9 +143,9 @@ module.exports = function(file, api, options) {
         if (nestedPropTypesChildren) {
           // TODO: This shouldn't just use a template string but the `ast-types` docs were too opaque for me to follow.
           const propTypeChildren = nestedPropTypesChildren.value.properties.map(property => property.key.name).join(', ');
-          const importStatement = j.template.statement([`const { ${propTypeChildren} } = ${localPropTypesName};`]);
+          const destructureStatement = j.template.statement([`const { ${propTypeChildren} } = ${localPropTypesName};`]);
 
-          j(path.parent.parent).insertBefore(importStatement);
+          j(path.parent.parent).insertBefore(destructureStatement);
         }
 
         // If this was the only property, remove the entire statement.
