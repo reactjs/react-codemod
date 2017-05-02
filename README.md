@@ -157,7 +157,7 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 
 #### Usage
 ```bash
-jscodeshift -t ./transforms/class.js --mixin-module-name=react-addons-pure-render-mixin --flow=true --pure-component=true --remove-runtime-proptypes=false <path>
+jscodeshift -t react-codemod/transforms/class.js --mixin-module-name=react-addons-pure-render-mixin --flow=true --pure-component=true --remove-runtime-proptypes=false <path>
 ```
 
 ### Recast Options
