@@ -100,7 +100,7 @@ module.exports = function(j) {
 
   // ---------------------------------------------------------------------------
   // Finds alias for React.Component if used as named import.
-  const findReactComponentName = path => {
+  const findReactComponentNameByParent = (path, parentClassName) => {
     const reactImportDeclaration = path
       .find(j.ImportDeclaration, {
         type: 'ImportDeclaration',
@@ -115,7 +115,7 @@ module.exports = function(j) {
         type: 'ImportSpecifier',
         imported: {
           type: 'Identifier',
-          name: 'Component',
+          name: parentClassName,
         },
       }).at(0);
 
@@ -125,9 +125,10 @@ module.exports = function(j) {
       : undefined;
   };
 
-  // Finds all classes that extend React.Component
-  const findReactES6ClassDeclaration = path => {
-    const componentImport = findReactComponentName(path);
+
+  const findReactES6ClassDeclarationByParent = (path, parentClassName) => {
+    const componentImport = findReactComponentNameByParent(path, parentClassName);
+
     const selector = componentImport
       ? {
         superClass: {
@@ -150,7 +151,16 @@ module.exports = function(j) {
       };
 
     return path
-     .find(j.ClassDeclaration, selector);
+      .find(j.ClassDeclaration, selector);
+  };
+
+  // Finds all classes that extend React.Component
+  const findReactES6ClassDeclaration = path => {
+    let classDeclarations = findReactES6ClassDeclarationByParent(path, 'Component');
+    if (classDeclarations.size() === 0) {
+      classDeclarations = findReactES6ClassDeclarationByParent(path, 'PureComponent')
+    }
+    return classDeclarations;
   };
 
   // ---------------------------------------------------------------------------
