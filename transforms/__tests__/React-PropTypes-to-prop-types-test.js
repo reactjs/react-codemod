@@ -26,6 +26,8 @@ const tests = [
   'require-destructured-multi',
   'require-destructured-only',
   'require',
+  'amd',
+  'no-change-amd'
 ];
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;

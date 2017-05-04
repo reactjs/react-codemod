@@ -65,6 +65,16 @@ module.exports = function(file, api, options) {
     path.parent.node.object.name === 'React'
   );
 
+  // Program uses AMD to import
+  function getAMDDefineExpression(j, root) {
+    return root
+      .find(j.CallExpression, {
+        callee: {type: 'Identifier', name: 'define'},
+        arguments: [{type: 'ArrayExpression'}, {type: 'FunctionExpression'}]
+      })
+      .paths()[0];
+  }
+
   // Program uses ES import syntax
   function useImportSyntax(j, root) {
     return root
@@ -99,6 +109,14 @@ module.exports = function(file, api, options) {
         ? j.template.statement([`var ${localPropTypesName} = require('${MODULE_NAME}');\n`])
         : j.template.statement([`const ${localPropTypesName} = require('${MODULE_NAME}');\n`]);
       j(path.parent.parent).insertBefore(requireStatement);
+      return;
+    }
+
+    const defineExpression = getAMDDefineExpression(j, root);
+    if (defineExpression) {
+      const [modules, aliases] = defineExpression.value.arguments;
+      modules.elements.unshift(j.literal(MODULE_NAME));
+      aliases.params.unshift(j.identifier(localPropTypesName));
       return;
     }
 
