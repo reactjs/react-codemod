@@ -235,6 +235,16 @@ module.exports = function(file, api, options) {
         path.node.source.value === 'react'
       ))
       .replaceWith();
+
+    const defineExpression = getAMDDefineExpression(j, root);
+    if (defineExpression) {
+      const isReactInUse = root.find(j.MemberExpression, {object: {name: 'React'}}).length > 0;
+      if (!isReactInUse) {
+        const [modules, aliases] = defineExpression.value.arguments;
+        modules.elements = modules.elements.filter(node => node.value !== 'react');
+        aliases.params = aliases.params.filter(node => node.name !== 'React');
+      }
+    }
   }
 
   let hasModifications = false;

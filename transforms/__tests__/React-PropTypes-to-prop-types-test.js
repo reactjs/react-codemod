@@ -27,7 +27,9 @@ const tests = [
   'require-destructured-only',
   'require',
   'amd',
-  'no-change-amd'
+  'no-change-amd',
+  'react-in-use-amd',
+  'react-not-in-use-amd'
 ];
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
