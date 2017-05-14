@@ -12,6 +12,7 @@
 
 module.exports = function(file, api, options) {
   const j = api.jscodeshift;
+  const printOptions = options.printOptions || { quote: 'single' };
   const root = j(file.source);
 
   const MODULE_NAME = options['module-name'] || 'prop-types';
@@ -230,6 +231,6 @@ module.exports = function(file, api, options) {
   }
 
   return hasModifications
-    ? root.toSource({ quote: 'single' })
+    ? root.toSource(printOptions)
     : null;
 };

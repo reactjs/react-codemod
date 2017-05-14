@@ -12,6 +12,7 @@
 
 module.exports = function(file, api, options) {
   const j = api.jscodeshift;
+  const printOptions = options.printOptions || { quote: 'single' };
   const root = j(file.source);
 
   let hasModifications;
@@ -187,6 +188,6 @@ module.exports = function(file, api, options) {
   hasModifications = replaceReactDOMReferences(j, root) || hasModifications;
 
   return hasModifications
-    ? root.toSource({ quote: 'single' })
+    ? root.toSource(printOptions)
     : null;
 };

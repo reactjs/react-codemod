@@ -12,6 +12,7 @@
 
 module.exports = function(file, api, options) {
   const j = api.jscodeshift;
+  const printOptions = options.printOptions || {};
   const root = j(file.source);
   const ReactUtils = require('./utils/ReactUtils')(j);
   const encodeJSXTextValue = value =>
@@ -251,7 +252,7 @@ module.exports = function(file, api, options) {
       .size();
 
     if (mutations) {
-      return root.toSource();
+      return root.toSource(printOptions);
     }
   }
 
