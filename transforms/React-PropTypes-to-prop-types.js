@@ -105,19 +105,33 @@ module.exports = function(file, api, options) {
     throw new Error('No PropTypes import found!');
   }
 
-  // Remove PropTypes destructure statements (eg const { PropTypes } = React)
+  // Remove PropTypes destructure statements, e.g.
+  // const { PropTypes } = React;
+  //   or
+  // const { PropTypes } = require('react');
   function removeDestructuredPropTypeStatements(j, root) {
     let hasModifications = false;
 
     root
       .find(j.ObjectPattern)
-      .filter(path => (
-        path.parent.node.init &&
-        path.parent.node.init.name === 'React' &&
-        path.node.properties.some(
-          property => property.key.name === 'PropTypes'
-        )
-      ))
+      .filter(path => {
+        const init = path.parent.node.init;
+        if (!init) {
+          return false;
+        }
+        if (!(
+          init.name === 'React' || // const { PropTypes } = React
+          (
+            init.type === 'CallExpression' &&
+            init.callee.name === 'require' &&
+            init.arguments.length && init.arguments[0].value === 'react'
+            // const { PropTypes } = require('react')
+          )
+        )) {
+          return false;
+        }
+        return path.node.properties.some(property => property.key.name === 'PropTypes');
+      })
       .forEach(path => {
         hasModifications = true;
 
