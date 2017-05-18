@@ -25,6 +25,7 @@ const tests = [
   'require-alias',
   'require-destructured-multi',
   'require-destructured-only',
+  'require-destructured-direct',
   'require',
 ];
 
