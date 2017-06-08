@@ -13,6 +13,7 @@ APIs.
   * `jscodeshift -t <codemod-script> <path>`
   * Use the `-d` option for a dry-run and use `-p` to print the output
     for comparison
+  * *Note:* React has to be required within the source files (e.g. `var React = require('react')`), otherwise the files will be ignored even if they have calls to a global React variable. 
 
 ### Included Scripts
 
