@@ -88,6 +88,16 @@ module.exports = function(file, api, options) {
           [j.importDefaultSpecifier(j.identifier(localPropTypesName))],
           j.literal(MODULE_NAME)
         );
+
+        // If there is a leading comment, retain it
+        // https://github.com/facebook/jscodeshift/blob/master/recipes/retain-first-comment.md
+        const firstNode = root.find(j.Program).get('body', 0).node;
+        const {comments} = firstNode;
+        if (comments) {
+          delete firstNode.comments;
+          importStatement.comments = comments;
+        }
+
         j(path).insertBefore(importStatement);
         return;
       }
