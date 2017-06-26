@@ -6,12 +6,12 @@ APIs.
 
 ### Setup & Run
 
-  * `yarn global add jscodeshift`
-  * `git clone https://github.com/reactjs/react-codemod.git` or download a zip file
+  1. `yarn global add jscodeshift`
+  2. `git clone https://github.com/reactjs/react-codemod.git` or download a zip file
     from `https://github.com/reactjs/react-codemod/archive/master.zip`
-  * Run `yarn install` in the react-codemod directory
-  * `jscodeshift -t <codemod-script> <path>`
-  * Use the `-d` option for a dry-run and use `-p` to print the output
+  3. Run `yarn install` in the react-codemod directory
+  4. `jscodeshift -t <codemod-script> <path>`
+  5. Use the `-d` option for a dry-run and use `-p` to print the output
     for comparison
 
 ### Included Scripts
