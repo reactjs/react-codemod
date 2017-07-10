@@ -12,7 +12,7 @@ APIs.
   * Run `yarn install` in the react-codemod directory
   * `jscodeshift -t <codemod-script> <path>`
   * Use the `-d` option for a dry-run and use `-p` to print the output
-    for comparison
+    for comparison. If you use flowtype, you might also need to use `--parser=flow`.
 
 ### Included Scripts
 
