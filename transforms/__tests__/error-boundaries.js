@@ -10,13 +10,7 @@
 
 "use strict";
 
-const tests = [
-  "class-component",
-  "create-class-component",
-  "function-component",
-  "function",
-  "variable"
-];
+const tests = ["class-component", "create-class-component"];
 
 const defineTest = require("jscodeshift/dist/testUtils").defineTest;
 
