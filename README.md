@@ -24,6 +24,14 @@ Converts calls to `React.createElement` into JSX elements.
 jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <path>
 ```
 
+#### `error-boundaries`
+
+Renames the experimental `unstable_handleError` lifecycle hook to `componentDidCatch`.
+
+```sh
+jscodeshift -t react-codemod/transforms/error-boundaries.js <path>
+```
+
 #### `findDOMNode`
 
 Updates `this.getDOMNode()` or `this.refs.foo.getDOMNode()` calls inside of
