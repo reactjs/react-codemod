@@ -83,7 +83,9 @@ module.exports = function(file, api, options) {
   // Program uses ES import syntax
   function useImportSyntax(j, root) {
     return root
-      .find(j.ImportDeclaration)
+      .find(j.ImportDeclaration, {
+        importKind: 'value'
+      })
       .length > 0;
   }
 

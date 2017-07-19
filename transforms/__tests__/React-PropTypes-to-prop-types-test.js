@@ -19,6 +19,7 @@ const tests = [
   'default-import',
   'destructured-proptypes-import',
   'import-alias',
+  'import-flow-type-with-require',
   'mixed-import-and-require',
   'mixed-import-and-require-2',
   'named-parameters',
