@@ -12,6 +12,7 @@
 
 const tests = [
   'assigned-from-react-var',
+  'assigned-to-var-with-different-name',
   'default-and-named-import',
   'default-import',
   'destructured-proptypes-import',

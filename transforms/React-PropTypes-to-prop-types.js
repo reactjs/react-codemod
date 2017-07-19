@@ -208,8 +208,13 @@ module.exports = function(file, api, options) {
         hasModifications = true;
 
         // VariableDeclarator should be removed entirely
-        // eg 'PropTypes = React.PropTypes'
-        if (path.parent.parent.node.type === 'VariableDeclarator') {
+        // eg 'const PropTypes = React.PropTypes'
+        // Don't remove pointers though
+        // eg 'const ReactPropTypes = PropTypes'
+        if (
+          path.parent.parent.node.type === 'VariableDeclarator' &&
+          path.parent.parent.node.id.name === 'PropTypes'
+        ) {
           j(path.parent.parent).remove();
         } else {
           // MemberExpression should be updated
