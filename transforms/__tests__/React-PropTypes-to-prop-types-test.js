@@ -11,6 +11,8 @@
 'use strict';
 
 const tests = [
+  'already-migrated-import',
+  'already-migrated-require',
   'assigned-from-react-var',
   'assigned-to-var-with-different-name',
   'default-and-named-import',

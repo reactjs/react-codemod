@@ -58,6 +58,21 @@ module.exports = function(file, api, options) {
     return target;
   }
 
+  function hasPropTypesImport(j, root) {
+    return root
+      .find(j.ImportDeclaration, {
+        source: {value: 'prop-types'}
+      })
+      .length > 0;
+  }
+
+  function hasPropTypesRequire(j, root) {
+    return root.find(j.CallExpression, {
+      callee: {name: 'require'},
+      arguments: {0: {value: 'prop-types'}}
+    }).length > 0;
+  }
+
   // React.PropTypes
   const isReactPropTypes = path => (
     path.node.name === 'PropTypes' &&
@@ -82,6 +97,12 @@ module.exports = function(file, api, options) {
   // If any PropTypes references exist, add a 'prop-types' import (or require)
   function addPropTypesImport(j, root) {
     if (useImportSyntax(j, root)) {
+      // Handle cases where 'prop-types' already exists;
+      // eg the file has already been codemodded but more React.PropTypes were added.
+      if (hasPropTypesImport(j, root)) {
+        return;
+      }
+
       const path = findImportAfterPropTypes(j, root);
       if (path) {
         const importStatement = j.importDeclaration(
@@ -91,6 +112,12 @@ module.exports = function(file, api, options) {
         j(path).insertBefore(importStatement);
         return;
       }
+    }
+
+    // Handle cases where 'prop-types' already exists;
+    // eg the file has already been codemodded but more React.PropTypes were added.
+    if (hasPropTypesRequire(j, root)) {
+      return;
     }
 
     const path = findRequireAfterPropTypes(j, root);
