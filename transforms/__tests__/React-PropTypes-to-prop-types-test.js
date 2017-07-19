@@ -11,12 +11,15 @@
 'use strict';
 
 const tests = [
+  'already-migrated-import',
+  'already-migrated-require',
   'assigned-from-react-var',
   'assigned-to-var-with-different-name',
   'default-and-named-import',
   'default-import',
   'destructured-proptypes-import',
   'import-alias',
+  'import-flow-type-with-require',
   'mixed-import-and-require',
   'mixed-import-and-require-2',
   'named-parameters',
