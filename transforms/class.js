@@ -1151,7 +1151,7 @@ module.exports = (file, api, options) => {
          ? j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), [specPath])
          : j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), classPath.value.arguments)
       ),
-      {comments},
+      {comments}
     );
   };
 
