@@ -31,6 +31,7 @@ const tests = [
   'require-destructured-only',
   'require-destructured-direct',
   'require',
+  'with-top-comment',
 ];
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
