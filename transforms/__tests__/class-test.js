@@ -36,6 +36,9 @@ defineTest(__dirname, 'class', {
 }, 'class/class-pure-mixin4');
 defineTest(__dirname, 'class', {
   ...pureMixinAlternativeOption,
+}, 'class/class-pure-mixin5');
+defineTest(__dirname, 'class', {
+  ...pureMixinAlternativeOption,
   ...enableFlowOption,
 }, 'class/class-top-comment');
 defineTest(__dirname, 'class', enableFlowOption, 'class/class-initial-state');

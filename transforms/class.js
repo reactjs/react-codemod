@@ -1287,8 +1287,12 @@ module.exports = (file, api, options) => {
             const bodyNode = path.parentPath.parentPath.parentPath.value;
             const variableDeclarationNode = path.parentPath.parentPath.value;
 
-            removePath = path.parentPath.parentPath;
-            shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+            if (variableDeclarationNode.declarations.length === 1) {
+              removePath = path.parentPath.parentPath;
+              shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+            } else {
+              removePath = path;
+            }
           } else {
             const importDeclarationNode = path.value;
             const bodyNode = path.parentPath.value;
