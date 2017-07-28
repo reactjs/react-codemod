@@ -8,9 +8,12 @@
  *
  */
 
-'use strict';
+"use strict";
 
-const defineTest = require('jscodeshift/dist/testUtils').defineTest;
-defineTest(__dirname, 'pure-component');
-defineTest(__dirname, 'pure-component', { useArrows: true }, 'pure-component2');
-defineTest(__dirname, 'pure-component', { destructuring: true }, 'pure-component-destructuring');
+const tests = ["class-component", "create-class-component"];
+
+const defineTest = require("jscodeshift/dist/testUtils").defineTest;
+
+tests.forEach(test => {
+  defineTest(__dirname, "error-boundaries", null, `error-boundaries/${test}`);
+});

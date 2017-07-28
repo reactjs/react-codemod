@@ -58,6 +58,21 @@ module.exports = function(file, api, options) {
     return target;
   }
 
+  function hasPropTypesImport(j, root) {
+    return root
+      .find(j.ImportDeclaration, {
+        source: {value: 'prop-types'}
+      })
+      .length > 0;
+  }
+
+  function hasPropTypesRequire(j, root) {
+    return root.find(j.CallExpression, {
+      callee: {name: 'require'},
+      arguments: {0: {value: 'prop-types'}}
+    }).length > 0;
+  }
+
   // React.PropTypes
   const isReactPropTypes = path => (
     path.node.name === 'PropTypes' &&
@@ -68,7 +83,9 @@ module.exports = function(file, api, options) {
   // Program uses ES import syntax
   function useImportSyntax(j, root) {
     return root
-      .find(j.ImportDeclaration)
+      .find(j.ImportDeclaration, {
+        importKind: 'value'
+      })
       .length > 0;
   }
 
@@ -82,15 +99,37 @@ module.exports = function(file, api, options) {
   // If any PropTypes references exist, add a 'prop-types' import (or require)
   function addPropTypesImport(j, root) {
     if (useImportSyntax(j, root)) {
+      // Handle cases where 'prop-types' already exists;
+      // eg the file has already been codemodded but more React.PropTypes were added.
+      if (hasPropTypesImport(j, root)) {
+        return;
+      }
+
       const path = findImportAfterPropTypes(j, root);
       if (path) {
         const importStatement = j.importDeclaration(
           [j.importDefaultSpecifier(j.identifier(localPropTypesName))],
           j.literal(MODULE_NAME)
         );
+
+        // If there is a leading comment, retain it
+        // https://github.com/facebook/jscodeshift/blob/master/recipes/retain-first-comment.md
+        const firstNode = root.find(j.Program).get('body', 0).node;
+        const {comments} = firstNode;
+        if (comments) {
+          delete firstNode.comments;
+          importStatement.comments = comments;
+        }
+
         j(path).insertBefore(importStatement);
         return;
       }
+    }
+
+    // Handle cases where 'prop-types' already exists;
+    // eg the file has already been codemodded but more React.PropTypes were added.
+    if (hasPropTypesRequire(j, root)) {
+      return;
     }
 
     const path = findRequireAfterPropTypes(j, root);
@@ -208,8 +247,13 @@ module.exports = function(file, api, options) {
         hasModifications = true;
 
         // VariableDeclarator should be removed entirely
-        // eg 'PropTypes = React.PropTypes'
-        if (path.parent.parent.node.type === 'VariableDeclarator') {
+        // eg 'const PropTypes = React.PropTypes'
+        // Don't remove pointers though
+        // eg 'const ReactPropTypes = PropTypes'
+        if (
+          path.parent.parent.node.type === 'VariableDeclarator' &&
+          path.parent.parent.node.id.name === 'PropTypes'
+        ) {
           j(path.parent.parent).remove();
         } else {
           // MemberExpression should be updated

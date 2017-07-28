@@ -147,13 +147,21 @@ module.exports = (file, api, options) => {
   );
 
   const hasSingleReturnStatement = value => (
-    value.type === 'FunctionExpression' &&
-    value.body &&
-    value.body.type === 'BlockStatement' &&
-    value.body.body &&
-    value.body.body.length === 1 &&
-    value.body.body[0].type === 'ReturnStatement' &&
-    value.body.body[0].argument
+    (
+      value.type === 'ArrowFunctionExpression' &&
+      value.body &&
+      value.body.type === 'ObjectExpression'
+    ) || (
+      (
+        value.type === 'FunctionExpression' || value.type === 'ArrowFunctionExpression'
+      ) &&
+      value.body &&
+      value.body.type === 'BlockStatement' &&
+      value.body.body &&
+      value.body.body.length === 1 &&
+      value.body.body[0].type === 'ReturnStatement' &&
+      value.body.body[0].argument
+    )
   );
 
   const isInitialStateLiftable = getInitialState => {
@@ -339,7 +347,11 @@ module.exports = (file, api, options) => {
   // Collectors
   const pickReturnValueOrCreateIIFE = value => {
     if (hasSingleReturnStatement(value)) {
-      return value.body.body[0].argument;
+      if (value.body.type === 'ObjectExpression') {
+        return value.body;
+      } else {
+        return value.body.body[0].argument;
+      }
     } else {
       return j.callExpression(
         value,
@@ -1151,7 +1163,7 @@ module.exports = (file, api, options) => {
          ? j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), [specPath])
          : j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), classPath.value.arguments)
       ),
-      {comments},
+      {comments}
     );
   };
 
@@ -1246,7 +1258,10 @@ module.exports = (file, api, options) => {
             shouldReinsertComment = bodyNode.indexOf(importDeclarationNode) === 0;
             removePath = path;
           } else {
-            j(path).find(j.ImportDefaultSpecifier).remove();
+            const paths = j(path).find(j.ImportDefaultSpecifier);
+            if (paths.length) {
+              removePath = j(path).find(j.ImportDefaultSpecifier).paths()[0];
+            }
           }
         }
 
@@ -1275,8 +1290,12 @@ module.exports = (file, api, options) => {
             const bodyNode = path.parentPath.parentPath.parentPath.value;
             const variableDeclarationNode = path.parentPath.parentPath.value;
 
-            removePath = path.parentPath.parentPath;
-            shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+            if (variableDeclarationNode.declarations.length === 1) {
+              removePath = path.parentPath.parentPath;
+              shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+            } else {
+              removePath = path;
+            }
           } else {
             const importDeclarationNode = path.value;
             const bodyNode = path.parentPath.value;

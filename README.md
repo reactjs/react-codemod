@@ -11,8 +11,9 @@ APIs.
     from `https://github.com/reactjs/react-codemod/archive/master.zip`
   3. Run `yarn install` in the react-codemod directory
   4. `jscodeshift -t <codemod-script> <path>`
-  5. Use the `-d` option for a dry-run and use `-p` to print the output
-    for comparison
+    * use the `-d` option for a dry-run and use `-p` to print the output
+    for comparison;
+    * if you use flowtype, you might also need to use `--parser=flow`.
 
 ### Included Scripts
 
@@ -22,6 +23,14 @@ Converts calls to `React.createElement` into JSX elements.
 
 ```sh
 jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <path>
+```
+
+#### `error-boundaries`
+
+Renames the experimental `unstable_handleError` lifecycle hook to `componentDidCatch`.
+
+```sh
+jscodeshift -t react-codemod/transforms/error-boundaries.js <path>
 ```
 
 #### `findDOMNode`
@@ -46,8 +55,15 @@ jscodeshift -t react-codemod/transforms/manual-bind-to-arrow.js <path>
 
 #### `pure-component`
 
+Converts ES6 classes that only have a render method, only have safe properties
+(statics and props), and do not have refs to Stateless Functional Components.
+
+Option `useArrows` converts to arrow function. Converts to `function` by default.  
+Option `destructuring` will destructure props in the argument where it is safe to do so.  
+Note these options must be passed on the command line as `--useArrows=true` (`--useArrows` won't work)
+
 ```sh
-jscodeshift -t react-codemod/transforms/pure-component.js <path>
+jscodeshift -t react-codemod/transforms/pure-component.js <path> [--useArrows=true --destructuring=true]
 ```
 
 #### `pure-render-mixin`

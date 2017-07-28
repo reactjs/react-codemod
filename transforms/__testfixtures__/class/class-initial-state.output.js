@@ -340,3 +340,23 @@ class WithMultiLineType extends React.Component {
     return null;
   }
 }
+
+class WithArrowFunction extends React.Component {
+  state: {heyoo: number} = {
+    heyoo: 23,
+  };
+
+  render() {
+    return null;
+  }
+}
+
+class WithArrowFunctionAndObject extends React.Component {
+  state: {heyoo: number} = {
+    heyoo: 23,
+  };
+
+  render() {
+    return null;
+  }
+}
