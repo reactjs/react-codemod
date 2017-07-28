@@ -1258,7 +1258,10 @@ module.exports = (file, api, options) => {
             shouldReinsertComment = bodyNode.indexOf(importDeclarationNode) === 0;
             removePath = path;
           } else {
-            j(path).find(j.ImportDefaultSpecifier).remove();
+            const paths = j(path).find(j.ImportDefaultSpecifier);
+            if (paths.length) {
+              removePath = j(path).find(j.ImportDefaultSpecifier).paths()[0];
+            }
           }
         }
 
