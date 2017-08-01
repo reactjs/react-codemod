@@ -81,6 +81,8 @@ export default function transformer(file, api) {
       // (this: any).method = this.method.bind(this);
       // or
       // self.method = this.method.bind(this);
+      // or
+      // this.method = ::this.method;
       if (!(
         path.node.left.type === 'MemberExpression' &&
         (
@@ -95,6 +97,7 @@ export default function transformer(file, api) {
         ) &&
         path.node.left.property.type === 'Identifier' &&
         ((
+          // `this.method.bind(this)` syntax
           path.node.right.type === 'CallExpression' &&
           path.node.right.callee.type === 'MemberExpression' &&
           path.node.right.callee.property.type === 'Identifier' &&
@@ -104,6 +107,7 @@ export default function transformer(file, api) {
           path.node.right.callee.object.object.type === 'ThisExpression' &&
           path.node.left.property.name === path.node.right.callee.object.property.name
         ) || (
+          // `::this.method` syntax
           path.node.right.type === 'BindExpression' &&
           path.node.right.callee.type === 'MemberExpression' &&
           path.node.right.callee.object.type === 'ThisExpression' &&
