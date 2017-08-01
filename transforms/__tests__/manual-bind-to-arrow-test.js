@@ -21,6 +21,7 @@ var TESTS = [
   6,
   7,
   8,
+  9,
 ];
 
 TESTS.forEach(test => {

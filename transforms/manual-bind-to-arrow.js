@@ -94,14 +94,22 @@ export default function transformer(file, api) {
           path.node.left.object.expression.type === 'ThisExpression'
         ) &&
         path.node.left.property.type === 'Identifier' &&
-        path.node.right.type === 'CallExpression' &&
-        path.node.right.callee.type === 'MemberExpression' &&
-        path.node.right.callee.property.type === 'Identifier' &&
-        path.node.right.callee.property.name === 'bind' &&
-        path.node.right.callee.object.type === 'MemberExpression' &&
-        path.node.right.callee.object.property.type === 'Identifier' &&
-        path.node.right.callee.object.object.type === 'ThisExpression' &&
-        path.node.left.property.name === path.node.right.callee.object.property.name &&
+        ((
+          path.node.right.type === 'CallExpression' &&
+          path.node.right.callee.type === 'MemberExpression' &&
+          path.node.right.callee.property.type === 'Identifier' &&
+          path.node.right.callee.property.name === 'bind' &&
+          path.node.right.callee.object.type === 'MemberExpression' &&
+          path.node.right.callee.object.property.type === 'Identifier' &&
+          path.node.right.callee.object.object.type === 'ThisExpression' &&
+          path.node.left.property.name === path.node.right.callee.object.property.name
+        ) || (
+          path.node.right.type === 'BindExpression' &&
+          path.node.right.callee.type === 'MemberExpression' &&
+          path.node.right.callee.object.type === 'ThisExpression' &&
+          path.node.right.callee.property.type === 'Identifier' &&
+          path.node.left.property.name === path.node.right.callee.property.name
+        )) &&
         true
       )) {
         return;
