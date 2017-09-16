@@ -158,7 +158,6 @@ module.exports = function(file, api) {
         }
         coreImportDeclaration = p;
         var defaultSpecifier = p.value.specifiers.find(sp => sp.type === j.ImportDefaultSpecifier.name);
-        var specifiers = p.value.specifiers.filter(sp => sp.type === j.ImportSpecifier.name);
         if (defaultSpecifier) {
           var name = defaultSpecifier.local.name;
           var scope = p.scope.lookup(name);
@@ -352,7 +351,9 @@ module.exports = function(file, api) {
       }
 
       function emitImport(name, path, knownProperties, uses) {
-        const usedProperties = coreImportDeclaration.value.specifiers.filter(sp => sp.type === j.ImportSpecifier.name).filter(sp =>
+        const usedProperties = coreImportDeclaration.value.specifiers.filter(
+          sp => sp.type === j.ImportSpecifier.name
+        ).filter(sp =>
           sp.imported.type === 'Identifier' && knownProperties.indexOf(sp.imported.name) !== -1
         ).map(sp => sp.imported.name);
 
