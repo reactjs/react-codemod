@@ -14,3 +14,4 @@ const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 defineTest(__dirname, 'sort-comp');
 defineTest(__dirname, 'sort-comp', null, 'sort-comp2');
 defineTest(__dirname, 'sort-comp', null, 'sort-comp3');
+defineTest(__dirname, 'sort-comp', null, 'sort-comp-pure');
