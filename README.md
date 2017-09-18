@@ -12,6 +12,8 @@ APIs.
 1. `jscodeshift -t <codemod-script> <path>`
    * use the `-d` option for a dry-run and use `-p` to print the output for comparison;
    * if you use flowtype, you might also need to use `--parser=flow`.
+   * if you are modifying `jsx` files, you will need to use `--extensions=jsx`
+   * a comma-delimited list of extensions for the `--extensions` flag also works for additional file types
 
 ### Included Scripts
 
