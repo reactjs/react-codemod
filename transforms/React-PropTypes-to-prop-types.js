@@ -195,7 +195,9 @@ module.exports = function(file, api, options) {
         // Add back any nested destructured children.
         if (nestedPropTypesChildren) {
           // TODO: This shouldn't just use a template string but the `ast-types` docs were too opaque for me to follow.
-          const propTypeChildren = nestedPropTypesChildren.value.properties.map(property => property.key.name).join(', ');
+          const propTypeChildren = nestedPropTypesChildren.value.properties.map(
+            property => property.key.name
+          ).join(', ');
           const destructureStatement = j.template.statement([`const { ${propTypeChildren} } = ${localPropTypesName};`]);
 
           j(path.parent.parent).insertBefore(destructureStatement);

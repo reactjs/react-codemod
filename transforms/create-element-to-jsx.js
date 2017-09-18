@@ -114,7 +114,7 @@ module.exports = function(file, api, options) {
       return {
         attributes: [],
         extraComments: expression.comments || [],
-      }
+      };
     } else {
       throw new Error(`Unexpected attribute of type "${expression.type}"`);
     }
@@ -141,7 +141,7 @@ module.exports = function(file, api, options) {
         comments: propertyComments
       } = jsxIdentifierFor(node.property);
       identifier = j.jsxMemberExpression(objectIdentifier, propertyIdentifier);
-      comments.push(...objectComments, ...propertyComments)
+      comments.push(...objectComments, ...propertyComments);
     } else {
       identifier = j.jsxIdentifier(node.name);
     }

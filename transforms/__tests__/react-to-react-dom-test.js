@@ -32,5 +32,5 @@ describe('react-to-react-dom', () => {
       null,
       `react-to-react-dom/${ test }`
     )
-  )
+  );
 });

@@ -4,8 +4,8 @@ module.exports = function(file, api, options) {
   return j(file.source)
     .find(j.Identifier)
     .forEach(path => {
-      if (path.node.name === "unstable_handleError") {
-        j(path).replaceWith(j.identifier("componentDidCatch"));
+      if (path.node.name === 'unstable_handleError') {
+        j(path).replaceWith(j.identifier('componentDidCatch'));
       }
     })
     .toSource();

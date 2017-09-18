@@ -12,11 +12,11 @@
 
 const isReactNativeImport = path => (
   path.parent.node.source.value === 'react-native'
-)
+);
 
 const isReactNativeRequire = path => (
   path.node.arguments.some(argument => argument.value === 'react-native')
-)
+);
 
 const isRootViewReference = path => (
   path.node.name === 'View' &&
@@ -102,7 +102,7 @@ module.exports = function(file, api, options) {
       .length === 0;
 
     // Determine which kind of import/require() we should create based on file contents
-    let useHasteModules = false
+    let useHasteModules = false;
     if (fileUsesImports) {
       useHasteModules = root
         .find(j.ImportSpecifier)
@@ -118,15 +118,15 @@ module.exports = function(file, api, options) {
     // Create a require statement or an import, based on file convention
     let importOrRequireStatement;
     if (fileUsesImports) {
-        const identifier = j.identifier('ViewPropTypes');
-        const variable = useHasteModules === true
+      const identifier = j.identifier('ViewPropTypes');
+      const variable = useHasteModules === true
           ? j.importDefaultSpecifier(identifier)
           : j.importSpecifier(identifier);
-        const source = useHasteModules === true
+      const source = useHasteModules === true
           ? 'ViewPropTypes'
-          : 'react-native'
+          : 'react-native';
 
-        importOrRequireStatement = j.importDeclaration(
+      importOrRequireStatement = j.importDeclaration(
           [variable], j.literal(source)
         );
     } else {
