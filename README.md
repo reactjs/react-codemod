@@ -1,6 +1,6 @@
 ## react-codemod [![Build Status](https://travis-ci.org/reactjs/react-codemod.svg)](https://travis-ci.org/reactjs/react-codemod)
 
-This repository contains a collection of codemod scripts based for use with
+This repository contains a collection of codemod scripts for use with
 [JSCodeshift](https://github.com/facebook/jscodeshift) that help update React
 APIs.
 
