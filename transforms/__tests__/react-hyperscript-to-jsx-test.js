@@ -12,24 +12,24 @@
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 describe('react-hyperscript-to-jsx', () => {
-  defineTest(
-    __dirname,
-    'react-hyperscript-to-jsx',
-    null,
-    'react-hyperscript-to-jsx-single-element'
-  );
+  // defineTest(
+  //   __dirname,
+  //   'react-hyperscript-to-jsx',
+  //   null,
+  //   'react-hyperscript-to-jsx-single-element'
+  // );
   // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',
   //   null,
   //   'react-hyperscript-to-jsx-props'
   // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-props-boolean'
-  // );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-props-boolean'
+  );
   // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',

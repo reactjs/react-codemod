@@ -153,10 +153,9 @@ module.exports = function(file, api, options) {
     (node.type === 'Identifier' && /^[a-z]/.test(node.name));
 
   const convertNodeToJSX = (node) => {
-    console.log(node);
     const comments = node.value && node.value.comments || [];
     const {callee} = node.value;
-    for (const calleeNode of [callee, callee.object, callee.property]) {
+    for (const calleeNode of [callee]) {
       for (const comment of calleeNode.comments || []) {
         comment.leading = true;
         comment.trailing = false;
@@ -233,8 +232,9 @@ module.exports = function(file, api, options) {
   };
 
   if (
-    options['explicit-require'] === false ||
-    ReactUtils.hasReact(root)
+    // options['explicit-require'] === false ||
+    // ReactUtils.hasReact(root)
+    true
   ) {
     const mutations = root
       .find(j.CallExpression, {
