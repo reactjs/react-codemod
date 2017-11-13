@@ -10,8 +10,12 @@ APIs.
 1. `git clone https://github.com/reactjs/react-codemod.git` or download a zip file from `https://github.com/reactjs/react-codemod/archive/master.zip`
 1. Run `yarn install` in the react-codemod directory
 1. `jscodeshift -t <codemod-script> <path>`
+   * `codemod-script` - path to the transform file, see available scripts below;
+   * `path` - files or directory to transform;
    * use the `-d` option for a dry-run and use `-p` to print the output for comparison;
-   * if you use flowtype, you might also need to use `--parser=flow`.
+   * use the `--extensions` option if your files have different extensions than `.js` (for example, `--extensions js,jsx`);
+   * if you use flowtype, you might also need to use `--parser=flow`;
+   * see all available [jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli).
 
 ### Included Scripts
 
