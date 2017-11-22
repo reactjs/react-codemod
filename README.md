@@ -9,9 +9,9 @@ APIs.
 1. `yarn global add jscodeshift`
 1. `git clone https://github.com/reactjs/react-codemod.git` or download a zip file from `https://github.com/reactjs/react-codemod/archive/master.zip`
 1. Run `yarn install` in the react-codemod directory
-1. `jscodeshift -t <codemod-script> <path>`
-   * `codemod-script` - path to the transform file, see available scripts below;
+1. `jscodeshift <path> -t <codemod-script>`
    * `path` - files or directory to transform;
+   * `codemod-script` - path to the transform file, see available scripts below;
    * use the `-d` option for a dry-run and use `-p` to print the output for comparison;
    * use the `--extensions` option if your files have different extensions than `.js` (for example, `--extensions js,jsx`);
    * if you use flowtype, you might also need to use `--parser=flow`;
@@ -24,7 +24,7 @@ APIs.
 Converts calls to `React.createElement` into JSX elements.
 
 ```sh
-jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <path>
+jscodeshift <path> -t react-codemod/transforms/create-element-to-jsx.js
 ```
 
 #### `error-boundaries`
@@ -32,7 +32,7 @@ jscodeshift -t react-codemod/transforms/create-element-to-jsx.js <path>
 Renames the experimental `unstable_handleError` lifecycle hook to `componentDidCatch`.
 
 ```sh
-jscodeshift -t react-codemod/transforms/error-boundaries.js <path>
+jscodeshift <path> -t react-codemod/transforms/error-boundaries.js
 ```
 
 #### `findDOMNode`
@@ -44,7 +44,7 @@ the component instance or its refs. You can use this script to update most calls
 to `getDOMNode` and then manually go through the remaining calls.
 
 ```sh
-jscodeshift -t react-codemod/transforms/findDOMNode.js <path>
+jscodeshift <path> -t react-codemod/transforms/findDOMNode.js
 ```
 
 #### `manual-bind-to-arrow`
@@ -52,7 +52,7 @@ jscodeshift -t react-codemod/transforms/findDOMNode.js <path>
 Converts manual function bindings in a class (e.g., `this.f = this.f.bind(this)`) to arrow property initializer functions (e.g., `f = () => {}`).
 
 ```sh
-jscodeshift -t react-codemod/transforms/manual-bind-to-arrow.js <path>
+jscodeshift <path> -t react-codemod/transforms/manual-bind-to-arrow.js
 ```
 
 #### `pure-component`
@@ -65,7 +65,7 @@ Option `destructuring` will destructure props in the argument where it is safe t
 Note these options must be passed on the command line as `--useArrows=true` (`--useArrows` won't work)
 
 ```sh
-jscodeshift -t react-codemod/transforms/pure-component.js <path> [--useArrows=true --destructuring=true]
+jscodeshift <path> -t react-codemod/transforms/pure-component.js [--useArrows=true --destructuring=true]
 ```
 
 #### `pure-render-mixin`
@@ -76,7 +76,7 @@ class. NOTE: This currently only works if you are using the master version
 (>0.13.1) of React as it is using `React.addons.shallowCompare`
 
 ```sh
-jscodeshift -t react-codemod/transforms/pure-render-mixin.js <path>
+jscodeshift <path> -t react-codemod/transforms/pure-render-mixin.js
 ```
 
  * If `--mixin-name=<name>` is specified it will look for the specified name
@@ -89,7 +89,7 @@ jscodeshift -t react-codemod/transforms/pure-render-mixin.js <path>
 Replaces `React.PropTypes` references with `prop-types` and adds the appropriate `import` or `require` statement. This codemod is intended for React 15.5+.
 
 ```sh
-jscodeshift -t react-codemod/transforms/React-PropTypes-to-prop-types.js <path>
+jscodeshift <path> -t react-codemod/transforms/React-PropTypes-to-prop-types.js
 ```
 
   * In addition to running the above codemod you will also need to install the 'prop-types' NPM package.
@@ -103,7 +103,7 @@ not support ES6 modules or other non-CommonJS systems. We recommend performing
 the `findDOMNode` conversion first.
 
 ```sh
-jscodeshift -t react-codemod/transforms/react-to-react-dom.js <path>
+jscodeshift <path> -t react-codemod/transforms/react-to-react-dom.js
 ```
 
   * After running the automated codemod, you may want to run a regex-based
@@ -117,7 +117,7 @@ jscodeshift -t react-codemod/transforms/react-to-react-dom.js <path>
 Replaces `View.propTypes` references with `ViewPropTypes` and adds the appropriate `import` or `require` statement. This codemod is intended for ReactNative 44+.
 
 ```sh
-jscodeshift -t react-codemod/transforms/ReactNative-View-propTypes.js <path>
+jscodeshift <path> -t react-codemod/transforms/ReactNative-View-propTypes.js
 ```
 
 #### `sort-comp`
@@ -128,7 +128,7 @@ rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/so
 guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e9b2748b9e/packages/eslint-config-airbnb/rules/react.js#L122-L134).
 
 ```sh
-jscodeshift -t react-codemod/transforms/sort-comp.js <path>
+jscodeshift <path> -t react-codemod/transforms/sort-comp.js
 ```
 
 ### Explanation of the new ES2015 class transform with property initializers
@@ -173,7 +173,7 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 
 #### Usage
 ```bash
-jscodeshift -t ./transforms/class.js --mixin-module-name=react-addons-pure-render-mixin --flow=true --pure-component=true --remove-runtime-proptypes=false <path>
+jscodeshift <path> -t ./transforms/class.js --mixin-module-name=react-addons-pure-render-mixin --flow=true --pure-component=true --remove-runtime-proptypes=false
 ```
 
 ### Recast Options
@@ -182,7 +182,7 @@ Options to [recast](https://github.com/benjamn/recast)'s printer can be provided
 through the `printOptions` command line argument
 
 ```sh
-jscodeshift -t transform.js <path> --printOptions='{"quote":"double"}'
+jscodeshift <path> -t transform.js --printOptions='{"quote":"double"}'
 ```
 
 ### Support and Contributing
