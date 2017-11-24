@@ -220,7 +220,8 @@ module.exports = function(file, api, options) {
       .find(j.Identifier)
       .filter(path => (
         path.node.name === 'PropTypes' &&
-        path.parent.node.type === 'ImportSpecifier'
+        path.parent.node.type === 'ImportSpecifier' &&
+        path.parent.parent.node.source.value === 'react'
       ))
       .forEach(path => {
         hasModifications = true;
