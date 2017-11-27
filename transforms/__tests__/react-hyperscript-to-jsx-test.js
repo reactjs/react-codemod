@@ -24,12 +24,12 @@ describe('react-hyperscript-to-jsx', () => {
   //   null,
   //   'react-hyperscript-to-jsx-props'
   // );
-  defineTest(
-    __dirname,
-    'react-hyperscript-to-jsx',
-    null,
-    'react-hyperscript-to-jsx-props-boolean'
-  );
+  // defineTest(
+  //   __dirname,
+  //   'react-hyperscript-to-jsx',
+  //   null,
+  //   'react-hyperscript-to-jsx-props-boolean'
+  // );
   // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',
@@ -42,12 +42,12 @@ describe('react-hyperscript-to-jsx', () => {
   //   null,
   //   'react-hyperscript-to-jsx-children-literal'
   // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-children'
-  // );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-children'
+  );
   // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',

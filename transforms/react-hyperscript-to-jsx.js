@@ -155,15 +155,18 @@ module.exports = function(file, api, options) {
   const convertNodeToJSX = (node) => {
     const comments = node.value && node.value.comments || [];
     const {callee} = node.value;
-    for (const calleeNode of [callee]) {
-      for (const comment of calleeNode.comments || []) {
-        comment.leading = true;
-        comment.trailing = false;
-        comments.push(comment);
-      }
-    }
+    // for (const calleeNode of [callee]) {
+    //   for (const comment of calleeNode.comments || []) {
+    //     comment.leading = true;
+    //     comment.trailing = false;
+    //     comments.push(comment);
+    //   }
+    // }
 
-    const args = node.value.arguments;
+    let args = node.value.arguments;
+    if (args[2] && args[2].elements) {
+      args = [args[0], args[1]].concat(args[2].elements);
+    }
 
     if (isCapitalizationInvalid(args[0]) || !canConvertToJSXIdentifier(args[0])) {
       return node.value;
@@ -191,8 +194,8 @@ module.exports = function(file, api, options) {
           child.value.trim() === child.value) {
         return j.jsxText(encodeJSXTextValue(child.value));
       } else if (child.type === 'CallExpression' &&
-        child.identifier &&
-        child.identifier === 'h') {
+        child.callee &&
+        child.callee.name === 'h') {
         const jsxChild = convertNodeToJSX(node.get('arguments', index + 2));
         if (jsxChild.type !== 'JSXElement' || (jsxChild.comments || []).length > 0) {
           return j.jsxExpressionContainer(jsxChild);
