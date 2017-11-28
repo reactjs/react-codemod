@@ -166,14 +166,6 @@ module.exports = function (file, api, options) {
 
         let args;
 
-        // if (node.value && node.value.type === 'ArrayExpression') {
-        //     args = node.value.elements;
-        //     return convertArrayExpressionToJSX(args);
-        // }
-        // if (node.value.elements[1]) {
-        //     args[2] = node.value.elements[1];
-        // }
-        // } else
         if (node.value && node.value.arguments) {
             args = node.value.arguments;
         } else {
