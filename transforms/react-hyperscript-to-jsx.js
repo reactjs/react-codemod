@@ -180,6 +180,10 @@ module.exports = function (file, api, options) {
             args = node.arguments;
         }
 
+        if (!args[2] && args[1].type === "ArrayExpression") {
+            args[2] = args[1];
+            args[1] = j.nullLiteralTypeAnnotation();
+        }
         if (args[2] && args[2].elements && args[2].type) {
             args = [args[0], args[1]].concat(args[2].elements);
         }
@@ -228,7 +232,6 @@ module.exports = function (file, api, options) {
             } else if (child.type === 'ArrayExpression') {
                 if (!child.value) {
                     child.value = child;
-                    // child.value.elements = elements;
                 }
                 return convertArrayExpressionToJSX(child.value.elements);
             } else if (child.type === 'SpreadElement') {

@@ -42,36 +42,36 @@ describe('react-hyperscript-to-jsx', () => {
   //   null,
   //   'react-hyperscript-to-jsx-children-literal'
   // );
-  defineTest(
-    __dirname,
-    'react-hyperscript-to-jsx',
-    null,
-    'react-hyperscript-to-jsx-children'
-  );
-    defineTest(
-        __dirname,
-        'react-hyperscript-to-jsx',
-        null,
-        'react-hyperscript-to-jsx-children-nested'
-    );
-  defineTest(
-        __dirname,
-        'react-hyperscript-to-jsx',
-        null,
-        'react-hyperscript-to-jsx-children-base'
-    );
-    // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-children-map'
-  // );
   // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',
   //   null,
-  //   'react-hyperscript-to-jsx-children-mixed-empty-string'
+  //   'react-hyperscript-to-jsx-children'
   // );
+  //   defineTest(
+  //       __dirname,
+  //       'react-hyperscript-to-jsx',
+  //       null,
+  //       'react-hyperscript-to-jsx-children-nested'
+  //   );
+  // defineTest(
+  //       __dirname,
+  //       'react-hyperscript-to-jsx',
+  //       null,
+  //       'react-hyperscript-to-jsx-children-base'
+  //   ); // todo up to here works
+    // defineTest(
+    //  __dirname,
+    // 'react-hyperscript-to-jsx',
+    // null,
+    // 'react-hyperscript-to-jsx-children-map'
+  // );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-children-mixed-empty-string'
+  );
   // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',
