@@ -48,7 +48,19 @@ describe('react-hyperscript-to-jsx', () => {
     null,
     'react-hyperscript-to-jsx-children'
   );
-  // defineTest(
+    defineTest(
+        __dirname,
+        'react-hyperscript-to-jsx',
+        null,
+        'react-hyperscript-to-jsx-children-nested'
+    );
+  defineTest(
+        __dirname,
+        'react-hyperscript-to-jsx',
+        null,
+        'react-hyperscript-to-jsx-children-base'
+    );
+    // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',
   //   null,
@@ -181,15 +193,15 @@ describe('react-hyperscript-to-jsx', () => {
   //   'react-hyperscript-to-jsx-element-comment-positioning'
   // );
 
-  it('throws when it does not recognize a property type', () => {
-    const jscodeshift = require('jscodeshift');
-    const transform = require('../../transforms/react-hyperscript-to-jsx');
-    const source = `
-      var React = require("react/addons");
-      React.createElement("foo", 1)
-    `;
-
-    expect(() => transform({source}, {jscodeshift}, {}))
-      .toThrowError('Unexpected attribute of type "Literal"');
-  });
+  // it('throws when it does not recognize a property type', () => {
+  //   const jscodeshift = require('jscodeshift');
+  //   const transform = require('../../transforms/react-hyperscript-to-jsx');
+  //   const source = `
+  //     var React = require("react/addons");
+  //     React.createElement("foo", 1)
+  //   `;
+  //
+  //   expect(() => transform({source}, {jscodeshift}, {}))
+  //     .toThrowError('Unexpected attribute of type "Literal"');
+  // });
 });
