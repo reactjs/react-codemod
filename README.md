@@ -96,7 +96,7 @@ jscodeshift -t react-codemod/transforms/React-PropTypes-to-prop-types.js <path>
 
 #### `rename-unsafe-lifecycles`
 
-Adds "unsafe_" prefix for deprecated lifecycle hooks. (For more information about this codemod, see [React RFC #6](https://github.com/reactjs/rfcs/pull/6))
+Adds "UNSAFE_" prefix for deprecated lifecycle hooks. (For more information about this codemod, see [React RFC #6](https://github.com/reactjs/rfcs/pull/6))
 
 ```sh
 jscodeshift -t react-codemod/transforms/rename-unsafe-lifecycles.js <path>

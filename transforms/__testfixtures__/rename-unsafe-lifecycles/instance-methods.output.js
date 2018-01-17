@@ -1,19 +1,19 @@
 const React = require('React');
 
 class ClassComponent extends React.Component {
-  unsafe_componentWillMount() {
+  UNSAFE_componentWillMount() {
     // componentWillMount
   }
   componentDidMount() {
     // componentDidMount
   }
-  unsafe_componentWillUpdate(nextProps, nextState) {
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
     // componentWillUpdate
   }
   componentDidUpdate(prevProps, prevState) {
     // componentDidUpdate
   }
-  unsafe_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // componentWillReceiveProps
   }
   componentWillUnmount() {

@@ -4,19 +4,19 @@ const MyComponent = createReactClass({
   displayName: 'MyComponent',
   mixins: [
     {
-      unsafe_componentWillMount() {
+      UNSAFE_componentWillMount() {
         // componentWillMount
       },
       componentDidMount() {
         // componentDidMount
       },
-      unsafe_componentWillUpdate(nextProps, nextState) {
+      UNSAFE_componentWillUpdate(nextProps, nextState) {
         // componentWillUpdate
       },
       componentDidUpdate(prevProps, prevState) {
         // componentDidUpdate
       },
-      unsafe_componentWillReceiveProps(nextProps) {
+      UNSAFE_componentWillReceiveProps(nextProps) {
         // componentWillReceiveProps
       },
       componentWillUnmount() {
@@ -24,19 +24,19 @@ const MyComponent = createReactClass({
       },
     },
   ],
-  unsafe_componentWillMount() {
+  UNSAFE_componentWillMount() {
     // componentWillMount
   },
   componentDidMount() {
     // componentDidMount
   },
-  unsafe_componentWillUpdate(nextProps, nextState) {
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
     // componentWillUpdate
   },
   componentDidUpdate(prevProps, prevState) {
     // componentDidUpdate
   },
-  unsafe_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // componentWillReceiveProps
   },
   componentWillUnmount() {

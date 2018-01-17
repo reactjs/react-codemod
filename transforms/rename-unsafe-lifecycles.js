@@ -11,9 +11,9 @@
 'use strict';
 
 const DEPRECATED_APIS = Object.create(null);
-DEPRECATED_APIS.componentWillMount = 'unsafe_componentWillMount';
-DEPRECATED_APIS.componentWillReceiveProps = 'unsafe_componentWillReceiveProps';
-DEPRECATED_APIS.componentWillUpdate = 'unsafe_componentWillUpdate';
+DEPRECATED_APIS.componentWillMount = 'UNSAFE_componentWillMount';
+DEPRECATED_APIS.componentWillReceiveProps = 'UNSAFE_componentWillReceiveProps';
+DEPRECATED_APIS.componentWillUpdate = 'UNSAFE_componentWillUpdate';
 
 export default (file, api, options) => {
   const j = api.jscodeshift;
