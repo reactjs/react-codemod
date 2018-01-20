@@ -55,6 +55,27 @@ Converts manual function bindings in a class (e.g., `this.f = this.f.bind(this)`
 jscodeshift -t react-codemod/transforms/manual-bind-to-arrow.js <path>
 ```
 
+#### `function-component`
+
+Converts React ES6 class components to stateless functional components where possible.
+
+Converts components that
+ - do not have any lifecycle methods other than render
+ - have either no constructor or a constructor that only calls `super()` or `super(props)`
+ - do not use refs
+
+Also pulls statics out and add them as properties to the function component so that statics like propTypes are preserved.
+
+Attempt to destructure props where possible.
+
+```sh
+jscodeshift -t react-codemod/transforms/function-component.js <path>
+```
+
+NOTE:
+
+Although this codemod detects when refs are used within a function component, it unfortunately cannot detect cases where a ref is put on a function component. This is because this may happen outside the file that the function component is defined.
+
 #### `pure-component`
 
 Converts ES6 classes that only have a render method, only have safe properties
