@@ -36,6 +36,19 @@ export default (file, api, options) => {
     }
   };
 
+  const renameDeprecatedCallExpressions = path => {
+    if (!path.node.callee || !path.node.callee.property) {
+      return;
+    }
+
+    const name = path.node.callee.property.name;
+
+    if (DEPRECATED_APIS[name]) {
+      path.node.callee.property.name = DEPRECATED_APIS[name];
+      hasModifications = true;
+    }
+  };
+
   // Class methods
   root
     .find(j.MethodDefinition)
@@ -50,6 +63,11 @@ export default (file, api, options) => {
   root
     .find(j.Property)
     .forEach(renameDeprecatedApis);
+
+  // Function calls
+  root
+    .find(j.CallExpression)
+    .forEach(renameDeprecatedCallExpressions);
 
   return hasModifications
     ? root.toSource(printOptions)

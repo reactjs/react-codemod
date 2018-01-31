@@ -14,6 +14,8 @@ const tests = [
   'arrow-functions',
   'create-react-class',
   'instance-methods',
+  'manually-calling-lifecycles',
+  'one-lifecycle-calls-another',
   'standalone-function',
   'variable-within-class-method',
 ];
