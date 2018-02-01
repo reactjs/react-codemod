@@ -15,6 +15,7 @@ const tests = [
   'create-react-class',
   'instance-methods',
   'manually-calling-lifecycles',
+  'manually-invoked-mixin-methods',
   'one-lifecycle-calls-another',
   'standalone-function',
   'variable-within-class-method',
