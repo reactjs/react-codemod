@@ -179,6 +179,23 @@ module.exports = (file, api, options) => {
       (acc, name) =>
         acc + j(classPath)
           .find(j.Identifier, {name})
+          .filter(path => {
+            // Do not consider history.replaceState() deprecated
+            let correctContext = true;
+
+            if (
+              name === 'replaceState' &&
+              path.parentPath &&
+              path.parentPath.value &&
+              path.parentPath.value.object &&
+              path.parentPath.value.object.name &&
+              path.parentPath.value.object.name === 'history'
+            ) {
+              correctContext = false;
+            }
+
+            return correctContext;
+          })
           .size(),
       0
     ) > 0;
