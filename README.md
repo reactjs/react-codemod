@@ -184,6 +184,10 @@ jscodeshift -t react-codemod/transforms/sort-comp.js <path>
 jscodeshift -t ./transforms/class.js --mixin-module-name=react-addons-pure-render-mixin --flow=true --pure-component=true --remove-runtime-proptypes=false <path>
 ```
 
+### FAQ
+#### Why it is skipping all my files?
+It expects that you have import react statement in top of your input files. If you are referencing react from script elements, then you may not have these. In that case you need to provide `--explicit-require=false` switch. 
+
 ### Recast Options
 
 Options to [recast](https://github.com/benjamn/recast)'s printer can be provided
