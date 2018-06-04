@@ -117,12 +117,18 @@ const defaultMethodsOrder = [
   'state',
   'getInitialState',
   'getChildContext',
+  'getDerivedStateFromProps',
   'componentWillMount',
+  'UNSAFE_componentWillMount',
   'componentDidMount',
   'componentWillReceiveProps',
+  'UNSAFE_componentWillReceiveProps',
   'shouldComponentUpdate',
   'componentWillUpdate',
+  'UNSAFE_componentWillUpdate',
+  'getSnapshotBeforeUpdate',
   'componentDidUpdate',
+  'componentDidCatch',
   'componentWillUnmount',
   '/^on.+$/',
   '/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/',
@@ -135,11 +141,11 @@ const defaultMethodsOrder = [
 const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
 
 function selectorMatches(selector, method) {
-  if (method.static && selector === 'static-methods') {
+  const methodName = method.key.name;
+
+  if ((method.static && selector === 'static-methods') && !defaultMethodsOrder.includes(methodName)) {
     return true;
   }
-
-  const methodName = method.key.name;
 
   if (selector === methodName) {
     return true;
