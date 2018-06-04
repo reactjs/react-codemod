@@ -143,7 +143,7 @@ const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
 function selectorMatches(selector, method) {
   const methodName = method.key.name;
 
-  if ((method.static && selector === 'static-methods') && !defaultMethodsOrder.includes(methodName)) {
+  if ((method.static && selector === 'static-methods') && defaultMethodsOrder.indexOf(methodName) === -1) {
     return true;
   }
 
