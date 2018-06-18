@@ -59,19 +59,19 @@ describe('react-hyperscript-to-jsx', () => {
   //       'react-hyperscript-to-jsx',
   //       null,
   //       'react-hyperscript-to-jsx-children-base'
-  //   ); // todo up to here works
-    // defineTest(
-    //  __dirname,
-    // 'react-hyperscript-to-jsx',
-    // null,
-    // 'react-hyperscript-to-jsx-children-map'
+  //   );
+  //   defineTest(
+  //    __dirname,
+  //   'react-hyperscript-to-jsx',
+  //   null,
+  //   'react-hyperscript-to-jsx-children-map'
   // );
-  defineTest(
-    __dirname,
-    'react-hyperscript-to-jsx',
-    null,
-    'react-hyperscript-to-jsx-children-mixed-empty-string'
-  );
+  // defineTest(
+  //   __dirname,
+  //   'react-hyperscript-to-jsx',
+  //   null,
+  //   'react-hyperscript-to-jsx-children-mixed-empty-string'
+  // );
   // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',
@@ -156,12 +156,12 @@ describe('react-hyperscript-to-jsx', () => {
   //   null,
   //   'react-hyperscript-to-jsx-preserve-comments'
   // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-ignore-bad-capitalization'
-  // );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-ignore-bad-capitalization'
+  );
   // defineTest(
   //   __dirname,
   //   'react-hyperscript-to-jsx',
@@ -192,7 +192,7 @@ describe('react-hyperscript-to-jsx', () => {
   //   null,
   //   'react-hyperscript-to-jsx-element-comment-positioning'
   // );
-
+  //
   // it('throws when it does not recognize a property type', () => {
   //   const jscodeshift = require('jscodeshift');
   //   const transform = require('../../transforms/react-hyperscript-to-jsx');

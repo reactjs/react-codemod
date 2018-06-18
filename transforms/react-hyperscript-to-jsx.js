@@ -115,6 +115,9 @@ module.exports = function (file, api, options) {
                 attributes: [],
                 extraComments: expression.comments || [],
             };
+        } else if (expression.type === 'ArrayExpression') {
+            console.log('yp;o');
+
         } else {
             throw new Error(`Unexpected attribute of type "${expression.type}"`);
         }
@@ -172,7 +175,7 @@ module.exports = function (file, api, options) {
             args = node.arguments;
         }
 
-        if (!args[2] && args[1].type === "ArrayExpression") {
+        if (!args[2] && args[1] && args[1].type === "ArrayExpression") {
             args[2] = args[1];
             args[1] = j.nullLiteralTypeAnnotation();
         }
