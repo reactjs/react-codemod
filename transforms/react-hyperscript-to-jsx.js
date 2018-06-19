@@ -183,7 +183,7 @@ module.exports = function (file, api, options) {
             args = [args[0], args[1]].concat(args[2].elements);
         }
 
-
+        // todo figure out why a nested foo doesn't make it back
         if (isCapitalizationInvalid(args[0]) || !canConvertToJSXIdentifier(args[0]) && node.value.type !== 'ArrayExpression') {
             return node.value;
         }
@@ -213,7 +213,10 @@ module.exports = function (file, api, options) {
                 child.callee &&
                 child.callee.name === 'h') {
                 let jsxChild;
-                if (!child.value) {
+                if (child.callee.name == 'h') {
+                    child.value = child;
+                    jsxChild = convertNodeToJSX(child);
+                } else if (!child.value) {
                     child.value = child.callee;
                     jsxChild = convertNodeToJSX(child);
                 } else {
