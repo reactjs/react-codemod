@@ -12,224 +12,224 @@
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 describe('react-hyperscript-to-jsx', () => {
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-single-element'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-props'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-props-boolean'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-props-array'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-children-literal'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-children'
-  // );
-  //   defineTest(
-  //       __dirname,
-  //       'react-hyperscript-to-jsx',
-  //       null,
-  //       'react-hyperscript-to-jsx-children-nested'
-  //   );
-  // defineTest(
-  //       __dirname,
-  //       'react-hyperscript-to-jsx',
-  //       null,
-  //       'react-hyperscript-to-jsx-children-base'
-  //   );
-  //   defineTest(
-  //    __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-children-map'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-children-mixed-empty-string'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-spread'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-spread-props'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-no-react'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-literal-prop'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-call-as-children'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-react-spread'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-object-assign'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-member-expression-as-prop'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-call-expression-as-prop'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-allow-member-expression'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-gt-lt-entities'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-escaped-string'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-no-props-arg'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-preserve-comments'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-ignore-bad-capitalization'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-arg-spread'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-computed-component'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-deep-nesting'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-literal-spacing'
-  // );
-  // defineTest(
-  //   __dirname,
-  //   'react-hyperscript-to-jsx',
-  //   null,
-  //   'react-hyperscript-to-jsx-element-comment-positioning'
-  // );
-  //   defineTest(
-  //     __dirname,
-  //     'react-hyperscript-to-jsx',
-  //     null,
-  //     'react-hyperscript-to-jsx-children-second-param'
-  //   );
-  //   defineTest(
-  //     __dirname,
-  //     'react-hyperscript-to-jsx',
-  //     null,
-  //     'react-hyperscript-to-jsx-no-children-param'
-  //   );
-  //   defineTest(
-  //     __dirname,
-  //     'react-hyperscript-to-jsx',
-  //     null,
-  //     'react-hyperscript-to-jsx-dot-notation-classes'
-  //   );
-  //   defineTest(
-  //     __dirname,
-  //     'react-hyperscript-to-jsx',
-  //     null,
-  //     'react-hyperscript-to-jsx-dot-notation-ids'
-  //   );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-single-element'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-props'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-props-boolean'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-props-array'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-children-literal'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-children'
+  );
+    defineTest(
+        __dirname,
+        'react-hyperscript-to-jsx',
+        null,
+        'react-hyperscript-to-jsx-children-nested'
+    );
+  defineTest(
+        __dirname,
+        'react-hyperscript-to-jsx',
+        null,
+        'react-hyperscript-to-jsx-children-base'
+    );
+    defineTest(
+     __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-children-map'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-children-mixed-empty-string'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-spread'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-spread-props'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-no-react'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-literal-prop'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-call-as-children'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-react-spread'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-object-assign'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-member-expression-as-prop'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-call-expression-as-prop'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-allow-member-expression'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-gt-lt-entities'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-escaped-string'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-no-props-arg'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-preserve-comments'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-ignore-bad-capitalization'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-arg-spread'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-computed-component'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-deep-nesting'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-literal-spacing'
+  );
+  defineTest(
+    __dirname,
+    'react-hyperscript-to-jsx',
+    null,
+    'react-hyperscript-to-jsx-element-comment-positioning'
+  );
+    defineTest(
+      __dirname,
+      'react-hyperscript-to-jsx',
+      null,
+      'react-hyperscript-to-jsx-children-second-param'
+    );
+    defineTest(
+      __dirname,
+      'react-hyperscript-to-jsx',
+      null,
+      'react-hyperscript-to-jsx-no-children-param'
+    );
+    defineTest(
+      __dirname,
+      'react-hyperscript-to-jsx',
+      null,
+      'react-hyperscript-to-jsx-dot-notation-classes'
+    );
+    defineTest(
+      __dirname,
+      'react-hyperscript-to-jsx',
+      null,
+      'react-hyperscript-to-jsx-dot-notation-ids'
+    );
     defineTest(
       __dirname,
       'react-hyperscript-to-jsx',
       null,
       'react-hyperscript-to-jsx-dot-notation-ids-classes'
     );
-  // it('throws when it does not recognize a property type', () => {
-  //   const jscodeshift = require('jscodeshift');
-  //   const transform = require('../../transforms/react-hyperscript-to-jsx');
-  //   const source = `
-  //     var h = require('react-hyperscript');
-  //     h("foo", {1}, [])
-  //   `;
-  //   expect(() => transform({source}, {jscodeshift}, {}))
-  //     .toThrow(SyntaxError, "Unexpected token");
-  // });
+  it('throws when it does not recognize a property type', () => {
+    const jscodeshift = require('jscodeshift');
+    const transform = require('../../transforms/react-hyperscript-to-jsx');
+    const source = `
+      var h = require('react-hyperscript');
+      h("foo", {1}, [])
+    `;
+    expect(() => transform({source}, {jscodeshift}, {}))
+      .toThrow(SyntaxError, "Unexpected token");
+  });
 });

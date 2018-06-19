@@ -70,7 +70,6 @@ module.exports = function (file, api, options) {
                 extraComments: [],
             };
         } else if (expression.type === 'ObjectExpression') {
-            // todo hit here
             const attributes = expression.properties.map((property) => {
                 if (property.type === 'SpreadProperty') {
                     const spreadAttribute = j.jsxSpreadAttribute(property.argument);
@@ -253,47 +252,50 @@ module.exports = function (file, api, options) {
 
         const openingElement = j.jsxOpeningElement(jsxIdentifier, attributes);
 
-        let names = openingElement.name.name.split('.');
-        if (names.length > 1) {
-            let classes = names.slice(1);
-            openingElement.name.name = names[0];
-            // classNames.forEach(function(name) {
-            //
-            // });
-            openingElement.attributes.push({
-                type: 'JSXAttribute',
-                name: {
-                    name: 'className',
-                    type: 'JSXIdentifier',
-                },
-                value: {
-                    type: 'Literal',
-                    value: classes.reduce(function(combined, name) {
-                        return combined + ' ' + name;
-                    })
-                }
-            });
+        if (openingElement !== undefined && openingElement.name && openingElement.name.name) {
+            let names = openingElement.name.name.split('.');
+            if (names.length > 1) {
+                let classes = names.slice(1);
+                openingElement.name.name = names[0];
+                // classNames.forEach(function(name) {
+                //
+                // });
+                openingElement.attributes.push({
+                    type: 'JSXAttribute',
+                    name: {
+                        name: 'className',
+                        type: 'JSXIdentifier',
+                    },
+                    value: {
+                        type: 'Literal',
+                        value: classes.reduce(function(combined, name) {
+                            return combined + ' ' + name;
+                        })
+                    }
+                });
+            }
+
+            let idNames = openingElement.name.name.split('#');
+            if (idNames.length > 1) {
+                let ids = names.slice(1);
+                openingElement.name.name = idNames[0];
+                // classNames.forEach(function(name) {
+                //
+                // });
+                openingElement.attributes.push({
+                    type: 'JSXAttribute',
+                    name: {
+                        name: 'id',
+                        type: 'JSXIdentifier',
+                    },
+                    value: {
+                        type: 'Literal',
+                        value: idNames[idNames.length-1]
+                    }
+                });
+            }
         }
 
-        let idNames = openingElement.name.name.split('#');
-        if (idNames.length > 1) {
-            let ids = names.slice(1);
-            openingElement.name.name = idNames[0];
-            // classNames.forEach(function(name) {
-            //
-            // });
-            openingElement.attributes.push({
-                type: 'JSXAttribute',
-                name: {
-                    name: 'id',
-                    type: 'JSXIdentifier',
-                },
-                value: {
-                    type: 'Literal',
-                    value: idNames[idNames.length-1]
-                }
-            });
-        }
 
         if (children.length) {
             const endIdentifier = Object.assign({}, jsxIdentifier, {comments: []});
