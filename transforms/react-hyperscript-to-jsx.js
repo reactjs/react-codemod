@@ -70,6 +70,7 @@ module.exports = function (file, api, options) {
                 extraComments: [],
             };
         } else if (expression.type === 'ObjectExpression') {
+            // todo hit here
             const attributes = expression.properties.map((property) => {
                 if (property.type === 'SpreadProperty') {
                     const spreadAttribute = j.jsxSpreadAttribute(property.argument);
@@ -115,7 +116,11 @@ module.exports = function (file, api, options) {
                 attributes: [],
                 extraComments: expression.comments || [],
             };
-        } else if (expression.type === 'ArrayExpression') {
+        }
+        // else if () {
+        //
+        // }
+        else if (expression.type === 'ArrayExpression') {
             console.log('yp;o');
 
         } else {
@@ -174,8 +179,16 @@ module.exports = function (file, api, options) {
         } else {
             args = node.arguments;
         }
+        // no object as second param? no problem
+        if (args[1] && args[1].type == 'ArrayExpression') {
+            let objExpression = Object.assign({}, args[1]);
+            let arrayExpression = Object.assign({}, args[1]);
+            args = [args[0], objExpression, arrayExpression];
+            args[1].type = 'ObjectExpression';
+            args[1].properties = [];
+        }
 
-        if (!args[2] && args[1] && args[1].type === "ArrayExpression") {
+        if (!args[2] && args[1] && args[1].type === 'ArrayExpression') {
             args[2] = args[1];
             args[1] = j.nullLiteralTypeAnnotation();
         }
@@ -239,6 +252,48 @@ module.exports = function (file, api, options) {
         });
 
         const openingElement = j.jsxOpeningElement(jsxIdentifier, attributes);
+
+        let names = openingElement.name.name.split('.');
+        if (names.length > 1) {
+            let classes = names.slice(1);
+            openingElement.name.name = names[0];
+            // classNames.forEach(function(name) {
+            //
+            // });
+            openingElement.attributes.push({
+                type: 'JSXAttribute',
+                name: {
+                    name: 'className',
+                    type: 'JSXIdentifier',
+                },
+                value: {
+                    type: 'Literal',
+                    value: classes.reduce(function(combined, name) {
+                        return combined + ' ' + name;
+                    })
+                }
+            });
+        }
+
+        let idNames = openingElement.name.name.split('#');
+        if (idNames.length > 1) {
+            let ids = names.slice(1);
+            openingElement.name.name = idNames[0];
+            // classNames.forEach(function(name) {
+            //
+            // });
+            openingElement.attributes.push({
+                type: 'JSXAttribute',
+                name: {
+                    name: 'id',
+                    type: 'JSXIdentifier',
+                },
+                value: {
+                    type: 'Literal',
+                    value: idNames[idNames.length-1]
+                }
+            });
+        }
 
         if (children.length) {
             const endIdentifier = Object.assign({}, jsxIdentifier, {comments: []});
