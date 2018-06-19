@@ -183,7 +183,6 @@ module.exports = function (file, api, options) {
             args = [args[0], args[1]].concat(args[2].elements);
         }
 
-        // todo figure out why a nested foo doesn't make it back
         if (isCapitalizationInvalid(args[0]) || !canConvertToJSXIdentifier(args[0]) && node.value.type !== 'ArrayExpression') {
             return node.value;
         }
