@@ -200,9 +200,7 @@ function getMethodsOrderFromEslint(filePath) {
   const CLIEngine = require('eslint').CLIEngine;
   const cli = new CLIEngine({ useEslintrc: true });
   try {
-    console.log('filePath', filePath);
     const config = cli.getConfigForFile(filePath);
-    console.log('config', config);
     const {rules} = config;
     const sortCompRules = rules['react/sort-comp'];
     order = sortCompRules && sortCompRules[1].order;
