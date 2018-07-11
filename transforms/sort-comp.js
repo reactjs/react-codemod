@@ -110,19 +110,24 @@ const defaultMethodsOrder = [
   'contextTypes',
   'childContextTypes',
   'mixins',
-  'statics',
   'defaultProps',
   'constructor',
   'getDefaultProps',
   'state',
   'getInitialState',
   'getChildContext',
+  'getDerivedStateFromProps',
   'componentWillMount',
+  'UNSAFE_componentWillMount',
   'componentDidMount',
   'componentWillReceiveProps',
+  'UNSAFE_componentWillReceiveProps',
   'shouldComponentUpdate',
   'componentWillUpdate',
+  'UNSAFE_componentWillUpdate',
+  'getSnapshotBeforeUpdate',
   'componentDidUpdate',
+  'componentDidCatch',
   'componentWillUnmount',
   '/^on.+$/',
   '/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/',
@@ -134,12 +139,23 @@ const defaultMethodsOrder = [
 // FROM https://github.com/yannickcr/eslint-plugin-react/blob/master/lib/rules/sort-comp.js
 const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
 
+var count = 0;
+
 function selectorMatches(selector, method) {
-  if (method.static && selector === 'static-methods') {
+  const methodName = method.key.name;
+
+  if (
+    method.static &&
+    selector === 'static-methods' &&
+    ['propTypes', 'defaultProps'].indexOf(methodName) === -1 &&
+    !/^(get|set)/.test(methodName)
+  ) {
+
+
+    if (!count) { console.trace(); }
+    count ++;
     return true;
   }
-
-  const methodName = method.key.name;
 
   if (selector === methodName) {
     return true;
@@ -152,6 +168,8 @@ function selectorMatches(selector, method) {
     const selectorRe = new RegExp(match[1], match[2]);
     return selectorRe.test(methodName);
   }
+
+
 
   return false;
 }
@@ -182,7 +200,9 @@ function getMethodsOrderFromEslint(filePath) {
   const CLIEngine = require('eslint').CLIEngine;
   const cli = new CLIEngine({ useEslintrc: true });
   try {
+    console.log('filePath', filePath);
     const config = cli.getConfigForFile(filePath);
+    console.log('config', config);
     const {rules} = config;
     const sortCompRules = rules['react/sort-comp'];
     order = sortCompRules && sortCompRules[1].order;
@@ -193,7 +213,8 @@ function getMethodsOrderFromEslint(filePath) {
 }
 
 function getMethodsOrder(fileInfo, options) {
-  return options.methodsOrder
+  const order = options.methodsOrder
     || getMethodsOrderFromEslint(fileInfo.path)
     || defaultMethodsOrder;
+  return order;
 }
