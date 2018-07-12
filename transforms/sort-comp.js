@@ -139,8 +139,6 @@ const defaultMethodsOrder = [
 // FROM https://github.com/yannickcr/eslint-plugin-react/blob/master/lib/rules/sort-comp.js
 const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
 
-var count = 0;
-
 function selectorMatches(selector, method) {
   const methodName = method.key.name;
 
@@ -150,10 +148,6 @@ function selectorMatches(selector, method) {
     ['propTypes', 'defaultProps'].indexOf(methodName) === -1 &&
     !/^(get|set)/.test(methodName)
   ) {
-
-
-    if (!count) { console.trace(); }
-    count ++;
     return true;
   }
 
@@ -168,8 +162,6 @@ function selectorMatches(selector, method) {
     const selectorRe = new RegExp(match[1], match[2]);
     return selectorRe.test(methodName);
   }
-
-
 
   return false;
 }
