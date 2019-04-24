@@ -20,7 +20,8 @@ const usage = `npx react-codemod <transform> <path/to/code>\n`;
 if (!transform || transforms.indexOf(transform) === -1) {
   console.log(usage);
   console.error(
-    'missing/invalid transform name. Pick one of:\n' + transforms.join('\n')
+    'missing/invalid transform name. Pick one of:\n' +
+      transforms.map(x => '- ' + x).join('\n')
   );
   process.exit(1);
 }
@@ -30,11 +31,14 @@ if (!dest) {
   process.exit(1);
 }
 
-childProcess.execSync(
-  `npm run jscodeshift -- -t transforms/${transform}.js ${path.join(
-    currentDir,
-    dest
-  )} ${[...process.argv].slice(4).join(' ')}`
-);
-
-// warn if node_modules?
+const cmd = `npm run jscodeshift -- -t ${path.join(
+  'transforms',
+  transform + '.js'
+)} ${path.join(
+  currentDir,
+  dest
+)} --verbose=2 --ignore-pattern= node_modules ${[...process.argv]
+  .slice(4)
+  .join(' ')}`;
+console.log('running', cmd);
+childProcess.execSync(cmd);

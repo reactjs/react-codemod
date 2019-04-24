@@ -54,7 +54,7 @@ npx react-codemod manual-bind-to-arrow <path>
 #### `pure-component`
 
 Converts ES6 classes that only have a render method, only have safe properties
-(statics and props), and do not have refs to Stateless Functional Components.
+(statics and props), and do not have refs to Functional Components.
 
 Option `useArrows` converts to arrow function. Converts to `function` by default.  
 Option `destructuring` will destructure props in the argument where it is safe to do so.  
