@@ -37,7 +37,7 @@ const cmd = `npm run jscodeshift -- -t ${path.join(
 )} ${path.join(
   currentDir,
   dest
-)} --verbose=2 --ignore-pattern= node_modules ${[...process.argv]
+)} --verbose=2 --ignore-pattern=**/node_modules/** ${[...process.argv]
   .slice(4)
   .join(' ')}`;
 console.log('running', cmd);
