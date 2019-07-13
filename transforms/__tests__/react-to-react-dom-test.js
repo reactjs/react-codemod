@@ -23,6 +23,9 @@ const tests = [
   'import-without-default-specifier',
 ];
 
+// Silence custom logs from the transform while running tests
+jest.spyOn(console, 'log').mockImplementation();
+
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 describe('react-to-react-dom', () => {
   tests.forEach(test =>

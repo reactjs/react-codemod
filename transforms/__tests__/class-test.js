@@ -12,6 +12,9 @@
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
+// Silence custom warnings from the transform while running tests
+jest.spyOn(console, 'warn').mockImplementation();
+
 const pureMixinAlternativeOption = {
   'mixin-module-name': 'ReactComponentWithPureRenderMixin',
   'pure-component': true,
