@@ -27,7 +27,7 @@
       "baseDir": "../"
     },
     "testEnvironment": "node",
-    "testPathDirs": [
+    "roots": [
       "transforms"
     ]
   },
