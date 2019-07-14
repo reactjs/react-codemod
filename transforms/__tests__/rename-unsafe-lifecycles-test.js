@@ -33,4 +33,12 @@ describe('rename-unsafe-lifecycles', () => {
       { parser: 'flow' }
     )
   );
+
+  defineTest(
+    __dirname,
+    'rename-unsafe-lifecycles',
+    null,
+    `rename-unsafe-lifecycles/typescript/class`,
+    { parser: 'tsx' }
+  )
 });
