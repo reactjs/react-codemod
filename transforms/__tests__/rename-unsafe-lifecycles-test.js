@@ -38,7 +38,7 @@ describe('rename-unsafe-lifecycles', () => {
     __dirname,
     'rename-unsafe-lifecycles',
     null,
-    `rename-unsafe-lifecycles/typescript/class`,
+    'rename-unsafe-lifecycles/typescript/class',
     { parser: 'tsx' }
-  )
+  );
 });
