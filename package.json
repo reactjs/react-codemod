@@ -19,7 +19,7 @@
     "eslint": "^2.13.1",
     "fbjs-scripts": "^0.7.1",
     "jest": "^24.8.0",
-    "jscodeshift": "^0.3.30",
+    "jscodeshift": "^0.6.4",
     "path": "^0.12.7"
   },
   "jest": {
