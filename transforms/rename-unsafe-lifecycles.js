@@ -49,6 +49,9 @@ export default (file, api, options) => {
   root
     .find(j.MethodDefinition)
     .forEach(renameDeprecatedApis);
+  root
+    .find(j.ClassMethod)
+    .forEach(renameDeprecatedApis);
 
   // Arrow functions
   root
