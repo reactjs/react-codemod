@@ -35,6 +35,7 @@ const tests = [
 ];
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
+const testOptions = { parser: 'flow' };
 
 describe('React-PropTypes-to-prop-types', () => {
   tests.forEach(test =>
@@ -42,7 +43,8 @@ describe('React-PropTypes-to-prop-types', () => {
       __dirname,
       'React-PropTypes-to-prop-types',
       null,
-      `React-PropTypes-to-prop-types/${ test }`
+      `React-PropTypes-to-prop-types/${ test }`,
+      testOptions
     )
   );
 
@@ -50,6 +52,7 @@ describe('React-PropTypes-to-prop-types', () => {
     __dirname,
     'React-PropTypes-to-prop-types',
     { 'module-name': 'PropTypes' },
-    'React-PropTypes-to-prop-types/module-name'
+    'React-PropTypes-to-prop-types/module-name',
+    testOptions
   );
 });

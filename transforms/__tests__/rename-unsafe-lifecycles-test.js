@@ -29,7 +29,8 @@ describe('rename-unsafe-lifecycles', () => {
       __dirname,
       'rename-unsafe-lifecycles',
       null,
-      `rename-unsafe-lifecycles/${test}`
+      `rename-unsafe-lifecycles/${test}`,
+      { parser: 'flow' }
     )
   );
 });

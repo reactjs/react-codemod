@@ -27,7 +27,8 @@ TESTS.forEach(test => {
   defineTest(
     __dirname,
     'manual-bind-to-arrow',
-    {flow: true},
-    'manual-bind-to-arrow/manual-bind-to-arrow' + test
+    null,
+    'manual-bind-to-arrow/manual-bind-to-arrow' + test,
+    { parser: 'flow' }
   );
 });

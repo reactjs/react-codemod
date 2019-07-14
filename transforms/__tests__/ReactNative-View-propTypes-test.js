@@ -33,7 +33,8 @@ describe('ReactNative-View-propTypes', () => {
       __dirname,
       'ReactNative-View-propTypes',
       null,
-      `ReactNative-View-propTypes/${ test }`
+      `ReactNative-View-propTypes/${ test }`,
+      { parser: 'flow' }
     )
   );
 });

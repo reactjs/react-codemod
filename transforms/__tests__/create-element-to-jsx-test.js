@@ -11,174 +11,204 @@
 'use strict';
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
+const testOptions = { parser: 'flow' };
+
 describe('create-element-to-jsx', () => {
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-single-element'
+    'create-element-to-jsx-single-element',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-props'
+    'create-element-to-jsx-props',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-props-boolean'
+    'create-element-to-jsx-props-boolean',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-props-array'
+    'create-element-to-jsx-props-array',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-children-literal'
+    'create-element-to-jsx-children-literal',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-children'
+    'create-element-to-jsx-children',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-children-map'
+    'create-element-to-jsx-children-map',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-children-mixed-empty-string'
+    'create-element-to-jsx-children-mixed-empty-string',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-spread'
+    'create-element-to-jsx-spread',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-spread-props'
+    'create-element-to-jsx-spread-props',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-no-react'
+    'create-element-to-jsx-no-react',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-literal-prop'
+    'create-element-to-jsx-literal-prop',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-call-as-children'
+    'create-element-to-jsx-call-as-children',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-react-spread'
+    'create-element-to-jsx-react-spread',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-object-assign'
+    'create-element-to-jsx-object-assign',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-member-expression-as-prop'
+    'create-element-to-jsx-member-expression-as-prop',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-call-expression-as-prop'
+    'create-element-to-jsx-call-expression-as-prop',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-allow-member-expression'
+    'create-element-to-jsx-allow-member-expression',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-gt-lt-entities'
+    'create-element-to-jsx-gt-lt-entities',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-escaped-string'
+    'create-element-to-jsx-escaped-string',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-no-props-arg'
+    'create-element-to-jsx-no-props-arg',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-preserve-comments'
+    'create-element-to-jsx-preserve-comments',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-ignore-bad-capitalization'
+    'create-element-to-jsx-ignore-bad-capitalization',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-arg-spread'
+    'create-element-to-jsx-arg-spread',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-computed-component'
+    'create-element-to-jsx-computed-component',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-deep-nesting'
+    'create-element-to-jsx-deep-nesting',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-literal-spacing'
+    'create-element-to-jsx-literal-spacing',
+    testOptions
   );
   defineTest(
     __dirname,
     'create-element-to-jsx',
     null,
-    'create-element-to-jsx-element-comment-positioning'
+    'create-element-to-jsx-element-comment-positioning',
+    testOptions
   );
 
   it('throws when it does not recognize a property type', () => {
