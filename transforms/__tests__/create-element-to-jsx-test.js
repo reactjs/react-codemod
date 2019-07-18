@@ -10,6 +10,12 @@
 
 'use strict';
 
+jest.mock('../create-element-to-jsx', () => {
+  return Object.assign(require.requireActual('../create-element-to-jsx'), {
+    parser: 'flow'
+  });
+});
+
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 describe('create-element-to-jsx', () => {
   defineTest(
