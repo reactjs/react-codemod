@@ -5,13 +5,12 @@ This repository contains a collection of codemod scripts for use with
 APIs.
 
 ### Usage
-`npx react-codemod <codemod> <path>`
-   * `codemod` - name of transform, see available transforms below;
-   * `path` - files or directory to transform;
-   * use the `-d` option for a dry-run and use `-p` to print the output for comparison;
-   * use the `--extensions` option if your files have different extensions than `.js` (for example, `--extensions js,jsx`);
-   * if you use flowtype, you might also need to use `--parser=flow`;
-   * see all available [jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli).
+`npx react-codemod <transform> <path> [...options]`
+   * `transform` - name of transform, see available transforms below. 
+   * `path` - files or directory to transform
+   * use the `--dry` option for a dry-run and use `--print` to print the output for comparison
+
+This will start an interactive wizard, and then run the specified transform. 
 
 ### Included Transforms
 
@@ -56,12 +55,13 @@ npx react-codemod manual-bind-to-arrow <path>
 Converts ES6 classes that only have a render method, only have safe properties
 (statics and props), and do not have refs to Functional Components.
 
-Option `useArrows` converts to arrow function. Converts to `function` by default.  
-Option `destructuring` will destructure props in the argument where it is safe to do so.  
-Note these options must be passed on the command line as `--useArrows=true` (`--useArrows` won't work)
+The wizard will ask for 2 options - 
+
+* **Use arrow functions?**: converts to arrow function. Converts to `function` by default.  
+* **Destructure props?**: will destructure props in the argument where it is safe to do so.  
 
 ```sh
-npx react-codemod pure-component <path> [--useArrows=true --destructuring=true]
+npx react-codemod pure-component <path>
 ```
 
 #### `pure-render-mixin`
@@ -75,7 +75,7 @@ class. NOTE: This currently only works if you are using the master version
 npx react-codemod pure-render-mixin <path>
 ```
 
- * If `--mixin-name=<name>` is specified it will look for the specified name
+ * The wizard will ask to optionally override `mixin-name`, and look for it
    instead of `PureRenderMixin`. Note that it is not possible to use a
    namespaced name for the mixin. `mixins: [React.addons.PureRenderMixin]` will
    not currently work.
@@ -88,11 +88,11 @@ Replaces `React.PropTypes` references with `prop-types` and adds the appropriate
 npx react-codemod React-PropTypes-to-prop-types <path>
 ```
 
-  * In addition to running the above codemod you will also need to install the 'prop-types' NPM package.
+  * In addition to running the above codemod you will also need to install the `prop-types` NPM package.
 
 #### `rename-unsafe-lifecycles`
 
-Adds "UNSAFE_" prefix for deprecated lifecycle hooks. (For more information about this codemod, see [React RFC #6](https://github.com/reactjs/rfcs/pull/6))
+Adds `UNSAFE_` prefix for deprecated lifecycle hooks. (For more information about this codemod, see [React RFC #6](https://github.com/reactjs/rfcs/pull/6))
 
 ```sh
 npx react-codemod rename-unsafe-lifecycles <path>
@@ -177,16 +177,25 @@ npx react-codemod sort-comp <path>
 
 #### Usage
 ```bash
-npx react-codemod class --mixin-module-name=react-addons-pure-render-mixin --flow=true --pure-component=true --remove-runtime-proptypes=false <path>
+npx react-codemod class <path>
 ```
+
+### jscodeshift options
+
+To pass more options directly to jscodeshift, use `--jscodeshift="..."`. For example:
+```sh
+npx react-codemod --jscodeshift="--run-in-band --verbose=2"
+```
+
+See all available options [here](https://github.com/facebook/jscodeshift#usage-cli). 
 
 ### Recast Options
 
 Options to [recast](https://github.com/benjamn/recast)'s printer can be provided
-through the `printOptions` command line argument
+through jscodeshift's `printOptions` command line argument
 
 ```sh
-npx react-codemod <transform> <path> --printOptions='{"quote":"double"}'
+npx react-codemod <transform> <path> --jscodeshift="--printOptions='{\"quote\":\"double\"}'"
 ```
 
 ### Support and Contributing

@@ -10,6 +10,12 @@
 
 'use strict';
 
+jest.mock('../rename-unsafe-lifecycles', () => {
+  return Object.assign(require.requireActual('../rename-unsafe-lifecycles'), {
+    parser: 'flow'
+  });
+});
+
 const tests = [
   'arrow-functions',
   'create-react-class',

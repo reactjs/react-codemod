@@ -10,6 +10,12 @@
 
 'use strict';
 
+jest.mock('../React-PropTypes-to-prop-types', () => {
+  return Object.assign(require.requireActual('../React-PropTypes-to-prop-types'), {
+    parser: 'flow'
+  });
+});
+
 const tests = [
   'already-migrated-import',
   'already-migrated-require',
