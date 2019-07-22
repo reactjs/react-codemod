@@ -150,6 +150,11 @@ const TRANSFORMER_INQUIRER_CHOICES = [
   },
   {
     name:
+      'React-PropTypes-to-prop-types: Replaces React.PropTypes references with prop-types',
+    value: 'React-PropTypes-to-prop-types'
+  },
+  {
+    name:
       'ReactNative-View-propTypes: Replaces View.propTypes references with ViewPropTypes (for ReactNative 44+) ',
     value: 'ReactNative-View-propTypes'
   },
