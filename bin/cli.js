@@ -150,7 +150,7 @@ const TRANSFORMER_INQUIRER_CHOICES = [
   },
   {
     name:
-      'React-PropTypes-to-prop-types: Replaces React.PropTypes references with prop-types and adds the appropriate import or require statement',
+      'React-PropTypes-to-prop-types: Replaces React.PropTypes references with prop-types',
     value: 'React-PropTypes-to-prop-types'
   },
   {
