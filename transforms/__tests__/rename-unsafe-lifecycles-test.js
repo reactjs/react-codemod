@@ -10,12 +10,6 @@
 
 'use strict';
 
-jest.mock('../rename-unsafe-lifecycles', () => {
-  return Object.assign(require.requireActual('../rename-unsafe-lifecycles'), {
-    parser: 'flow'
-  });
-});
-
 const tests = [
   'arrow-functions',
   'create-react-class',
@@ -30,12 +24,53 @@ const tests = [
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
 describe('rename-unsafe-lifecycles', () => {
-  tests.forEach(test =>
+  describe('flow', () => {
+    beforeEach(() => {
+      jest.mock('../rename-unsafe-lifecycles', () => {
+        return Object.assign(
+          require.requireActual('../rename-unsafe-lifecycles'),
+          {
+            parser: 'flow'
+          }
+        );
+      });
+    });
+
+    afterEach(() => {
+      jest.resetModules();
+    });
+
+    tests.forEach(test =>
+      defineTest(
+        __dirname,
+        'rename-unsafe-lifecycles',
+        null,
+        `rename-unsafe-lifecycles/${test}`
+      )
+    );
+  });
+
+  describe('typescript', () => {
+    beforeEach(() => {
+      jest.mock('../rename-unsafe-lifecycles', () => {
+        return Object.assign(
+          require.requireActual('../rename-unsafe-lifecycles'),
+          {
+            parser: 'tsx'
+          }
+        );
+      });
+    });
+
+    afterEach(() => {
+      jest.resetModules();
+    });
+
     defineTest(
       __dirname,
       'rename-unsafe-lifecycles',
       null,
-      `rename-unsafe-lifecycles/${test}`
-    )
-  );
+      'rename-unsafe-lifecycles/typescript/class.tsx'
+    );
+  });
 });
