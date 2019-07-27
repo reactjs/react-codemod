@@ -17,6 +17,8 @@ jest.mock('../React-PropTypes-to-prop-types', () => {
 });
 
 const tests = [
+  'already-migrated-named-as-import',
+  'already-migrated-named-import',
   'already-migrated-import',
   'already-migrated-require',
   'assigned-from-react-var',
