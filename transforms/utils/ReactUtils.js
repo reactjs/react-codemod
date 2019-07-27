@@ -145,7 +145,7 @@ module.exports = function(j) {
           },
           property: {
             type: 'Identifier',
-            name: 'Component',
+            name: parentClassName,
           },
         },
       };
