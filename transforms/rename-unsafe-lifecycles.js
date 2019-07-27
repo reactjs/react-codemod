@@ -50,6 +50,11 @@ export default (file, api, options) => {
     .find(j.MethodDefinition)
     .forEach(renameDeprecatedApis);
 
+  // Class methods - typescript 
+  root
+    .find(j.ClassMethod)
+    .forEach(renameDeprecatedApis);
+
   // Arrow functions
   root
     .find(j.ClassProperty)

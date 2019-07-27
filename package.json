@@ -1,6 +1,6 @@
 {
   "name": "react-codemod",
-  "version": "4.0.1",
+  "version": "5.0.2",
   "description": "React codemod scripts",
   "license": "BSD-3-Clause",
   "repository": "reactjs/react-codemod",
@@ -11,16 +11,13 @@
     "jscodeshift": "jscodeshift"
   },
   "dependencies": {
-    "@babel/core": "^7.5.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.5.4",
-    "@babel/preset-env": "^7.5.4",
-    "babel-eslint": "^6.0.5",
-    "babel-jest": "^24.8.0",
-    "eslint": "^2.13.1",
-    "fbjs-scripts": "^0.7.1",
-    "jest": "^24.8.0",
-    "jscodeshift": "^0.3.30",
-    "path": "^0.12.7"
+    "chalk": "^2.4.2",
+    "execa": "^2.0.3",
+    "globby": "^10.0.1",
+    "inquirer": "^6.5.0",
+    "is-git-clean": "^1.1.0",
+    "jscodeshift": "^0.6.4",
+    "meow": "^5.0.0"
   },
   "jest": {
     "globals": {
@@ -28,11 +25,20 @@
     },
     "testEnvironment": "node",
     "roots": [
-      "transforms"
+      "transforms",
+      "bin"
     ]
   },
   "devDependencies": {
-    "eslint-plugin-react": "^5.2.2"
+    "@babel/core": "^7.5.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
+    "babel-eslint": "^6.0.5",
+    "babel-jest": "^24.8.0",
+    "eslint": "^2.13.1",
+    "eslint-plugin-react": "^5.2.2",
+    "fbjs-scripts": "^0.7.1",
+    "jest": "^24.8.0"
   },
   "bin": {
     "react-codemod": "./bin/react-codemod.js"

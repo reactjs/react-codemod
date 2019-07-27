@@ -10,6 +10,12 @@
 
 'use strict';
 
+jest.mock('../manual-bind-to-arrow', () => {
+  return Object.assign(require.requireActual('../manual-bind-to-arrow'), {
+    parser: 'flow'
+  });
+});
+
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
 var TESTS = [

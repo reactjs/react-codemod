@@ -17,7 +17,9 @@ const tests = [
   'react-dom-deconstructed-require-part-two',
   'react-dom-no-change-import',
   'react-dom-no-change-require',
-  'react-dom-no-change-dom-from-other-libraries',
+  'react-dom-no-change-import-dom-from-other-libraries',
+  'react-dom-no-change-require-dom-from-other-libraries',
+  'react-dom-no-change-local-dom-from-other-libraries'
 ];
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;

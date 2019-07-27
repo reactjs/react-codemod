@@ -10,6 +10,12 @@
 
 'use strict';
 
+jest.mock('../pure-component', () => {
+  return Object.assign(require.requireActual('../pure-component'), {
+    parser: 'flow'
+  });
+});
+
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
 // Silence custom warnings from the transform while running tests

@@ -21,9 +21,10 @@
  * }
  */
 
-export default function transformer(file, api) {
+export default function transformer(file, api, options) {
   const j = api.jscodeshift;
 
+  const printOptions = options.printOptions || {};
   var root = j(file.source);
 
   // Helper functions to transform a method declaration to an arrow function
@@ -174,7 +175,7 @@ export default function transformer(file, api) {
     });
 
   if (hasChanged) {
-    return transform.toSource();
+    return transform.toSource(printOptions);
   }
   return null;
 }

@@ -54,8 +54,10 @@ function isRequire(path, moduleName) {
   );
 }
 
-module.exports = function(file, api) {
+module.exports = function(file, api, options) {
   var j = api.jscodeshift;
+
+  var printOptions = options.printOptions || {quote: 'single'};
   var root = j(file.source);
 
   [
@@ -394,5 +396,5 @@ module.exports = function(file, api) {
     }
   });
 
-  return root.toSource({quote: 'single'});
+  return root.toSource(printOptions);
 };
