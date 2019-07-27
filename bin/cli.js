@@ -27,7 +27,7 @@ function checkGitStatus(force) {
     if (force) {
       console.log(`WARNING: ${errorMessage}. Forcibly continuing.`);
     } else {
-      console.log('Thank you for using jest-codemods!');
+      console.log('Thank you for using react-codemods!');
       console.log(
         chalk.yellow(
           '\nBut before we continue, please stash or commit your git changes.'
@@ -46,13 +46,17 @@ function runTransform({ files, flags, parser, transformer, answers }) {
 
   let args = [];
 
-  const { dry, print } = flags;
+  const { dry, print, explicitRequire } = flags;
 
   if (dry) {
     args.push('--dry');
   }
   if (print) {
     args.push('--print');
+  }
+
+  if (explicitRequire === 'false') {
+    args.push('--explicit-require=false');
   }
 
   args.push('--verbose=2');
@@ -209,7 +213,7 @@ function run() {
     `
     },
     {
-      boolean: ['force', 'dry', 'print', 'help'],
+      boolean: ['force', 'dry', 'print', 'explicit-require', 'help'],
       string: ['_'],
       alias: {
         h: 'help'

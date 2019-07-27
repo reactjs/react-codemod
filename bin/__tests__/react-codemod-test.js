@@ -98,6 +98,7 @@ describe('runTransform', () => {
       transformer: 'rename-unsafe-xyz'
     });
     expect(console.log).toBeCalledWith(
+      // eslint-disable-next-line max-len
       `Executing command: jscodeshift --verbose=2 --ignore-pattern=**/node_modules/** --parser flow --transform ${path.join(
         transformerDirectory,
         'rename-unsafe-xyz.js'
@@ -115,6 +116,7 @@ describe('runTransform', () => {
       transformer: 'rename-unsafe-lifecycles'
     });
     expect(console.log).toBeCalledWith(
+      // eslint-disable-next-line max-len
       `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser flow --transform ${path.join(
         transformerDirectory,
         'rename-unsafe-lifecycles.js'
@@ -132,6 +134,7 @@ describe('runTransform', () => {
       transformer: 'rename-unsafe-lifecycles'
     });
     expect(console.log).toBeCalledWith(
+      // eslint-disable-next-line max-len
       `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser tsx --extensions=tsx,ts --transform ${path.join(
         transformerDirectory,
         'rename-unsafe-lifecycles.js'
@@ -152,6 +155,7 @@ describe('runTransform', () => {
       transformer: 'rename-unsafe-lifecycles'
     });
     expect(console.log).toBeCalledWith(
+      // eslint-disable-next-line max-len
       `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser babel --transform ${path.join(
         transformerDirectory,
         'rename-unsafe-lifecycles.js'
