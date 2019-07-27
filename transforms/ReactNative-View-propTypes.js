@@ -73,6 +73,7 @@ const isViewPropTypes = path => (
 module.exports = function(file, api, options) {
   const j = api.jscodeshift;
 
+  const printOptions = options.printOptions || { quote: 'single' };
   let root = j(file.source);
 
   let numMatchedPaths = 0;
@@ -238,6 +239,6 @@ module.exports = function(file, api, options) {
   }
 
   return numMatchedPaths > 0
-    ? root.toSource({ quote: 'single' })
+    ? root.toSource(printOptions)
     : null;
 };

@@ -158,7 +158,7 @@ module.exports = function(j) {
   const findReactES6ClassDeclaration = path => {
     let classDeclarations = findReactES6ClassDeclarationByParent(path, 'Component');
     if (classDeclarations.size() === 0) {
-      classDeclarations = findReactES6ClassDeclarationByParent(path, 'PureComponent')
+      classDeclarations = findReactES6ClassDeclarationByParent(path, 'PureComponent');
     }
     return classDeclarations;
   };

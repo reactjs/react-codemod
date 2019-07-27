@@ -146,6 +146,14 @@ function selectorMatches(selector, method) {
   if ((method.static && selector === 'static-methods') && defaultMethodsOrder.indexOf(methodName) === -1) {
     return true;
   }
+  
+  if (!method.value && method.typeAnnotation && selector === 'type-annotations') {
+    return true;
+  }
+
+  if (method.static && selector === 'static-methods') {
+    return true;
+  }
 
   if (selector === methodName) {
     return true;

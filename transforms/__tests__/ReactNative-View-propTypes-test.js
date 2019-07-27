@@ -10,6 +10,12 @@
 
 'use strict';
 
+jest.mock('../ReactNative-View-propTypes', () => {
+  return Object.assign(require.requireActual('../ReactNative-View-propTypes'), {
+    parser: 'flow'
+  });
+});
+
 const tests = [
   'default-import-multi-reference',
   'default-import-only-reference',
