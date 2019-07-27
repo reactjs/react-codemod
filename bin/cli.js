@@ -146,7 +146,11 @@ const TRANSFORMER_INQUIRER_CHOICES = [
       'pure-render-mixin: Removes PureRenderMixin and inlines shouldComponentUpdate',
     value: 'pure-render-mixin'
   },
-  // todo - React-DOM-to-react-dom-factories
+  {
+    name:
+      'React-DOM-to-react-dom-factories: Converts React.DOM.<element>(...) to React.createElement(element, ...)',
+    value: 'React-DOM-to-react-dom-factories'
+  },
   {
     name:
       'react-to-react-dom: Updates code for the split of the react and react-dom packages',

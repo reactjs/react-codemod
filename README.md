@@ -116,6 +116,16 @@ npx react-codemod react-to-react-dom <path>
     React\s*=\s*require\(.react.\);)\n\n(\s*var ReactDOM)' '\1\n\2'` using
     https://github.com/facebook/codemod.
 
+#### `React-DOM-to-react-dom-factories`
+
+Converts calls like `React.DOM.div(...)` to `React.createElement('div', ...)`. 
+
+```sh
+npx react-codemod React-DOM-to-react-dom-factories <path>
+```
+
+Converts 
+
 #### `ReactNative-View-propTypes`
 
 Replaces `View.propTypes` references with `ViewPropTypes` and adds the appropriate `import` or `require` statement. This codemod is intended for ReactNative 44+.
