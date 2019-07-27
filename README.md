@@ -198,7 +198,7 @@ through jscodeshift's `printOptions` command line argument
 npx react-codemod <transform> <path> --jscodeshift="--printOptions='{\"quote\":\"double\"}'"
 ```
 
-### `explicit-require=false`
+#### `explicit-require=false`
 
 If you're not explicitly importing React in your files (eg: if you're loading React with a script tag), you should add `--explicit-require=false`. 
 
