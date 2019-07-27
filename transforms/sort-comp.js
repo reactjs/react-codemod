@@ -135,6 +135,10 @@ const defaultMethodsOrder = [
 const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
 
 function selectorMatches(selector, method) {
+  if (!method.value && method.typeAnnotation && selector === 'type-annotations') {
+    return true;
+  }
+
   if (method.static && selector === 'static-methods') {
     return true;
   }
