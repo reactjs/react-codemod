@@ -99,7 +99,7 @@ describe('runTransform', () => {
     });
     expect(console.log).toBeCalledWith(
       // eslint-disable-next-line max-len
-      `Executing command: jscodeshift --verbose=2 --ignore-pattern=**/node_modules/** --parser flow --transform ${path.join(
+      `Executing command: jscodeshift --verbose=2 --ignore-pattern=**/node_modules/** --parser flow --extensions=jsx,js --transform ${path.join(
         transformerDirectory,
         'rename-unsafe-xyz.js'
       )} src`
@@ -117,7 +117,7 @@ describe('runTransform', () => {
     });
     expect(console.log).toBeCalledWith(
       // eslint-disable-next-line max-len
-      `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser flow --transform ${path.join(
+      `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser flow --extensions=jsx,js --transform ${path.join(
         transformerDirectory,
         'rename-unsafe-lifecycles.js'
       )} folder`
@@ -135,7 +135,7 @@ describe('runTransform', () => {
     });
     expect(console.log).toBeCalledWith(
       // eslint-disable-next-line max-len
-      `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser tsx --extensions=tsx,ts --transform ${path.join(
+      `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser tsx --extensions=tsx,ts,jsx,js --transform ${path.join(
         transformerDirectory,
         'rename-unsafe-lifecycles.js'
       )} folder`
@@ -156,7 +156,7 @@ describe('runTransform', () => {
     });
     expect(console.log).toBeCalledWith(
       // eslint-disable-next-line max-len
-      `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser babel --transform ${path.join(
+      `Executing command: jscodeshift --dry --verbose=2 --ignore-pattern=**/node_modules/** --parser babel --extensions=jsx,js --transform ${path.join(
         transformerDirectory,
         'rename-unsafe-lifecycles.js'
       )} verbose=2 --printOptions='{"quote":"double"}' folder`

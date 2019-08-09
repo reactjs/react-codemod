@@ -64,8 +64,12 @@ function runTransform({ files, flags, parser, transformer, answers }) {
   args.push('--ignore-pattern=**/node_modules/**');
 
   args.push('--parser', parser);
+  
   if (parser === 'tsx') {
-    args.push('--extensions=tsx,ts');
+    args.push('--extensions=tsx,ts,jsx,js');
+  }
+  else {
+    args.push('--extensions=jsx,js');
   }
 
   args = args.concat(['--transform', transformerPath]);
