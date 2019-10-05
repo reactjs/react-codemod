@@ -219,3 +219,8 @@ used internally within Facebook or were contributed by the community, and we
 rely on community contributions to fix any issues discovered or make any
 improvements. If you want to contribute, you're welcome to submit a pull
 request.
+
+### License
+
+
+react-codemod is [MIT licensed](./LICENSE).

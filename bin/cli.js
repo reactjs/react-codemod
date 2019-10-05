@@ -1,3 +1,11 @@
+/**
+ * Copyright 2015-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree. 
+ *
+ */
+
 // react-codemod optional-name-of-transform optional/path/to/src [...options]
 
 const globby = require('globby');
@@ -67,8 +75,7 @@ function runTransform({ files, flags, parser, transformer, answers }) {
   
   if (parser === 'tsx') {
     args.push('--extensions=tsx,ts,jsx,js');
-  }
-  else {
+  } else {
     args.push('--extensions=jsx,js');
   }
 
