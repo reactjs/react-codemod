@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -17,28 +17,22 @@ module.exports = function(file, api, options) {
   const silenceWarnings = options.silenceWarnings || false;
   const printOptions = options.printOptions || {
     quote: 'single',
-    trailingComma: true,
+    trailingComma: true
   };
 
-  const getClassName = path =>
-    path.node.id.name;
+  const getClassName = path => path.node.id.name;
 
-  const isRenderMethod = node => (
+  const isRenderMethod = node =>
     node.type == 'MethodDefinition' &&
     node.key.type == 'Identifier' &&
-    node.key.name == 'render'
-  );
+    node.key.name == 'render';
 
-  const isPropsProperty = node => (
+  const isPropsProperty = node =>
     node.type === 'ClassProperty' &&
     node.key.type === 'Identifier' &&
-    node.key.name === 'props'
-  );
+    node.key.name === 'props';
 
-  const isStaticProperty = node => (
-    node.type === 'ClassProperty' &&
-    node.static
-  );
+  const isStaticProperty = node => node.type === 'ClassProperty' && node.static;
 
   const onlyHasRenderMethod = path =>
     j(path)
@@ -57,18 +51,18 @@ module.exports = function(file, api, options) {
       .find(j.JSXAttribute, {
         name: {
           type: 'JSXIdentifier',
-          name: 'ref',
-        },
+          name: 'ref'
+        }
       })
       .size() > 0;
 
   const THIS_PROPS = {
     object: {
-      type: 'ThisExpression',
+      type: 'ThisExpression'
     },
     property: {
-      name: 'props',
-    },
+      name: 'props'
+    }
   };
 
   const replaceThisProps = path =>
@@ -86,32 +80,35 @@ module.exports = function(file, api, options) {
 
   const isDuplicateDeclaration = (path, pre) => {
     if (path && path.value && path.value.id && path.value.init) {
-      const initName = pre ? path.value.init.property && path.value.init.property.name :
-        path.value.init.name;
+      const initName = pre
+        ? path.value.init.property && path.value.init.property.name
+        : path.value.init.name;
       return path.value.id.name === initName;
     }
     return false;
   };
 
-  const needsThisDotProps = path => 
-    path.find(j.Identifier, {
-      name: 'props'
-    })
-    .filter(p => p.parentPath.parentPath.value.type !== 'MemberExpression')
-    .size() > 0;
+  const needsThisDotProps = path =>
+    path
+      .find(j.Identifier, {
+        name: 'props'
+      })
+      .filter(p => p.parentPath.parentPath.value.type !== 'MemberExpression')
+      .size() > 0;
 
   const getPropNames = path => {
     const propNames = new Set();
-    path.find(j.MemberExpression, {
-      object: { 
-        property: {
-          name: 'props',
-        },
-      },
-    })
-    .forEach(p => { 
-      propNames.add(p.value.property.name); 
-    });
+    path
+      .find(j.MemberExpression, {
+        object: {
+          property: {
+            name: 'props'
+          }
+        }
+      })
+      .forEach(p => {
+        propNames.add(p.value.property.name);
+      });
     return propNames;
   };
 
@@ -131,23 +128,29 @@ module.exports = function(file, api, options) {
     path
       .find(j.Identifier)
       .filter(p => {
-        if (p.value.type === 'JSXIdentifier') { return false; }
-        if (!(p.parentPath.value.object && p.parentPath.value.object.property)) {
-          return true; 
+        if (p.value.type === 'JSXIdentifier') {
+          return false;
+        }
+        if (
+          !(p.parentPath.value.object && p.parentPath.value.object.property)
+        ) {
+          return true;
         }
         return p.parentPath.value.object.property.name !== 'props';
       })
-      .forEach(p => { 
+      .forEach(p => {
         assignmentNames.add(p.value.name);
       });
     return assignmentNames;
   };
 
-  const hasAssignmentsThatShadowProps = path =>  {
+  const hasAssignmentsThatShadowProps = path => {
     const propNames = getPropNames(path);
     const assignmentNames = getAssignmentNames(path);
     const duplicates = getDuplicateNames(path);
-    return (Array.from(propNames).some(prop => !duplicates.has(prop) && assignmentNames.has(prop)));
+    return Array.from(propNames).some(
+      prop => !duplicates.has(prop) && assignmentNames.has(prop)
+    );
   };
 
   const canDestructure = path =>
@@ -181,9 +184,13 @@ module.exports = function(file, api, options) {
       });
       if (propNames.size > 0) {
         const assignments = body.find(j.VariableDeclarator);
-        const duplicateAssignments = assignments.filter(a => isDuplicateDeclaration(a, false));
+        const duplicateAssignments = assignments.filter(a =>
+          isDuplicateDeclaration(a, false)
+        );
         duplicateAssignments.remove();
-        return j.objectExpression(Array.from(propNames).map(createShorthandProperty(j, typeAnnotation)));
+        return j.objectExpression(
+          Array.from(propNames).map(createShorthandProperty(j, typeAnnotation))
+        );
       }
     }
     return false;
@@ -197,41 +204,39 @@ module.exports = function(file, api, options) {
 
   const build = useArrows => (name, body, typeAnnotation, destructure) => {
     const identifier = j.identifier(name);
-    const propsIdentifier = buildIdentifierWithTypeAnnotation('props', typeAnnotation);
-    const propsArg = [(destructure && destructureProps(j(body), typeAnnotation)) || propsIdentifier];
-    if (useArrows) {
-      return j.variableDeclaration(
-        'const', [
-          j.variableDeclarator(
-            identifier,
-            j.arrowFunctionExpression(
-              propsArg,
-              body
-            )
-          ),
-        ]
-      );
-    }
-    return j.functionDeclaration(
-      identifier,
-      propsArg,
-      body
+    const propsIdentifier = buildIdentifierWithTypeAnnotation(
+      'props',
+      typeAnnotation
     );
+    const propsArg = [
+      (destructure && destructureProps(j(body), typeAnnotation)) ||
+        propsIdentifier
+    ];
+    if (useArrows) {
+      return j.variableDeclaration('const', [
+        j.variableDeclarator(
+          identifier,
+          j.arrowFunctionExpression(propsArg, body)
+        )
+      ]);
+    }
+    return j.functionDeclaration(identifier, propsArg, body);
   };
 
   const buildPureComponentFunction = build();
 
   const buildPureComponentArrowFunction = build(true);
 
-  const buildStatics = (name, properties) => properties.map(prop => (
-    j.expressionStatement(
-      j.assignmentExpression(
-        '=',
-        j.memberExpression(j.identifier(name), prop.key),
-        prop.value
+  const buildStatics = (name, properties) =>
+    properties.map(prop =>
+      j.expressionStatement(
+        j.assignmentExpression(
+          '=',
+          j.memberExpression(j.identifier(name), prop.key),
+          prop.value
+        )
       )
-    )
-  ));
+    );
 
   const reportSkipped = path => {
     const name = getClassName(path);
@@ -240,21 +245,25 @@ module.exports = function(file, api, options) {
       console.warn(`Class "${name}" skipped in ${fileName}`);
       return;
     }
-    const {line, column} = path.value.loc.start;
+    const { line, column } = path.value.loc.start;
 
     console.warn(`Class "${name}" skipped in ${fileName} on ${line}:${column}`);
   };
 
   const f = j(file.source);
 
-  const pureClasses = ReactUtils.findReactES6ClassDeclaration(f)
-    .filter(path => {
-      const isPure = onlyHasRenderMethod(path) && onlyHasSafeClassProperties(path) && !hasRefs(path);
+  const pureClasses = ReactUtils.findReactES6ClassDeclaration(f).filter(
+    path => {
+      const isPure =
+        onlyHasRenderMethod(path) &&
+        onlyHasSafeClassProperties(path) &&
+        !hasRefs(path);
       if (!isPure && !silenceWarnings) {
         reportSkipped(path);
       }
       return isPure;
-    });
+    }
+  );
 
   if (pureClasses.size() === 0) {
     return null;
@@ -273,15 +282,25 @@ module.exports = function(file, api, options) {
     }
 
     replaceThisProps(renderBody);
-    
+
     if (useArrows) {
       return [
-        buildPureComponentArrowFunction(name, renderBody, propsTypeAnnotation, destructure),
+        buildPureComponentArrowFunction(
+          name,
+          renderBody,
+          propsTypeAnnotation,
+          destructure
+        ),
         ...buildStatics(name, statics)
       ];
     } else {
       return [
-        buildPureComponentFunction(name, renderBody, propsTypeAnnotation, destructure),
+        buildPureComponentFunction(
+          name,
+          renderBody,
+          propsTypeAnnotation,
+          destructure
+        ),
         ...buildStatics(name, statics)
       ];
     }

@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -33,26 +33,24 @@ module.exports = function(file, api, options) {
     // } from 'react';
     root
       .find(j.ImportDeclaration)
-      .filter(path => (
-        path.node.specifiers.filter(specifier => (
-          specifier.imported &&
-          specifier.imported.name === DOMModuleName
-        )).length > 0 &&
-        path.node.source.value === 'react'
-      ))
+      .filter(
+        path =>
+          path.node.specifiers.filter(
+            specifier =>
+              specifier.imported && specifier.imported.name === DOMModuleName
+          ).length > 0 && path.node.source.value === 'react'
+      )
       .forEach(path => {
         hasModifications = true;
 
         // Replace the DOM key with 'createElement'
-        path.node.specifiers = path.node.specifiers.map(
-          specifier => {
-            if (specifier.imported && specifier.imported.name === DOMModuleName) {
-              return j.importSpecifier(j.identifier('createElement'));
-            } else {
-              return specifier;
-            }
+        path.node.specifiers = path.node.specifiers.map(specifier => {
+          if (specifier.imported && specifier.imported.name === DOMModuleName) {
+            return j.importSpecifier(j.identifier('createElement'));
+          } else {
+            return specifier;
           }
-        );
+        });
       });
 
     //---------
@@ -69,28 +67,24 @@ module.exports = function(file, api, options) {
     // } = require('react');
     root
       .find(j.ObjectPattern)
-      .filter(path => (
-        path.parent.node.init &&
-        (
+      .filter(
+        path =>
+          path.parent.node.init &&
           // matches '} = React;'
-          path.parent.node.init.name === 'React'
-          ||
-          (
+          (path.parent.node.init.name === 'React' ||
             // matches "} = require('react');"
-            path.parent.node.init.type === 'CallExpression' &&
-            path.parent.node.init.callee.name === 'require' &&
-            path.parent.node.init.arguments[0].value === 'react'
-          )
-        ) &&
-        path.node.properties.some(property => {
-          return property.key.name === DOMModuleName;
-        })
-      ))
+            (path.parent.node.init.type === 'CallExpression' &&
+              path.parent.node.init.callee.name === 'require' &&
+              path.parent.node.init.arguments[0].value === 'react')) &&
+          path.node.properties.some(property => {
+            return property.key.name === DOMModuleName;
+          })
+      )
       .forEach(path => {
         hasModifications = true;
 
         // Replace the DOM key with 'createElement'
-        path.node.properties = path.node.properties.map((property) => {
+        path.node.properties = path.node.properties.map(property => {
           if (property.key.name === DOMModuleName) {
             return j.identifier('createElement');
           } else {
@@ -117,10 +111,9 @@ module.exports = function(file, api, options) {
     function replaceDOMReferences(j, root) {
       let hasModifications = false;
 
-      const isDOMIdentifier = path => (
+      const isDOMIdentifier = path =>
         path.node.name === DOMModuleName &&
-        path.parent.parent.node.type === 'CallExpression'
-      );
+        path.parent.parent.node.type === 'CallExpression';
 
       root
         .find(j.Identifier)
@@ -133,9 +126,7 @@ module.exports = function(file, api, options) {
           const DOMFactoryType = DOMFactoryPath.name;
 
           // DOM.div(... -> createElement(...
-          j(path.parent).replaceWith(
-            j.identifier('createElement')
-          );
+          j(path.parent).replaceWith(j.identifier('createElement'));
           // createElement(... -> createElement('div', ...
           DOMargs.unshift(j.literal(DOMFactoryType));
         });
@@ -155,13 +146,10 @@ module.exports = function(file, api, options) {
     let hasModifications = false;
 
     // matches 'React.DOM'
-    const isReactDOMIdentifier = path => (
+    const isReactDOMIdentifier = path =>
       path.node.name === DOMModuleName &&
-      (
-      path.parent.node.type === 'MemberExpression' &&
-      path.parent.node.object.name === 'React'
-      )
-    );
+      (path.parent.node.type === 'MemberExpression' &&
+        path.parent.node.object.name === 'React');
 
     root
       .find(j.Identifier)
@@ -185,7 +173,5 @@ module.exports = function(file, api, options) {
 
   hasModifications = replaceReactDOMReferences(j, root) || hasModifications;
 
-  return hasModifications
-    ? root.toSource(printOptions)
-    : null;
+  return hasModifications ? root.toSource(printOptions) : null;
 };

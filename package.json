@@ -12,9 +12,9 @@
   },
   "dependencies": {
     "chalk": "^2.4.2",
-    "execa": "^2.0.3",
+    "execa": "^3.2.0",
     "globby": "^10.0.1",
-    "inquirer": "^6.5.0",
+    "inquirer": "^7.0.0",
     "is-git-clean": "^1.1.0",
     "jscodeshift": "^0.6.4",
     "meow": "^5.0.0"
@@ -30,15 +30,15 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.5.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.5.4",
-    "@babel/preset-env": "^7.5.4",
-    "babel-eslint": "^6.0.5",
-    "babel-jest": "^24.8.0",
-    "eslint": "^2.13.1",
-    "eslint-plugin-react": "^5.2.2",
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/preset-env": "^7.6.3",
+    "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
+    "eslint": "^6.6.0",
+    "eslint-plugin-react": "^7.16.0",
     "fbjs-scripts": "^0.7.1",
-    "jest": "^24.8.0"
+    "jest": "^24.9.0"
   },
   "bin": {
     "react-codemod": "./bin/react-codemod.js"

@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -19,7 +19,7 @@ var CORE_PROPERTIES = [
   'createFactory',
   'createMixin',
   'DOM',
-  '__spread',
+  '__spread'
 ];
 
 var DOM_PROPERTIES = [
@@ -27,13 +27,10 @@ var DOM_PROPERTIES = [
   'render',
   'unmountComponentAtNode',
   'unstable_batchedUpdates',
-  'unstable_renderSubtreeIntoContainer',
+  'unstable_renderSubtreeIntoContainer'
 ];
 
-var DOM_SERVER_PROPERTIES = [
-  'renderToString',
-  'renderToStaticMarkup',
-];
+var DOM_SERVER_PROPERTIES = ['renderToString', 'renderToStaticMarkup'];
 
 function reportError(node, error) {
   throw new Error(
@@ -55,12 +52,12 @@ function isRequire(path, moduleName) {
 module.exports = function(file, api, options) {
   var j = api.jscodeshift;
 
-  var printOptions = options.printOptions || {quote: 'single'};
+  var printOptions = options.printOptions || { quote: 'single' };
   var root = j(file.source);
 
   [
     ['React', 'ReactDOM', 'ReactDOMServer'],
-    ['react', 'react-dom', 'react-dom/server'],
+    ['react', 'react-dom', 'react-dom/server']
   ].forEach(function(pair) {
     var coreModuleName = pair[0];
     var domModuleName = pair[1];
@@ -93,10 +90,7 @@ module.exports = function(file, api, options) {
             }
           }
           if (coreRequireDeclarator) {
-            reportError(
-              p.value,
-              'Multiple declarations of React'
-            );
+            reportError(p.value, 'Multiple declarations of React');
           }
           if (p.parent.value.id.type !== 'Identifier') {
             reportError(
@@ -133,8 +127,10 @@ module.exports = function(file, api, options) {
           }
           coreRequireDeclarator = reactBindings[0].parent;
           coreName = coreRequireDeclarator.value.id.name;
-          if (coreRequireDeclarator.value.init &&
-              !isRequire(coreRequireDeclarator.get('init'), coreModuleName)) {
+          if (
+            coreRequireDeclarator.value.init &&
+            !isRequire(coreRequireDeclarator.get('init'), coreModuleName)
+          ) {
             reportError(
               coreRequireDeclarator.value,
               'Unexpected initialization of ' + coreModuleName
@@ -157,7 +153,9 @@ module.exports = function(file, api, options) {
           reportError(p.value, 'Multiple declarations of React');
         }
         coreImportDeclaration = p;
-        var defaultSpecifier = p.value.specifiers.find(sp => sp.type === j.ImportDefaultSpecifier.name);
+        var defaultSpecifier = p.value.specifiers.find(
+          sp => sp.type === j.ImportDefaultSpecifier.name
+        );
         if (defaultSpecifier) {
           var name = defaultSpecifier.local.name;
           var scope = p.scope.lookup(name);
@@ -169,7 +167,9 @@ module.exports = function(file, api, options) {
             console.log('Using existing ReactDOMServer var in ' + file.path);
             domServerAlreadyDeclared = true;
           }
-          coreName = j(coreImportDeclaration).find(j.ImportDefaultSpecifier).get().value.local.name;
+          coreName = j(coreImportDeclaration)
+            .find(j.ImportDefaultSpecifier)
+            .get().value.local.name;
         }
       });
 
@@ -177,14 +177,18 @@ module.exports = function(file, api, options) {
       return;
     }
 
-    if (!domAlreadyDeclared &&
-        root.find(j.Identifier, {name: 'ReactDOM'}).size() > 0) {
+    if (
+      !domAlreadyDeclared &&
+      root.find(j.Identifier, { name: 'ReactDOM' }).size() > 0
+    ) {
       throw new Error(
         'ReactDOM is already defined in a different scope than React'
       );
     }
-    if (!domServerAlreadyDeclared &&
-        root.find(j.Identifier, {name: 'ReactDOMServer'}).size() > 0) {
+    if (
+      !domServerAlreadyDeclared &&
+      root.find(j.Identifier, { name: 'ReactDOMServer' }).size() > 0
+    ) {
       throw new Error(
         'ReactDOMServer is already defined in a different scope than React'
       );
@@ -196,126 +200,122 @@ module.exports = function(file, api, options) {
     var domUses = 0;
     var domServerUses = 0;
 
-    root
-      .find(j.Identifier, {name: coreName})
-      .forEach(p => {
-        if (processed.has(p.value)) {
-          // https://github.com/facebook/jscodeshift/issues/36
-          return;
-        }
-        processed.add(p.value);
-        if (p.parent.value.type === 'MemberExpression' ||
-            p.parent.value.type === 'QualifiedTypeIdentifier') {
-          var left;
-          var right;
-          if (p.parent.value.type === 'MemberExpression') {
-            left = p.parent.value.object;
-            right = p.parent.value.property;
-          } else {
-            left = p.parent.value.qualification;
-            right = p.parent.value.id;
-          }
-          if (left === p.value) {
-            // React.foo (or React[foo])
-            if (right.type === 'Identifier') {
-              var name = right.name;
-              if (CORE_PROPERTIES.indexOf(name) !== -1) {
-                coreUses++;
-              } else if (DOM_PROPERTIES.indexOf(name) !== -1) {
-                domUses++;
-                j(p).replaceWith(j.identifier('ReactDOM'));
-              } else if (DOM_SERVER_PROPERTIES.indexOf(name) !== -1) {
-                domServerUses++;
-                j(p).replaceWith(j.identifier('ReactDOMServer'));
-              } else {
-                throw new Error('Unknown property React.' + name);
-              }
-            }
-          } else if (right === p.value) {
-            // foo.React, no need to transform
-          } else {
-            throw new Error('unimplemented');
-          }
-        } else if (p.parent.value.type === 'VariableDeclarator') {
-          if (p.parent.value.id === p.value) {
-            // var React = ...;
-          } else if (p.parent.value.init === p.value) {
-            // var ... = React;
-            var pattern = p.parent.value.id;
-            if (pattern.type === 'ObjectPattern') {
-              // var {PropTypes} = React;
-              // Most of these cases will just be looking at {PropTypes} so this
-              // is usually a no-op.
-              var coreProperties = [];
-              var domProperties = [];
-              pattern.properties.forEach(function(prop) {
-                if (prop.key.type === 'Identifier') {
-                  var key = prop.key.name;
-                  if (CORE_PROPERTIES.indexOf(key) !== -1) {
-                    coreProperties.push(prop);
-                  } else if (DOM_PROPERTIES.indexOf(key) !== -1) {
-                    domProperties.push(prop);
-                  } else {
-                    throw new Error(
-                      'Unknown property React.' + key + ' while destructuring'
-                    );
-                  }
-                } else {
-                  throw new Error('unimplemented');
-                }
-              });
-              var domDeclarator = j.variableDeclarator(
-                j.objectPattern(domProperties),
-                j.identifier('ReactDOM')
-              );
-              if (coreProperties.length && !domProperties.length) {
-                // nothing to do
-                coreUses++;
-              } else if (domProperties.length && !coreProperties.length) {
-                domUses++;
-                j(p.parent).replaceWith(domDeclarator);
-              } else {
-                coreUses++;
-                domUses++;
-                var decl = j(p).closest(j.VariableDeclaration);
-                decl.insertAfter(j.variableDeclaration(
-                  decl.get().value.kind,
-                  [domDeclarator]
-                ));
-              }
-            } else {
-              throw new Error('unimplemented');
-            }
-          } else {
-            throw new Error('unimplemented');
-          }
-        } else if (p.parent.value.type === 'AssignmentExpression') {
-          if (p.parent.value.left === p.value) {
-            if (isRequire(p.parent.get('right'), coreModuleName)) {
-              requireAssignments.push(p.parent);
-            } else {
-              reportError(
-                p.parent.value,
-                'Unexpected assignment to ' + coreModuleName
-              );
-            }
-          } else {
-            throw new Error('unimplemented');
-          }
-        } else if (p.parent.value.type === 'ImportDefaultSpecifier') {
-          // import React from "react";
+    root.find(j.Identifier, { name: coreName }).forEach(p => {
+      if (processed.has(p.value)) {
+        // https://github.com/facebook/jscodeshift/issues/36
+        return;
+      }
+      processed.add(p.value);
+      if (
+        p.parent.value.type === 'MemberExpression' ||
+        p.parent.value.type === 'QualifiedTypeIdentifier'
+      ) {
+        var left;
+        var right;
+        if (p.parent.value.type === 'MemberExpression') {
+          left = p.parent.value.object;
+          right = p.parent.value.property;
         } else {
-          reportError(p.value, 'unimplemented ' + p.parent.value.type);
+          left = p.parent.value.qualification;
+          right = p.parent.value.id;
         }
-      });
+        if (left === p.value) {
+          // React.foo (or React[foo])
+          if (right.type === 'Identifier') {
+            var name = right.name;
+            if (CORE_PROPERTIES.indexOf(name) !== -1) {
+              coreUses++;
+            } else if (DOM_PROPERTIES.indexOf(name) !== -1) {
+              domUses++;
+              j(p).replaceWith(j.identifier('ReactDOM'));
+            } else if (DOM_SERVER_PROPERTIES.indexOf(name) !== -1) {
+              domServerUses++;
+              j(p).replaceWith(j.identifier('ReactDOMServer'));
+            } else {
+              throw new Error('Unknown property React.' + name);
+            }
+          }
+        } else if (right === p.value) {
+          // foo.React, no need to transform
+        } else {
+          throw new Error('unimplemented');
+        }
+      } else if (p.parent.value.type === 'VariableDeclarator') {
+        if (p.parent.value.id === p.value) {
+          // var React = ...;
+        } else if (p.parent.value.init === p.value) {
+          // var ... = React;
+          var pattern = p.parent.value.id;
+          if (pattern.type === 'ObjectPattern') {
+            // var {PropTypes} = React;
+            // Most of these cases will just be looking at {PropTypes} so this
+            // is usually a no-op.
+            var coreProperties = [];
+            var domProperties = [];
+            pattern.properties.forEach(function(prop) {
+              if (prop.key.type === 'Identifier') {
+                var key = prop.key.name;
+                if (CORE_PROPERTIES.indexOf(key) !== -1) {
+                  coreProperties.push(prop);
+                } else if (DOM_PROPERTIES.indexOf(key) !== -1) {
+                  domProperties.push(prop);
+                } else {
+                  throw new Error(
+                    'Unknown property React.' + key + ' while destructuring'
+                  );
+                }
+              } else {
+                throw new Error('unimplemented');
+              }
+            });
+            var domDeclarator = j.variableDeclarator(
+              j.objectPattern(domProperties),
+              j.identifier('ReactDOM')
+            );
+            if (coreProperties.length && !domProperties.length) {
+              // nothing to do
+              coreUses++;
+            } else if (domProperties.length && !coreProperties.length) {
+              domUses++;
+              j(p.parent).replaceWith(domDeclarator);
+            } else {
+              coreUses++;
+              domUses++;
+              var decl = j(p).closest(j.VariableDeclaration);
+              decl.insertAfter(
+                j.variableDeclaration(decl.get().value.kind, [domDeclarator])
+              );
+            }
+          } else {
+            throw new Error('unimplemented');
+          }
+        } else {
+          throw new Error('unimplemented');
+        }
+      } else if (p.parent.value.type === 'AssignmentExpression') {
+        if (p.parent.value.left === p.value) {
+          if (isRequire(p.parent.get('right'), coreModuleName)) {
+            requireAssignments.push(p.parent);
+          } else {
+            reportError(
+              p.parent.value,
+              'Unexpected assignment to ' + coreModuleName
+            );
+          }
+        } else {
+          throw new Error('unimplemented');
+        }
+      } else if (p.parent.value.type === 'ImportDefaultSpecifier') {
+        // import React from "react";
+      } else {
+        reportError(p.value, 'unimplemented ' + p.parent.value.type);
+      }
+    });
 
     coreUses += root.find(j.JSXElement).size();
 
     function insertRequire(name, path) {
-      var req = j.callExpression(
-        j.identifier('require'),
-        [j.literal(path)]
-      );
+      var req = j.callExpression(j.identifier('require'), [j.literal(path)]);
       requireAssignments.forEach(function(requireAssignment) {
         requireAssignment.parent.insertAfter(
           j.expressionStatement(
@@ -323,13 +323,14 @@ module.exports = function(file, api, options) {
           )
         );
       });
-      coreRequireDeclarator.parent.insertAfter(j.variableDeclaration(
-        coreRequireDeclarator.parent.value.kind,
-        [j.variableDeclarator(
-          j.identifier(name),
-          coreRequireDeclarator.value.init ? req : null
-        )]
-      ));
+      coreRequireDeclarator.parent.insertAfter(
+        j.variableDeclaration(coreRequireDeclarator.parent.value.kind, [
+          j.variableDeclarator(
+            j.identifier(name),
+            coreRequireDeclarator.value.init ? req : null
+          )
+        ])
+      );
     }
 
     if (coreRequireDeclarator) {
@@ -347,15 +348,23 @@ module.exports = function(file, api, options) {
       function findImportPath(name, path) {
         return root
           .find(j.ImportDeclaration, { source: { value: path } })
-          .filter(p => p.value.specifiers.find(sp => sp.type === 'ImportDefaultSpecifier' && sp.local.name === name));
+          .filter(p =>
+            p.value.specifiers.find(
+              sp =>
+                sp.type === 'ImportDefaultSpecifier' && sp.local.name === name
+            )
+          );
       }
 
       function emitImport(name, path, knownProperties, uses) {
-        const usedProperties = coreImportDeclaration.value.specifiers.filter(
-          sp => sp.type === j.ImportSpecifier.name
-        ).filter(sp =>
-          sp.imported.type === 'Identifier' && knownProperties.indexOf(sp.imported.name) !== -1
-        ).map(sp => sp.imported.name);
+        const usedProperties = coreImportDeclaration.value.specifiers
+          .filter(sp => sp.type === j.ImportSpecifier.name)
+          .filter(
+            sp =>
+              sp.imported.type === 'Identifier' &&
+              knownProperties.indexOf(sp.imported.name) !== -1
+          )
+          .map(sp => sp.imported.name);
 
         const importDeclaration = findImportPath(name, path);
         const specifiers = [];
@@ -366,30 +375,44 @@ module.exports = function(file, api, options) {
           specifiers.push(j.importDefaultSpecifier(j.identifier(name)));
         }
         if (usedProperties.length > 0) {
-          j(coreImportDeclaration).find(j.ImportSpecifier)
+          j(coreImportDeclaration)
+            .find(j.ImportSpecifier)
             .filter(p => usedProperties.indexOf(p.value.local.name) !== -1)
             .remove();
-          specifiers.push(...usedProperties.map(prop =>
-            j.importSpecifier(j.identifier(prop))
-          ));
+          specifiers.push(
+            ...usedProperties.map(prop => j.importSpecifier(j.identifier(prop)))
+          );
         }
         if (specifiers.length > 0) {
           if (importDeclaration.length > 0) {
-            importDeclaration.replaceWith(j.importDeclaration(specifiers, j.literal(path)));
+            importDeclaration.replaceWith(
+              j.importDeclaration(specifiers, j.literal(path))
+            );
           } else {
-            coreImportDeclaration.insertAfter(j.importDeclaration(specifiers, j.literal(path)));
+            coreImportDeclaration.insertAfter(
+              j.importDeclaration(specifiers, j.literal(path))
+            );
           }
         }
       }
 
       emitImport('ReactDOM', domModuleName, DOM_PROPERTIES, domUses);
-      emitImport('ReactDOMServer', domServerModuleName, DOM_SERVER_PROPERTIES, domServerUses);
+      emitImport(
+        'ReactDOMServer',
+        domServerModuleName,
+        DOM_SERVER_PROPERTIES,
+        domServerUses
+      );
 
-      const coreImportSpecifiers = j(coreImportDeclaration).find(j.ImportSpecifier);
+      const coreImportSpecifiers = j(coreImportDeclaration).find(
+        j.ImportSpecifier
+      );
       if (coreImportSpecifiers.length === 0 && coreUses === 0) {
         j(coreImportDeclaration).remove();
       } else if (coreImportSpecifiers.length > 0 && coreUses === 0) {
-        j(coreImportDeclaration).find(j.ImportDefaultSpecifier).remove();
+        j(coreImportDeclaration)
+          .find(j.ImportDefaultSpecifier)
+          .remove();
       }
     }
   });
