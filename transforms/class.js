@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -16,15 +16,14 @@ module.exports = (file, api, options) => {
   require('./utils/array-polyfills');
   const ReactUtils = require('./utils/ReactUtils')(j);
 
-  const printOptions =
-    options.printOptions || {
-      quote: 'single',
-      trailingComma: true,
-      flowObjectCommas: true,
-      arrowParensAlways: true,
-      arrayBracketSpacing: false,
-      objectCurlySpacing: false,
-    };
+  const printOptions = options.printOptions || {
+    quote: 'single',
+    trailingComma: true,
+    flowObjectCommas: true,
+    arrowParensAlways: true,
+    arrayBracketSpacing: false,
+    objectCurlySpacing: false
+  };
 
   const root = j(file.source);
 
@@ -42,7 +41,7 @@ module.exports = (file, api, options) => {
     getDefaultProps: true,
     getInitialState: true,
     render: true,
-    shouldComponentUpdate: true,
+    shouldComponentUpdate: true
   };
 
   const DEFAULT_PROPS_FIELD = 'getDefaultProps';
@@ -54,17 +53,17 @@ module.exports = (file, api, options) => {
     'isMounted',
     'replaceProps',
     'replaceState',
-    'setProps',
+    'setProps'
   ];
 
-  const PURE_MIXIN_MODULE_NAME = options['mixin-module-name'] ||
-    'react-addons-pure-render-mixin';
+  const PURE_MIXIN_MODULE_NAME =
+    options['mixin-module-name'] || 'react-addons-pure-render-mixin';
 
-  const CREATE_CLASS_MODULE_NAME = options['create-class-module-name'] ||
-    'create-react-class';
+  const CREATE_CLASS_MODULE_NAME =
+    options['create-class-module-name'] || 'create-react-class';
 
-  const CREATE_CLASS_VARIABLE_NAME = options['create-class-variable-name'] ||
-    'createReactClass';
+  const CREATE_CLASS_VARIABLE_NAME =
+    options['create-class-variable-name'] || 'createReactClass';
 
   const STATIC_KEY = 'statics';
 
@@ -72,7 +71,7 @@ module.exports = (file, api, options) => {
     childContextTypes: true,
     contextTypes: true,
     displayName: true,
-    propTypes: true,
+    propTypes: true
   };
 
   const MIXIN_KEY = 'mixins';
@@ -96,11 +95,10 @@ module.exports = (file, api, options) => {
 
   // ---------------------------------------------------------------------------
   // Helpers
-  const createFindPropFn = prop => property => (
+  const createFindPropFn = prop => property =>
     property.key &&
     property.key.type === 'Identifier' &&
-    property.key.name === prop
-  );
+    property.key.name === prop;
 
   const filterDefaultPropsField = node =>
     createFindPropFn(DEFAULT_PROPS_FIELD)(node);
@@ -116,54 +114,44 @@ module.exports = (file, api, options) => {
     return to;
   };
 
-  const isPrimExpression = node => (
-    node.type === 'Literal' || ( // NOTE this might change in babylon v6
-      node.type === 'Identifier' &&
-      node.name === 'undefined'
-  ));
+  const isPrimExpression = node =>
+    node.type === 'Literal' || // NOTE this might change in babylon v6
+    (node.type === 'Identifier' && node.name === 'undefined');
 
-  const isFunctionExpression = node => (
+  const isFunctionExpression = node =>
     node.key &&
     node.key.type === 'Identifier' &&
     node.value &&
-    node.value.type === 'FunctionExpression'
-  );
+    node.value.type === 'FunctionExpression';
 
-  const isPrimProperty = prop => (
+  const isPrimProperty = prop =>
     prop.key &&
     prop.key.type === 'Identifier' &&
     prop.value &&
-    isPrimExpression(prop.value)
-  );
+    isPrimExpression(prop.value);
 
-  const isPrimPropertyWithTypeAnnotation = prop => (
+  const isPrimPropertyWithTypeAnnotation = prop =>
     prop.key &&
     prop.key.type === 'Identifier' &&
     prop.value &&
     prop.value.type === 'TypeCastExpression' &&
-    isPrimExpression(prop.value.expression)
-  );
+    isPrimExpression(prop.value.expression);
 
-  const hasSingleReturnStatement = value => (
-    (
-      value.type === 'ArrowFunctionExpression' &&
+  const hasSingleReturnStatement = value =>
+    (value.type === 'ArrowFunctionExpression' &&
       value.body &&
-      value.body.type === 'ObjectExpression'
-    ) || (
-      (
-        value.type === 'FunctionExpression' || value.type === 'ArrowFunctionExpression'
-      ) &&
+      value.body.type === 'ObjectExpression') ||
+    ((value.type === 'FunctionExpression' ||
+      value.type === 'ArrowFunctionExpression') &&
       value.body &&
       value.body.type === 'BlockStatement' &&
       value.body.body &&
       value.body.body.length === 1 &&
       value.body.body[0].type === 'ReturnStatement' &&
-      value.body.body[0].argument
-    )
-  );
+      value.body.body[0].argument);
 
   const isInitialStateLiftable = getInitialState => {
-    if (!getInitialState || !(getInitialState.value)) {
+    if (!getInitialState || !getInitialState.value) {
       return true;
     }
 
@@ -175,8 +163,9 @@ module.exports = (file, api, options) => {
   const checkDeprecatedAPICalls = classPath =>
     DEPRECATED_APIS.reduce(
       (acc, name) =>
-        acc + j(classPath)
-          .find(j.Identifier, {name})
+        acc +
+        j(classPath)
+          .find(j.Identifier, { name })
           .filter(path => {
             // Do not consider history.replaceState() deprecated
             let correctContext = true;
@@ -201,10 +190,14 @@ module.exports = (file, api, options) => {
   const hasNoCallsToDeprecatedAPIs = classPath => {
     if (checkDeprecatedAPICalls(classPath)) {
       console.warn(
-        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
-        'was skipped because of deprecated API calls. Remove calls to ' +
-        DEPRECATED_APIS.join(', ') + ' in your React component and re-run ' +
-        'this script.'
+        file.path +
+          ': `' +
+          ReactUtils.directlyGetComponentName(classPath) +
+          '` ' +
+          'was skipped because of deprecated API calls. Remove calls to ' +
+          DEPRECATED_APIS.join(', ') +
+          ' in your React component and re-run ' +
+          'this script.'
       );
       return false;
     }
@@ -212,23 +205,31 @@ module.exports = (file, api, options) => {
   };
 
   const hasNoRefsToAPIsThatWillBeRemoved = classPath => {
-    const hasInvalidCalls = (
-      j(classPath).find(j.MemberExpression, {
-        object: {type: 'ThisExpression'},
-        property: {name: DEFAULT_PROPS_FIELD},
-      }).size() > 0 ||
-      j(classPath).find(j.MemberExpression, {
-        object: {type: 'ThisExpression'},
-        property: {name: GET_INITIAL_STATE_FIELD},
-      }).size() > 0
-    );
+    const hasInvalidCalls =
+      j(classPath)
+        .find(j.MemberExpression, {
+          object: { type: 'ThisExpression' },
+          property: { name: DEFAULT_PROPS_FIELD }
+        })
+        .size() > 0 ||
+      j(classPath)
+        .find(j.MemberExpression, {
+          object: { type: 'ThisExpression' },
+          property: { name: GET_INITIAL_STATE_FIELD }
+        })
+        .size() > 0;
 
     if (hasInvalidCalls) {
       console.warn(
-        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
-        'was skipped because of API calls that will be removed. Remove calls to `' +
-        DEFAULT_PROPS_FIELD + '` and/or `' + GET_INITIAL_STATE_FIELD +
-        '` in your React component and re-run this script.'
+        file.path +
+          ': `' +
+          ReactUtils.directlyGetComponentName(classPath) +
+          '` ' +
+          'was skipped because of API calls that will be removed. Remove calls to `' +
+          DEFAULT_PROPS_FIELD +
+          '` and/or `' +
+          GET_INITIAL_STATE_FIELD +
+          '` in your React component and re-run this script.'
       );
       return false;
     }
@@ -236,15 +237,19 @@ module.exports = (file, api, options) => {
   };
 
   const doesNotUseArguments = classPath => {
-    const hasArguments = (
-      j(classPath).find(j.Identifier, {name: 'arguments'}).size() > 0
-    );
+    const hasArguments =
+      j(classPath)
+        .find(j.Identifier, { name: 'arguments' })
+        .size() > 0;
     if (hasArguments) {
       console.warn(
-        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
-        'was skipped because `arguments` was found in your functions. ' +
-        'Arrow functions do not expose an `arguments` object; ' +
-        'consider changing to use ES6 spread operator and re-run this script.'
+        file.path +
+          ': `' +
+          ReactUtils.directlyGetComponentName(classPath) +
+          '` ' +
+          'was skipped because `arguments` was found in your functions. ' +
+          'Arrow functions do not expose an `arguments` object; ' +
+          'consider changing to use ES6 spread operator and re-run this script.'
       );
       return false;
     }
@@ -259,38 +264,48 @@ module.exports = (file, api, options) => {
     const collection = j(getInitialState);
     let result = true;
 
-    const propsVarDeclarationCount = collection.find(j.VariableDeclarator, {
-      id: {name: 'props'},
-    }).size();
+    const propsVarDeclarationCount = collection
+      .find(j.VariableDeclarator, {
+        id: { name: 'props' }
+      })
+      .size();
 
-    const contextVarDeclarationCount = collection.find(j.VariableDeclarator, {
-      id: {name: 'context'},
-    }).size();
+    const contextVarDeclarationCount = collection
+      .find(j.VariableDeclarator, {
+        id: { name: 'context' }
+      })
+      .size();
 
     if (
       propsVarDeclarationCount &&
-      propsVarDeclarationCount !== collection.find(j.VariableDeclarator, {
-        id: {name: 'props'},
-        init: {
-          type: 'MemberExpression',
-          object: {type: 'ThisExpression'},
-          property: {name: 'props'},
-        }
-      }).size()
+      propsVarDeclarationCount !==
+        collection
+          .find(j.VariableDeclarator, {
+            id: { name: 'props' },
+            init: {
+              type: 'MemberExpression',
+              object: { type: 'ThisExpression' },
+              property: { name: 'props' }
+            }
+          })
+          .size()
     ) {
       result = false;
     }
 
     if (
       contextVarDeclarationCount &&
-      contextVarDeclarationCount !== collection.find(j.VariableDeclarator, {
-        id: {name: 'context'},
-        init: {
-          type: 'MemberExpression',
-          object: {type: 'ThisExpression'},
-          property: {name: 'context'},
-        }
-      }).size()
+      contextVarDeclarationCount !==
+        collection
+          .find(j.VariableDeclarator, {
+            id: { name: 'context' },
+            init: {
+              type: 'MemberExpression',
+              object: { type: 'ThisExpression' },
+              property: { name: 'context' }
+            }
+          })
+          .size()
     ) {
       result = false;
     }
@@ -303,13 +318,18 @@ module.exports = (file, api, options) => {
     if (!specPath) {
       return false;
     }
-    const result = isGetInitialStateConstructorSafe(findGetInitialState(specPath));
+    const result = isGetInitialStateConstructorSafe(
+      findGetInitialState(specPath)
+    );
     if (!result) {
       console.warn(
-        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
-        'was skipped because of potential shadowing issues were found in ' +
-        'the React component. Rename variable declarations of `props` and/or `context` ' +
-        'in your `getInitialState` and re-run this script.'
+        file.path +
+          ': `' +
+          ReactUtils.directlyGetComponentName(classPath) +
+          '` ' +
+          'was skipped because of potential shadowing issues were found in ' +
+          'the React component. Rename variable declarations of `props` and/or `context` ' +
+          'in your `getInitialState` and re-run this script.'
       );
     }
     return result;
@@ -320,29 +340,34 @@ module.exports = (file, api, options) => {
     if (!specPath) {
       return false;
     }
-    const invalidProperties = specPath.properties.filter(prop => (
-      !prop.key.name || (
-        !STATIC_KEYS.hasOwnProperty(prop.key.name) &&
-        STATIC_KEY != prop.key.name &&
-        !filterDefaultPropsField(prop) &&
-        !filterGetInitialStateField(prop) &&
-        !isFunctionExpression(prop) &&
-        !isPrimProperty(prop) &&
-        !isPrimPropertyWithTypeAnnotation(prop) &&
-        MIXIN_KEY != prop.key.name
-      )
-    ));
+    const invalidProperties = specPath.properties.filter(
+      prop =>
+        !prop.key.name ||
+        (!STATIC_KEYS.hasOwnProperty(prop.key.name) &&
+          STATIC_KEY != prop.key.name &&
+          !filterDefaultPropsField(prop) &&
+          !filterGetInitialStateField(prop) &&
+          !isFunctionExpression(prop) &&
+          !isPrimProperty(prop) &&
+          !isPrimPropertyWithTypeAnnotation(prop) &&
+          MIXIN_KEY != prop.key.name)
+    );
 
     if (invalidProperties.length) {
       const invalidText = invalidProperties
-        .map(prop => prop.key.name ? prop.key.name : prop.key)
+        .map(prop => (prop.key.name ? prop.key.name : prop.key))
         .join(', ');
       console.warn(
-        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
-        'was skipped because of invalid field(s) `' + invalidText + '` on ' +
-        'the React component. Remove any right-hand-side expressions that ' +
-        'are not simple, like: `componentWillUpdate: createWillUpdate()` or ' +
-        '`render: foo ? renderA : renderB`.'
+        file.path +
+          ': `' +
+          ReactUtils.directlyGetComponentName(classPath) +
+          '` ' +
+          'was skipped because of invalid field(s) `' +
+          invalidText +
+          '` on ' +
+          'the React component. Remove any right-hand-side expressions that ' +
+          'are not simple, like: `componentWillUpdate: createWillUpdate()` or ' +
+          '`render: foo ? renderA : renderB`.'
       );
     }
     return !invalidProperties.length;
@@ -368,10 +393,7 @@ module.exports = (file, api, options) => {
         return value.body.body[0].argument;
       }
     } else {
-      return j.callExpression(
-        value,
-        []
-      );
+      return j.callExpression(value, []);
     }
   };
 
@@ -393,11 +415,18 @@ module.exports = (file, api, options) => {
 
     for (let i = 0; i < specPath.properties.length; i++) {
       const property = specPath.properties[i];
-      if (createFindPropFn('statics')(property) && property.value && property.value.properties) {
+      if (
+        createFindPropFn('statics')(property) &&
+        property.value &&
+        property.value.properties
+      ) {
         result.push(...property.value.properties);
       } else if (createFindPropFn(DEFAULT_PROPS_FIELD)(property)) {
         result.push(createDefaultProps(property));
-      } else if (property.key && STATIC_KEYS.hasOwnProperty(property.key.name)) {
+      } else if (
+        property.key &&
+        STATIC_KEYS.hasOwnProperty(property.key.name)
+      ) {
         result.push(property);
       }
     }
@@ -405,31 +434,38 @@ module.exports = (file, api, options) => {
     return result;
   };
 
-  const collectNonStaticProperties = specPath => specPath.properties
-    .filter(prop =>
-      !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
-    )
-    .filter(prop => (!STATIC_KEYS.hasOwnProperty(prop.key.name)) && prop.key.name !== STATIC_KEY)
-    .filter(prop =>
-      isFunctionExpression(prop) ||
-      isPrimPropertyWithTypeAnnotation(prop) ||
-      isPrimProperty(prop)
-    );
+  const collectNonStaticProperties = specPath =>
+    specPath.properties
+      .filter(
+        prop =>
+          !(filterDefaultPropsField(prop) || filterGetInitialStateField(prop))
+      )
+      .filter(
+        prop =>
+          !STATIC_KEYS.hasOwnProperty(prop.key.name) &&
+          prop.key.name !== STATIC_KEY
+      )
+      .filter(
+        prop =>
+          isFunctionExpression(prop) ||
+          isPrimPropertyWithTypeAnnotation(prop) ||
+          isPrimProperty(prop)
+      );
 
-  const findRequirePathAndBinding = (moduleName) => {
+  const findRequirePathAndBinding = moduleName => {
     let result = null;
     const requireCall = root.find(j.VariableDeclarator, {
-      id: {type: 'Identifier'},
+      id: { type: 'Identifier' },
       init: {
-        callee: {name: 'require'},
-        arguments: [{value: moduleName}],
-      },
+        callee: { name: 'require' },
+        arguments: [{ value: moduleName }]
+      }
     });
 
     const importStatement = root.find(j.ImportDeclaration, {
       source: {
-        value: moduleName,
-      },
+        value: moduleName
+      }
     });
 
     if (importStatement.size()) {
@@ -437,7 +473,7 @@ module.exports = (file, api, options) => {
         result = {
           path,
           binding: path.value.specifiers[0].local.name,
-          type: 'import',
+          type: 'import'
         };
       });
     } else if (requireCall.size()) {
@@ -445,7 +481,7 @@ module.exports = (file, api, options) => {
         result = {
           path,
           binding: path.value.id.name,
-          type: 'require',
+          type: 'require'
         };
       });
     }
@@ -453,41 +489,42 @@ module.exports = (file, api, options) => {
     return result;
   };
 
-  const pureRenderMixinPathAndBinding = findRequirePathAndBinding(PURE_MIXIN_MODULE_NAME);
+  const pureRenderMixinPathAndBinding = findRequirePathAndBinding(
+    PURE_MIXIN_MODULE_NAME
+  );
 
   // ---------------------------------------------------------------------------
   // Boom!
   const createMethodDefinition = fn =>
-    withComments(j.methodDefinition(
-      'method',
-      fn.key,
-      fn.value
-    ), fn);
+    withComments(j.methodDefinition('method', fn.key, fn.value), fn);
 
   const updatePropsAndContextAccess = getInitialState => {
     const collection = j(getInitialState);
 
-    collection.find(j.MemberExpression, {
-      object: {
-        type: 'ThisExpression',
-      },
-      property: {
-        type: 'Identifier',
-        name: 'props',
-      },
-    }).forEach(path => j(path).replaceWith(j.identifier('props')));
+    collection
+      .find(j.MemberExpression, {
+        object: {
+          type: 'ThisExpression'
+        },
+        property: {
+          type: 'Identifier',
+          name: 'props'
+        }
+      })
+      .forEach(path => j(path).replaceWith(j.identifier('props')));
 
-    collection.find(j.MemberExpression, {
-      object: {
-        type: 'ThisExpression',
-      },
-      property: {
-        type: 'Identifier',
-        name: 'context',
-      },
-    }).forEach(path => j(path).replaceWith(j.identifier('context')));
+    collection
+      .find(j.MemberExpression, {
+        object: {
+          type: 'ThisExpression'
+        },
+        property: {
+          type: 'Identifier',
+          name: 'context'
+        }
+      })
+      .forEach(path => j(path).replaceWith(j.identifier('context')));
   };
-
 
   const inlineGetInitialState = getInitialState => {
     const functionExpressionCollection = j(getInitialState.value);
@@ -495,10 +532,12 @@ module.exports = (file, api, options) => {
     // at this point if there exists bindings like `const props = ...`, we
     // already know the RHS must be `this.props` (see `isGetInitialStateConstructorSafe`)
     // so it's safe to just remove them
-    functionExpressionCollection.find(j.VariableDeclarator, {id: {name: 'props'}})
+    functionExpressionCollection
+      .find(j.VariableDeclarator, { id: { name: 'props' } })
       .forEach(path => j(path).remove());
 
-    functionExpressionCollection.find(j.VariableDeclarator, {id: {name: 'context'}})
+    functionExpressionCollection
+      .find(j.VariableDeclarator, { id: { name: 'context' } })
       .forEach(path => j(path).remove());
 
     return functionExpressionCollection
@@ -529,33 +568,39 @@ module.exports = (file, api, options) => {
           shouldInsertReturnAfterAssignment = true;
         }
 
-        j(path).replaceWith(j.expressionStatement(
-          j.assignmentExpression(
-            '=',
-            j.memberExpression(
-              j.thisExpression(),
-              j.identifier('state'),
-              false
-            ),
-            path.value.argument
+        j(path).replaceWith(
+          j.expressionStatement(
+            j.assignmentExpression(
+              '=',
+              j.memberExpression(
+                j.thisExpression(),
+                j.identifier('state'),
+                false
+              ),
+              path.value.argument
+            )
           )
-        ));
+        );
 
         if (shouldInsertReturnAfterAssignment) {
           j(path).insertAfter(j.returnStatement(null));
         }
-      }).getAST()[0].value.body.body;
+      })
+      .getAST()[0].value.body.body;
   };
 
   const convertInitialStateToClassProperty = getInitialState =>
-    withComments(j.classProperty(
-      j.identifier('state'),
-      pickReturnValueOrCreateIIFE(getInitialState.value),
-      getInitialState.value.returnType,
-      false
-    ), getInitialState);
+    withComments(
+      j.classProperty(
+        j.identifier('state'),
+        pickReturnValueOrCreateIIFE(getInitialState.value),
+        getInitialState.value.returnType,
+        false
+      ),
+      getInitialState
+    );
 
-  const createConstructorArgs = (hasContextAccess) => {
+  const createConstructorArgs = hasContextAccess => {
     if (hasContextAccess) {
       return [j.identifier('props'), j.identifier('context')];
     }
@@ -563,24 +608,33 @@ module.exports = (file, api, options) => {
     return [j.identifier('props')];
   };
 
-  const createConstructor = (getInitialState) => {
+  const createConstructor = getInitialState => {
     const initialStateAST = j(getInitialState);
     let hasContextAccess = false;
 
     if (
-      initialStateAST.find(j.MemberExpression, { // has `this.context` access
-        object: {type: 'ThisExpression'},
-        property: {type: 'Identifier', name: 'context'},
-      }).size() ||
-      initialStateAST.find(j.CallExpression, { // a direct method call `this.x()`
-        callee: {
-          type: 'MemberExpression',
-          object: {type: 'ThisExpression'},
-        },
-      }).size() ||
-      initialStateAST.find(j.MemberExpression, { // `this` is referenced alone
-        object: {type: 'ThisExpression'},
-      }).size() !== initialStateAST.find(j.ThisExpression).size()
+      initialStateAST
+        .find(j.MemberExpression, {
+          // has `this.context` access
+          object: { type: 'ThisExpression' },
+          property: { type: 'Identifier', name: 'context' }
+        })
+        .size() ||
+      initialStateAST
+        .find(j.CallExpression, {
+          // a direct method call `this.x()`
+          callee: {
+            type: 'MemberExpression',
+            object: { type: 'ThisExpression' }
+          }
+        })
+        .size() ||
+      initialStateAST
+        .find(j.MemberExpression, {
+          // `this` is referenced alone
+          object: { type: 'ThisExpression' }
+        })
+        .size() !== initialStateAST.find(j.ThisExpression).size()
     ) {
       hasContextAccess = true;
     }
@@ -598,26 +652,19 @@ module.exports = (file, api, options) => {
             [].concat(
               [
                 j.expressionStatement(
-                  j.callExpression(
-                    j.identifier('super'),
-                    constructorArgs
-                  )
-                ),
+                  j.callExpression(j.identifier('super'), constructorArgs)
+                )
               ],
               inlineGetInitialState(getInitialState)
             )
           )
-        ),
-      }),
+        )
+      })
     ];
   };
 
   const createArrowFunctionExpression = fn => {
-    const arrowFunc = j.arrowFunctionExpression(
-      fn.params,
-      fn.body,
-      false
-    );
+    const arrowFunc = j.arrowFunctionExpression(fn.params, fn.body, false);
 
     arrowFunc.returnType = fn.returnType;
     arrowFunc.defaults = fn.defaults;
@@ -629,28 +676,32 @@ module.exports = (file, api, options) => {
   };
 
   const createArrowProperty = prop =>
-    withComments(j.classProperty(
-      j.identifier(prop.key.name),
-      createArrowFunctionExpression(prop.value),
-      null,
-      false
-    ), prop);
+    withComments(
+      j.classProperty(
+        j.identifier(prop.key.name),
+        createArrowFunctionExpression(prop.value),
+        null,
+        false
+      ),
+      prop
+    );
 
   const createClassProperty = prop =>
-    withComments(j.classProperty(
-      j.identifier(prop.key.name),
-      prop.value,
-      null,
-      false
-    ), prop);
+    withComments(
+      j.classProperty(j.identifier(prop.key.name), prop.value, null, false),
+      prop
+    );
 
   const createClassPropertyWithType = prop =>
-    withComments(j.classProperty(
-      j.identifier(prop.key.name),
-      prop.value.expression,
-      prop.value.typeAnnotation,
-      false
-    ), prop);
+    withComments(
+      j.classProperty(
+        j.identifier(prop.key.name),
+        prop.value.expression,
+        prop.value.typeAnnotation,
+        false
+      ),
+      prop
+    );
 
   // ---------------------------------------------------------------------------
   // Flow!
@@ -675,7 +726,8 @@ module.exports = (file, api, options) => {
         return j.booleanLiteralTypeAnnotation(node.value, node.raw);
       case 'object': // we already know it's a NullLiteral here
         return j.nullLiteralTypeAnnotation();
-      default: // this should never happen
+      default:
+        // this should never happen
         return flowFixMeType;
     }
   };
@@ -689,37 +741,33 @@ module.exports = (file, api, options) => {
     ),
     bool: j.booleanTypeAnnotation(),
     element: flowFixMeType, // flow does the same for `element` type in `propTypes`
-    func: j.genericTypeAnnotation(
-      j.identifier('Function'),
-      null
-    ),
+    func: j.genericTypeAnnotation(j.identifier('Function'), null),
     node: flowFixMeType, // flow does the same for `node` type in `propTypes`
     number: j.numberTypeAnnotation(),
-    object: j.genericTypeAnnotation(
-      j.identifier('Object'),
-      null
-    ),
+    object: j.genericTypeAnnotation(j.identifier('Object'), null),
     string: j.stringTypeAnnotation(),
 
     // type classes
-    arrayOf: (type) => j.genericTypeAnnotation(
-      j.identifier('Array'),
-      j.typeParameterInstantiation([type])
-    ),
-    instanceOf: (type) => j.genericTypeAnnotation(
-      type,
-      null
-    ),
-    objectOf: (type) => j.objectTypeAnnotation([], [
-      j.objectTypeIndexer(
-        j.identifier('key'),
-        j.stringTypeAnnotation(),
-        type
-      )
-    ]),
-    oneOf: (typeList) => j.unionTypeAnnotation(typeList),
-    oneOfType: (typeList) => j.unionTypeAnnotation(typeList),
-    shape: (propList) => j.objectTypeAnnotation(propList),
+    arrayOf: type =>
+      j.genericTypeAnnotation(
+        j.identifier('Array'),
+        j.typeParameterInstantiation([type])
+      ),
+    instanceOf: type => j.genericTypeAnnotation(type, null),
+    objectOf: type =>
+      j.objectTypeAnnotation(
+        [],
+        [
+          j.objectTypeIndexer(
+            j.identifier('key'),
+            j.stringTypeAnnotation(),
+            type
+          )
+        ]
+      ),
+    oneOf: typeList => j.unionTypeAnnotation(typeList),
+    oneOfType: typeList => j.unionTypeAnnotation(typeList),
+    shape: propList => j.objectTypeAnnotation(propList)
   };
 
   const propTypeToFlowAnnotation = val => {
@@ -727,7 +775,8 @@ module.exports = (file, api, options) => {
     let isOptional = true;
     let typeResult = flowFixMeType;
 
-    if ( // check `.isRequired` first
+    if (
+      // check `.isRequired` first
       cursor.type === 'MemberExpression' &&
       cursor.property.type === 'Identifier' &&
       cursor.property.name === 'isRequired'
@@ -737,13 +786,16 @@ module.exports = (file, api, options) => {
     }
 
     switch (cursor.type) {
-      case 'CallExpression': { // type class
-        const calleeName = cursor.callee.type === 'MemberExpression' ?
-          cursor.callee.property.name :
-          cursor.callee.name;
+      case 'CallExpression': {
+        // type class
+        const calleeName =
+          cursor.callee.type === 'MemberExpression'
+            ? cursor.callee.property.name
+            : cursor.callee.name;
 
         const constructor = propTypeToFlowMapping[calleeName];
-        if (!constructor) { // unknown type class
+        if (!constructor) {
+          // unknown type class
           // it's not necessary since `typeResult` defaults to `flowFixMeType`,
           // but it's more explicit this way
           typeResult = flowFixMeType;
@@ -753,9 +805,7 @@ module.exports = (file, api, options) => {
         switch (cursor.callee.property.name) {
           case 'arrayOf': {
             const arg = cursor.arguments[0];
-            typeResult = constructor(
-              propTypeToFlowAnnotation(arg)[0]
-            );
+            typeResult = constructor(propTypeToFlowAnnotation(arg)[0]);
             break;
           }
           case 'instanceOf': {
@@ -770,25 +820,22 @@ module.exports = (file, api, options) => {
           }
           case 'objectOf': {
             const arg = cursor.arguments[0];
-            typeResult = constructor(
-              propTypeToFlowAnnotation(arg)[0]
-            );
+            typeResult = constructor(propTypeToFlowAnnotation(arg)[0]);
             break;
           }
           case 'oneOf': {
             const argList = cursor.arguments[0].elements;
             if (
               !argList ||
-              !argList.every(node =>
-                (node.type === 'Literal') ||
-                (node.type === 'Identifier' && node.name === 'undefined')
+              !argList.every(
+                node =>
+                  node.type === 'Literal' ||
+                  (node.type === 'Identifier' && node.name === 'undefined')
               )
             ) {
               typeResult = flowFixMeType;
             } else {
-              typeResult = constructor(
-                argList.map(literalToFlowType)
-              );
+              typeResult = constructor(argList.map(literalToFlowType));
             }
             break;
           }
@@ -812,14 +859,20 @@ module.exports = (file, api, options) => {
             const flowPropList = [];
             rawPropList.forEach(typeProp => {
               const keyIsLiteral = typeProp.key.type === 'Literal';
-              const name = keyIsLiteral ? typeProp.key.value : typeProp.key.name;
+              const name = keyIsLiteral
+                ? typeProp.key.value
+                : typeProp.key.name;
 
-              const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
-              flowPropList.push(j.objectTypeProperty(
-                keyIsLiteral ? j.literal(name) : j.identifier(name),
-                valueType,
-                isOptional
-              ));
+              const [valueType, isOptional] = propTypeToFlowAnnotation(
+                typeProp.value
+              );
+              flowPropList.push(
+                j.objectTypeProperty(
+                  keyIsLiteral ? j.literal(name) : j.identifier(name),
+                  valueType,
+                  isOptional
+                )
+              );
             });
 
             typeResult = constructor(flowPropList);
@@ -831,8 +884,10 @@ module.exports = (file, api, options) => {
         }
         break;
       }
-      case 'MemberExpression': { // prim type
-        if (cursor.property.type !== 'Identifier') { // unrecognizable
+      case 'MemberExpression': {
+        // prim type
+        if (cursor.property.type !== 'Identifier') {
+          // unrecognizable
           typeResult = flowFixMeType;
           break;
         }
@@ -840,13 +895,15 @@ module.exports = (file, api, options) => {
         const maybeType = propTypeToFlowMapping[cursor.property.name];
         if (maybeType) {
           typeResult = propTypeToFlowMapping[cursor.property.name];
-        } else { // type not found
+        } else {
+          // type not found
           typeResult = flowFixMeType;
         }
 
         break;
       }
-      default: { // unrecognizable
+      default: {
+        // unrecognizable
         break;
       }
     }
@@ -854,7 +911,7 @@ module.exports = (file, api, options) => {
     return [typeResult, isOptional];
   };
 
-  const createFlowAnnotationsFromPropTypesProperties = (prop) => {
+  const createFlowAnnotationsFromPropTypesProperties = prop => {
     const typePropertyList = [];
 
     if (!prop || prop.value.type !== 'ObjectExpression') {
@@ -862,7 +919,8 @@ module.exports = (file, api, options) => {
     }
 
     prop.value.properties.forEach(typeProp => {
-      if (!typeProp.key) { // stuff like SpreadProperty
+      if (!typeProp.key) {
+        // stuff like SpreadProperty
         return;
       }
 
@@ -870,11 +928,13 @@ module.exports = (file, api, options) => {
       const name = keyIsLiteral ? typeProp.key.value : typeProp.key.name;
 
       const [valueType, isOptional] = propTypeToFlowAnnotation(typeProp.value);
-      typePropertyList.push(j.objectTypeProperty(
-        keyIsLiteral ? j.literal(name) : j.identifier(name),
-        valueType,
-        isOptional
-      ));
+      typePropertyList.push(
+        j.objectTypeProperty(
+          keyIsLiteral ? j.literal(name) : j.identifier(name),
+          valueType,
+          isOptional
+        )
+      );
     });
 
     return j.classProperty(
@@ -886,26 +946,35 @@ module.exports = (file, api, options) => {
   };
 
   // to ensure that our property initializers' evaluation order is safe
-  const repositionStateProperty = (initialStateProperty, propertiesAndMethods) => {
+  const repositionStateProperty = (
+    initialStateProperty,
+    propertiesAndMethods
+  ) => {
     const initialStateCollection = j(initialStateProperty);
     const thisCount = initialStateCollection.find(j.ThisExpression).size();
-    const safeThisMemberCount = initialStateCollection.find(j.MemberExpression, {
-      object: {
-        type: 'ThisExpression',
-      },
-      property: {
-        type: 'Identifier',
-        name: 'props',
-      },
-    }).size() + initialStateCollection.find(j.MemberExpression, {
-      object: {
-        type: 'ThisExpression',
-      },
-      property: {
-        type: 'Identifier',
-        name: 'context',
-      },
-    }).size();
+    const safeThisMemberCount =
+      initialStateCollection
+        .find(j.MemberExpression, {
+          object: {
+            type: 'ThisExpression'
+          },
+          property: {
+            type: 'Identifier',
+            name: 'props'
+          }
+        })
+        .size() +
+      initialStateCollection
+        .find(j.MemberExpression, {
+          object: {
+            type: 'ThisExpression'
+          },
+          property: {
+            type: 'Identifier',
+            name: 'context'
+          }
+        })
+        .size();
 
     if (thisCount === safeThisMemberCount) {
       return initialStateProperty.concat(propertiesAndMethods);
@@ -914,7 +983,10 @@ module.exports = (file, api, options) => {
     const result = [].concat(propertiesAndMethods);
     let lastPropPosition = result.length - 1;
 
-    while (lastPropPosition >= 0 && result[lastPropPosition].kind === 'method') {
+    while (
+      lastPropPosition >= 0 &&
+      result[lastPropPosition].kind === 'method'
+    ) {
       lastPropPosition--;
     }
 
@@ -946,25 +1018,22 @@ module.exports = (file, api, options) => {
 
     if (isInitialStateLiftable(getInitialState)) {
       if (getInitialState) {
-        initialStateProperty.push(convertInitialStateToClassProperty(getInitialState));
+        initialStateProperty.push(
+          convertInitialStateToClassProperty(getInitialState)
+        );
       }
     } else {
       maybeConstructor = createConstructor(getInitialState);
       if (shouldTransformFlow) {
-        let stateType = j.typeAnnotation(
-          j.existsTypeAnnotation()
-        );
+        let stateType = j.typeAnnotation(j.existsTypeAnnotation());
 
         if (getInitialState.value.returnType) {
           stateType = getInitialState.value.returnType;
         }
 
-        maybeFlowStateAnnotation.push(j.classProperty(
-          j.identifier('state'),
-          null,
-          stateType,
-          false
-        ));
+        maybeFlowStateAnnotation.push(
+          j.classProperty(j.identifier('state'), null, stateType, false)
+        );
       }
     }
 
@@ -980,62 +1049,76 @@ module.exports = (file, api, options) => {
       return createArrowProperty(prop);
     });
 
-    const flowPropsAnnotation = shouldTransformFlow ?
-      createFlowAnnotationsFromPropTypesProperties(
-        staticProperties.find((path) => path.key.name === 'propTypes')
-      ) :
-      [];
+    const flowPropsAnnotation = shouldTransformFlow
+      ? createFlowAnnotationsFromPropTypesProperties(
+        staticProperties.find(path => path.key.name === 'propTypes')
+      )
+      : [];
 
     let finalStaticProperties = staticProperties;
 
     if (shouldTransformFlow && options['remove-runtime-proptypes']) {
-      finalStaticProperties = staticProperties.filter((prop) => prop.key.name !== 'propTypes');
+      finalStaticProperties = staticProperties.filter(
+        prop => prop.key.name !== 'propTypes'
+      );
     }
 
-    return withComments(j.classDeclaration(
-      name ? j.identifier(name) : null,
-      j.classBody(
-        [].concat(
-          flowPropsAnnotation,
-          maybeFlowStateAnnotation,
-          finalStaticProperties,
-          maybeConstructor,
-          repositionStateProperty(initialStateProperty, propertiesAndMethods)
+    return withComments(
+      j.classDeclaration(
+        name ? j.identifier(name) : null,
+        j.classBody(
+          [].concat(
+            flowPropsAnnotation,
+            maybeFlowStateAnnotation,
+            finalStaticProperties,
+            maybeConstructor,
+            repositionStateProperty(initialStateProperty, propertiesAndMethods)
+          )
+        ),
+        j.memberExpression(
+          j.identifier('React'),
+          j.identifier(baseClassName),
+          false
         )
       ),
-      j.memberExpression(
-        j.identifier('React'),
-        j.identifier(baseClassName),
-        false
-      )
-    ), {comments});
+      { comments }
+    );
   };
 
   const createStaticClassProperty = staticProperty => {
     if (staticProperty.value.type === 'FunctionExpression') {
-      return withComments(j.methodDefinition(
-        'method',
-        j.identifier(staticProperty.key.name),
-        staticProperty.value,
-        true
-      ), staticProperty);
+      return withComments(
+        j.methodDefinition(
+          'method',
+          j.identifier(staticProperty.key.name),
+          staticProperty.value,
+          true
+        ),
+        staticProperty
+      );
     }
 
     if (staticProperty.value.type === 'TypeCastExpression') {
-      return withComments(j.classProperty(
-        j.identifier(staticProperty.key.name),
-        staticProperty.value.expression,
-        staticProperty.value.typeAnnotation,
-        true
-      ), staticProperty);
+      return withComments(
+        j.classProperty(
+          j.identifier(staticProperty.key.name),
+          staticProperty.value.expression,
+          staticProperty.value.typeAnnotation,
+          true
+        ),
+        staticProperty
+      );
     }
 
-    return withComments(j.classProperty(
-      j.identifier(staticProperty.key.name),
-      staticProperty.value,
-      null,
-      true
-    ), staticProperty);
+    return withComments(
+      j.classProperty(
+        j.identifier(staticProperty.key.name),
+        staticProperty.value,
+        null,
+        true
+      ),
+      staticProperty
+    );
   };
 
   const createStaticClassProperties = statics =>
@@ -1052,26 +1135,32 @@ module.exports = (file, api, options) => {
     return null;
   };
 
-  const findUnusedVariables = (path, varName) => j(path)
-    .closestScope()
-    .find(j.Identifier, {name: varName})
-    // Ignore require vars
-    .filter(identifierPath => identifierPath.value !== path.value.id)
-    // Ignore import bindings
-    .filter(identifierPath => !(
-      path.value.type === 'ImportDeclaration' &&
-      path.value.specifiers.some(specifier => specifier.local === identifierPath.value)
-    ))
-    // Ignore properties in MemberExpressions
-    .filter(identifierPath => {
-      const parent = identifierPath.parent.value;
-      return !(
-        j.MemberExpression.check(parent) &&
-        parent.property === identifierPath.value
-      );
-    });
+  const findUnusedVariables = (path, varName) =>
+    j(path)
+      .closestScope()
+      .find(j.Identifier, { name: varName })
+      // Ignore require vars
+      .filter(identifierPath => identifierPath.value !== path.value.id)
+      // Ignore import bindings
+      .filter(
+        identifierPath =>
+          !(
+            path.value.type === 'ImportDeclaration' &&
+            path.value.specifiers.some(
+              specifier => specifier.local === identifierPath.value
+            )
+          )
+      )
+      // Ignore properties in MemberExpressions
+      .filter(identifierPath => {
+        const parent = identifierPath.parent.value;
+        return !(
+          j.MemberExpression.check(parent) &&
+          parent.property === identifierPath.value
+        );
+      });
 
-  const updateToClass = (classPath) => {
+  const updateToClass = classPath => {
     const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
     const name = ReactUtils.directlyGetComponentName(classPath);
     const statics = collectStatics(specPath);
@@ -1100,9 +1189,11 @@ module.exports = (file, api, options) => {
     const staticProperties = createStaticClassProperties(statics);
     const baseClassName =
       pureRenderMixinPathAndBinding &&
-      ReactUtils.directlyHasSpecificMixins(classPath, [pureRenderMixinPathAndBinding.binding]) ?
-        'PureComponent' :
-        'Component';
+      ReactUtils.directlyHasSpecificMixins(classPath, [
+        pureRenderMixinPathAndBinding.binding
+      ])
+        ? 'PureComponent'
+        : 'Component';
 
     j(path).replaceWith(
       createESClass(
@@ -1129,11 +1220,16 @@ module.exports = (file, api, options) => {
     }
 
     if (safe) {
-      props.unshift(j.objectProperty(j.identifier('displayName'), j.stringLiteral(displayName)));
+      props.unshift(
+        j.objectProperty(
+          j.identifier('displayName'),
+          j.stringLiteral(displayName)
+        )
+      );
     }
   };
 
-  const fallbackToCreateClassModule = (classPath) => {
+  const fallbackToCreateClassModule = classPath => {
     const comments = getComments(classPath);
     const specPath = ReactUtils.directlyGetCreateClassSpec(classPath);
 
@@ -1175,33 +1271,39 @@ module.exports = (file, api, options) => {
     withComments(
       j(classPath).replaceWith(
         specPath
-         ? j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), [specPath])
-         : j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), classPath.value.arguments)
+          ? j.callExpression(j.identifier(CREATE_CLASS_VARIABLE_NAME), [
+            specPath
+          ])
+          : j.callExpression(
+            j.identifier(CREATE_CLASS_VARIABLE_NAME),
+            classPath.value.arguments
+          )
       ),
-      {comments}
+      { comments }
     );
   };
 
-  if (
-    options['explicit-require'] === false || ReactUtils.hasReact(root)
-  ) {
+  if (options['explicit-require'] === false || ReactUtils.hasReact(root)) {
     // no mixins found on the classPath -> true
     // pure mixin identifier not found -> (has mixins) -> false
     // found pure mixin identifier ->
     //   class mixins is an array and only contains the identifier -> true
     //   otherwise -> false
-    const mixinsFilter = (classPath) => {
+    const mixinsFilter = classPath => {
       if (!ReactUtils.directlyHasMixinsField(classPath)) {
         return true;
       } else if (options['pure-component'] && pureRenderMixinPathAndBinding) {
-        const {binding} = pureRenderMixinPathAndBinding;
+        const { binding } = pureRenderMixinPathAndBinding;
         if (areMixinsConvertible([binding], classPath)) {
           return true;
         }
       }
       console.warn(
-        file.path + ': `' + ReactUtils.directlyGetComponentName(classPath) + '` ' +
-        'was skipped because of inconvertible mixins.'
+        file.path +
+          ': `' +
+          ReactUtils.directlyGetComponentName(classPath) +
+          '` ' +
+          'was skipped because of inconvertible mixins.'
       );
 
       return false;
@@ -1249,42 +1351,50 @@ module.exports = (file, api, options) => {
         findRequirePathAndBinding('React');
 
       if (reactPathAndBinding) {
-        const {path, type} = reactPathAndBinding;
+        const { path, type } = reactPathAndBinding;
         let removePath = null;
         let shouldReinsertComment = false;
         if (type === 'require') {
           const kind = path.parent.value.kind;
-          j(path.parent).insertAfter(j.template.statement([
-            `${kind} ${CREATE_CLASS_VARIABLE_NAME} = require('${CREATE_CLASS_MODULE_NAME}');`
-          ]));
+          j(path.parent).insertAfter(
+            j.template.statement([
+              `${kind} ${CREATE_CLASS_VARIABLE_NAME} = require('${CREATE_CLASS_MODULE_NAME}');`
+            ])
+          );
           const bodyNode = path.parentPath.parentPath.parentPath.value;
           const variableDeclarationNode = path.parentPath.parentPath.value;
-          shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+          shouldReinsertComment =
+            bodyNode.indexOf(variableDeclarationNode) === 0;
           removePath = path.parent;
         } else {
-          j(path).insertAfter(j.template.statement([
-            `import ${CREATE_CLASS_VARIABLE_NAME} from '${CREATE_CLASS_MODULE_NAME}';`
-          ]));
+          j(path).insertAfter(
+            j.template.statement([
+              `import ${CREATE_CLASS_VARIABLE_NAME} from '${CREATE_CLASS_MODULE_NAME}';`
+            ])
+          );
           const importDeclarationNode = path.value;
           const bodyNode = path.parentPath.value;
           removePath = path;
           const specifiers = path.value.specifiers;
           if (specifiers.length === 1) {
-            shouldReinsertComment = bodyNode.indexOf(importDeclarationNode) === 0;
+            shouldReinsertComment =
+              bodyNode.indexOf(importDeclarationNode) === 0;
             removePath = path;
           } else {
             const paths = j(path).find(j.ImportDefaultSpecifier);
             if (paths.length) {
-              removePath = j(path).find(j.ImportDefaultSpecifier).paths()[0];
+              removePath = j(path)
+                .find(j.ImportDefaultSpecifier)
+                .paths()[0];
             }
           }
         }
 
-        const shouldRemoveReactImport = (
+        const shouldRemoveReactImport =
           removePath &&
-          root.find(j.Identifier).filter(path => path.value.name === 'React').length === 1 &&
-          root.find(j.JSXElement).length === 0
-        );
+          root.find(j.Identifier).filter(path => path.value.name === 'React')
+            .length === 1 &&
+          root.find(j.JSXElement).length === 0;
         if (shouldRemoveReactImport && removePath) {
           j(removePath).remove();
           if (shouldReinsertComment) {
@@ -1297,7 +1407,7 @@ module.exports = (file, api, options) => {
     if (didTransform) {
       // prune removed requires
       if (pureRenderMixinPathAndBinding) {
-        const {binding, path, type} = pureRenderMixinPathAndBinding;
+        const { binding, path, type } = pureRenderMixinPathAndBinding;
         let shouldReinsertComment = false;
         if (findUnusedVariables(path, binding).size() === 0) {
           var removePath = null;
@@ -1307,7 +1417,8 @@ module.exports = (file, api, options) => {
 
             if (variableDeclarationNode.declarations.length === 1) {
               removePath = path.parentPath.parentPath;
-              shouldReinsertComment = bodyNode.indexOf(variableDeclarationNode) === 0;
+              shouldReinsertComment =
+                bodyNode.indexOf(variableDeclarationNode) === 0;
             } else {
               removePath = path;
             }
@@ -1316,7 +1427,8 @@ module.exports = (file, api, options) => {
             const bodyNode = path.parentPath.value;
 
             removePath = path;
-            shouldReinsertComment = bodyNode.indexOf(importDeclarationNode) === 0;
+            shouldReinsertComment =
+              bodyNode.indexOf(importDeclarationNode) === 0;
           }
 
           j(removePath).remove();

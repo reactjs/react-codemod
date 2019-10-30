@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -21,18 +21,13 @@ module.exports = function(file, api, options) {
   function findImportAfterPropTypes(j, root) {
     let target, targetName;
 
-    root
-      .find(j.ImportDeclaration)
-      .forEach(path => {
-        const name = path.value.source.value.toLowerCase();
-        if (
-          name > MODULE_NAME &&
-          (!target || name < targetName)
-        ) {
-          targetName = name;
-          target = path;
-        }
-      });
+    root.find(j.ImportDeclaration).forEach(path => {
+      const name = path.value.source.value.toLowerCase();
+      if (name > MODULE_NAME && (!target || name < targetName)) {
+        targetName = name;
+        target = path;
+      }
+    });
 
     return target;
   }
@@ -42,13 +37,10 @@ module.exports = function(file, api, options) {
     let target, targetName;
 
     root
-      .find(j.CallExpression, {callee: {name: 'require'}})
+      .find(j.CallExpression, { callee: { name: 'require' } })
       .forEach(path => {
         const name = path.node.arguments[0].value.toLowerCase();
-        if (
-          name > MODULE_NAME &&
-          (!target || name < targetName)
-        ) {
+        if (name > MODULE_NAME && (!target || name < targetName)) {
           targetName = name;
           target = path;
         }
@@ -58,41 +50,40 @@ module.exports = function(file, api, options) {
   }
 
   function hasPropTypesImport(j, root) {
-    return root
-      .find(j.ImportDeclaration, {
-        source: {value: 'prop-types'}
-      })
-      .length > 0;
+    return (
+      root.find(j.ImportDeclaration, {
+        source: { value: 'prop-types' }
+      }).length > 0
+    );
   }
 
   function hasPropTypesRequire(j, root) {
-    return root.find(j.CallExpression, {
-      callee: {name: 'require'},
-      arguments: {0: {value: 'prop-types'}}
-    }).length > 0;
+    return (
+      root.find(j.CallExpression, {
+        callee: { name: 'require' },
+        arguments: { 0: { value: 'prop-types' } }
+      }).length > 0
+    );
   }
 
   // React.PropTypes
-  const isReactPropTypes = path => (
+  const isReactPropTypes = path =>
     path.node.name === 'PropTypes' &&
     path.parent.node.type === 'MemberExpression' &&
-    path.parent.node.object.name === 'React'
-  );
+    path.parent.node.object.name === 'React';
 
   // Program uses ES import syntax
   function useImportSyntax(j, root) {
-    return root
-      .find(j.ImportDeclaration, {
+    return (
+      root.find(j.ImportDeclaration, {
         importKind: 'value'
-      })
-      .length > 0;
+      }).length > 0
+    );
   }
 
   // Program uses var keywords
   function useVar(j, root) {
-    return root
-      .find(j.VariableDeclaration, {kind: 'const'})
-      .length === 0;
+    return root.find(j.VariableDeclaration, { kind: 'const' }).length === 0;
   }
 
   // If any PropTypes references exist, add a 'prop-types' import (or require)
@@ -114,7 +105,7 @@ module.exports = function(file, api, options) {
         // If there is a leading comment, retain it
         // https://github.com/facebook/jscodeshift/blob/master/recipes/retain-first-comment.md
         const firstNode = root.find(j.Program).get('body', 0).node;
-        const {comments} = firstNode;
+        const { comments } = firstNode;
         if (comments) {
           delete firstNode.comments;
           importStatement.comments = comments;
@@ -134,8 +125,12 @@ module.exports = function(file, api, options) {
     const path = findRequireAfterPropTypes(j, root);
     if (path) {
       const requireStatement = useVar(j, root)
-        ? j.template.statement([`var ${localPropTypesName} = require('${MODULE_NAME}');\n`])
-        : j.template.statement([`const ${localPropTypesName} = require('${MODULE_NAME}');\n`]);
+        ? j.template.statement([
+          `var ${localPropTypesName} = require('${MODULE_NAME}');\n`
+        ])
+        : j.template.statement([
+          `const ${localPropTypesName} = require('${MODULE_NAME}');\n`
+        ]);
       j(path.parent.parent).insertBefore(requireStatement);
       return;
     }
@@ -157,47 +152,53 @@ module.exports = function(file, api, options) {
         if (!init) {
           return false;
         }
-        if (!(
-          init.name === 'React' || // const { PropTypes } = React
-          (
-            init.type === 'CallExpression' &&
-            init.callee.name === 'require' &&
-            init.arguments.length && init.arguments[0].value === 'react'
-            // const { PropTypes } = require('react')
+        if (
+          !(
+            init.name === 'React' || // const { PropTypes } = React
+            (init.type === 'CallExpression' &&
+              init.callee.name === 'require' &&
+              init.arguments.length &&
+              init.arguments[0].value === 'react')
           )
-        )) {
+          // const { PropTypes } = require('react')
+        ) {
           return false;
         }
-        return path.node.properties.some(property => property.key.name === 'PropTypes');
+        return path.node.properties.some(
+          property => property.key.name === 'PropTypes'
+        );
       })
       .forEach(path => {
         hasModifications = true;
 
         // Find any nested destructures hanging off of the PropTypes node
         const nestedPropTypesChildren = path.node.properties.find(
-          property => property.key.name === 'PropTypes' && property.value.type === 'ObjectPattern');
+          property =>
+            property.key.name === 'PropTypes' &&
+            property.value.type === 'ObjectPattern'
+        );
 
         // Remove the PropTypes key
-        path.node.properties = path.node.properties.filter(
-          property => {
-            if (property.key.name === 'PropTypes') {
-              if (property.value && property.value.type === 'Identifier') {
-                localPropTypesName = property.value.name;
-              }
-              return false;
-            } else {
-              return true;
+        path.node.properties = path.node.properties.filter(property => {
+          if (property.key.name === 'PropTypes') {
+            if (property.value && property.value.type === 'Identifier') {
+              localPropTypesName = property.value.name;
             }
+            return false;
+          } else {
+            return true;
           }
-        );
+        });
 
         // Add back any nested destructured children.
         if (nestedPropTypesChildren) {
           // TODO: This shouldn't just use a template string but the `ast-types` docs were too opaque for me to follow.
-          const propTypeChildren = nestedPropTypesChildren.value.properties.map(
-            property => property.key.name
-          ).join(', ');
-          const destructureStatement = j.template.statement([`const { ${propTypeChildren} } = ${localPropTypesName};`]);
+          const propTypeChildren = nestedPropTypesChildren.value.properties
+            .map(property => property.key.name)
+            .join(', ');
+          const destructureStatement = j.template.statement([
+            `const { ${propTypeChildren} } = ${localPropTypesName};`
+          ]);
 
           j(path.parent.parent).insertBefore(destructureStatement);
         }
@@ -217,21 +218,20 @@ module.exports = function(file, api, options) {
 
     root
       .find(j.Identifier)
-      .filter(path => (
-        path.node.name === 'PropTypes' &&
-        path.parent.node.type === 'ImportSpecifier' &&
-        path.parent.parent.node.source.value === 'react'
-      ))
+      .filter(
+        path =>
+          path.node.name === 'PropTypes' &&
+          path.parent.node.type === 'ImportSpecifier' &&
+          path.parent.parent.node.source.value === 'react'
+      )
       .forEach(path => {
         hasModifications = true;
         localPropTypesName = path.parent.node.local.name;
 
         const importDeclaration = path.parent.parent.node;
         importDeclaration.specifiers = importDeclaration.specifiers.filter(
-          specifier => (
-            !specifier.imported ||
-            specifier.imported.name !== 'PropTypes'
-          )
+          specifier =>
+            !specifier.imported || specifier.imported.name !== 'PropTypes'
         );
       });
 
@@ -260,9 +260,7 @@ module.exports = function(file, api, options) {
         } else {
           // MemberExpression should be updated
           // eg 'foo = React.PropTypes.string'
-          j(path.parent).replaceWith(
-            j.identifier(localPropTypesName)
-          );
+          j(path.parent).replaceWith(j.identifier(localPropTypesName));
         }
       });
 
@@ -272,24 +270,24 @@ module.exports = function(file, api, options) {
   function removeEmptyReactImport(j, root) {
     root
       .find(j.ImportDeclaration)
-      .filter(path => (
-        path.node.specifiers.length === 0 &&
-        path.node.source.value === 'react'
-      ))
+      .filter(
+        path =>
+          path.node.specifiers.length === 0 &&
+          path.node.source.value === 'react'
+      )
       .replaceWith();
   }
 
   let hasModifications = false;
   hasModifications = removePropTypesImport(j, root) || hasModifications;
   hasModifications = replacePropTypesReferences(j, root) || hasModifications;
-  hasModifications = removeDestructuredPropTypeStatements(j, root) || hasModifications;
+  hasModifications =
+    removeDestructuredPropTypeStatements(j, root) || hasModifications;
 
   if (hasModifications) {
     addPropTypesImport(j, root);
     removeEmptyReactImport(j, root);
   }
 
-  return hasModifications
-    ? root.toSource(printOptions)
-    : null;
+  return hasModifications ? root.toSource(printOptions) : null;
 };

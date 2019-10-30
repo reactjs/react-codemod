@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -14,18 +14,21 @@ function getDOMNodeToFindDOMNode(file, api, options) {
   require('./utils/array-polyfills');
   const ReactUtils = require('./utils/ReactUtils')(j);
 
-  const printOptions =
-    options.printOptions || {quote: 'single', trailingComma: true};
+  const printOptions = options.printOptions || {
+    quote: 'single',
+    trailingComma: true
+  };
   const root = j(file.source);
 
-  const createReactFindDOMNodeCall = arg => j.callExpression(
-    j.memberExpression(
-      j.identifier('React'),
-      j.identifier('findDOMNode'),
-      false
-    ),
-    [arg]
-  );
+  const createReactFindDOMNodeCall = arg =>
+    j.callExpression(
+      j.memberExpression(
+        j.identifier('React'),
+        j.identifier('findDOMNode'),
+        false
+      ),
+      [arg]
+    );
 
   const updateRefCall = (path, refName) => {
     j(path)
@@ -33,17 +36,19 @@ function getDOMNodeToFindDOMNode(file, api, options) {
         callee: {
           object: {
             type: 'Identifier',
-            name: refName,
+            name: refName
           },
           property: {
             type: 'Identifier',
-            name: 'getDOMNode',
-          },
-        },
+            name: 'getDOMNode'
+          }
+        }
       })
-      .forEach(callPath => j(callPath).replaceWith(
-        createReactFindDOMNodeCall(j.identifier(refName))
-      ));
+      .forEach(callPath =>
+        j(callPath).replaceWith(
+          createReactFindDOMNodeCall(j.identifier(refName))
+        )
+      );
   };
 
   const updateToFindDOMNode = classPath => {
@@ -54,17 +59,17 @@ function getDOMNodeToFindDOMNode(file, api, options) {
       .find(j.CallExpression, {
         callee: {
           object: {
-            type: 'ThisExpression',
+            type: 'ThisExpression'
           },
           property: {
             type: 'Identifier',
-            name: 'getDOMNode',
-          },
-        },
+            name: 'getDOMNode'
+          }
+        }
       })
-      .forEach(path => j(path).replaceWith(
-        createReactFindDOMNodeCall(j.thisExpression())
-      ))
+      .forEach(path =>
+        j(path).replaceWith(createReactFindDOMNodeCall(j.thisExpression()))
+      )
       .size();
 
     // this.refs.xxx.getDOMNode() or this.refs.xxx.refs.yyy.getDOMNode()
@@ -75,24 +80,27 @@ function getDOMNodeToFindDOMNode(file, api, options) {
           object: {
             type: 'MemberExpression',
             object: {
-              type: 'ThisExpression',
+              type: 'ThisExpression'
             },
             property: {
               type: 'Identifier',
-              name: 'refs',
-            },
-          },
-        },
+              name: 'refs'
+            }
+          }
+        }
       })
       .closest(j.CallExpression)
-      .filter(path => (
-        path.value.callee.property &&
-        path.value.callee.property.type === 'Identifier' &&
-        path.value.callee.property.name === 'getDOMNode'
-      ))
-      .forEach(path => j(path).replaceWith(
-        createReactFindDOMNodeCall(path.value.callee.object)
-      ))
+      .filter(
+        path =>
+          path.value.callee.property &&
+          path.value.callee.property.type === 'Identifier' &&
+          path.value.callee.property.name === 'getDOMNode'
+      )
+      .forEach(path =>
+        j(path).replaceWith(
+          createReactFindDOMNodeCall(path.value.callee.object)
+        )
+      )
       .size();
 
     // someVariable.getDOMNode() wherre `someVariable = this.refs.xxx`
@@ -113,27 +121,24 @@ function getDOMNodeToFindDOMNode(file, api, options) {
           init.property.type === 'Identifier'
         );
       })
-      .forEach(path => j(path)
-        .closest(j.FunctionExpression)
-        .forEach(fnPath => updateRefCall(fnPath, path.value.id.name))
+      .forEach(path =>
+        j(path)
+          .closest(j.FunctionExpression)
+          .forEach(fnPath => updateRefCall(fnPath, path.value.id.name))
       )
       .size();
 
     return sum > 0;
   };
 
-  if (
-    options['explicit-require'] === false ||
-    ReactUtils.hasReact(root)
-  ) {
-    const apply = (path) =>
-      path.filter(updateToFindDOMNode);
+  if (options['explicit-require'] === false || ReactUtils.hasReact(root)) {
+    const apply = path => path.filter(updateToFindDOMNode);
 
-    const didTransform = (
+    const didTransform =
       apply(ReactUtils.findReactCreateClass(root)).size() +
-      apply(ReactUtils.findReactCreateClassModuleExports(root)).size() +
-      apply(ReactUtils.findReactCreateClassExportDefault(root)).size()
-    ) > 0;
+        apply(ReactUtils.findReactCreateClassModuleExports(root)).size() +
+        apply(ReactUtils.findReactCreateClassExportDefault(root)).size() >
+      0;
 
     if (didTransform) {
       return root.toSource(printOptions);

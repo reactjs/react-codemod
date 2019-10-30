@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -33,8 +33,10 @@ module.exports = function(fileInfo, api, options) {
 
   const ReactUtils = require('./utils/ReactUtils')(j);
 
-  const printOptions =
-    options.printOptions || {quote: 'single', trailingComma: true};
+  const printOptions = options.printOptions || {
+    quote: 'single',
+    trailingComma: true
+  };
 
   const methodsOrder = getMethodsOrder(fileInfo, options); // eslint-disable-line no-use-before-define
 
@@ -74,12 +76,11 @@ module.exports = function(fileInfo, api, options) {
     }
   };
 
-  if (
-    options['explicit-require'] === false ||
-    ReactUtils.hasReact(root)
-  ) {
+  if (options['explicit-require'] === false || ReactUtils.hasReact(root)) {
     const createClassSortCandidates = ReactUtils.findReactCreateClass(root);
-    const es6ClassSortCandidates = ReactUtils.findReactES6ClassDeclaration(root);
+    const es6ClassSortCandidates = ReactUtils.findReactES6ClassDeclaration(
+      root
+    );
 
     if (createClassSortCandidates.size() > 0) {
       createClassSortCandidates.forEach(sortComponentProperties);
@@ -132,7 +133,7 @@ const defaultMethodsOrder = [
   '/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/',
   'everything-else',
   '/^render.+$/',
-  'render',
+  'render'
 ];
 
 // FROM https://github.com/yannickcr/eslint-plugin-react/blob/master/lib/rules/sort-comp.js
@@ -141,11 +142,19 @@ const regExpRegExp = /\/(.*)\/([g|y|i|m]*)/;
 function selectorMatches(selector, method) {
   const methodName = method.key.name;
 
-  if ((method.static && selector === 'static-methods') && defaultMethodsOrder.indexOf(methodName) === -1) {
+  if (
+    method.static &&
+    selector === 'static-methods' &&
+    defaultMethodsOrder.indexOf(methodName) === -1
+  ) {
     return true;
   }
-  
-  if (!method.value && method.typeAnnotation && selector === 'type-annotations') {
+
+  if (
+    !method.value &&
+    method.typeAnnotation &&
+    selector === 'type-annotations'
+  ) {
     return true;
   }
 
@@ -194,7 +203,7 @@ function getMethodsOrderFromEslint(filePath) {
   const cli = new CLIEngine({ useEslintrc: true });
   try {
     const config = cli.getConfigForFile(filePath);
-    const {rules} = config;
+    const { rules } = config;
     const sortCompRules = rules['react/sort-comp'];
     const ruleConfig = sortCompRules && sortCompRules[1];
     if (!ruleConfig) {
@@ -222,7 +231,9 @@ function getMethodsOrderFromEslint(filePath) {
 }
 
 function getMethodsOrder(fileInfo, options) {
-  return options.methodsOrder
-    || getMethodsOrderFromEslint(fileInfo.path)
-    || defaultMethodsOrder;
+  return (
+    options.methodsOrder ||
+    getMethodsOrderFromEslint(fileInfo.path) ||
+    defaultMethodsOrder
+  );
 }

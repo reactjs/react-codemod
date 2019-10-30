@@ -6,7 +6,7 @@
  *
  */
 
- /*eslint-disable no-extend-native*/
+/*eslint-disable no-extend-native*/
 
 'use strict';
 

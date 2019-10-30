@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -14,8 +14,10 @@ function removePureRenderMixin(file, api, options) {
   require('./utils/array-polyfills');
   const ReactUtils = require('./utils/ReactUtils')(j);
 
-  const printOptions =
-    options.printOptions || {quote: 'single', trailingComma: true};
+  const printOptions = options.printOptions || {
+    quote: 'single',
+    trailingComma: true
+  };
   const root = j(file.source);
 
   const PURE_RENDER_MIXIN = options['mixin-name'] || 'PureRenderMixin';
@@ -44,10 +46,10 @@ function removePureRenderMixin(file, api, options) {
             [
               j.thisExpression(),
               j.identifier(NEXT_PROPS),
-              j.identifier(NEXT_STATE),
+              j.identifier(NEXT_STATE)
             ]
           )
-        ),
+        )
       ])
     );
 
@@ -59,17 +61,14 @@ function removePureRenderMixin(file, api, options) {
     );
 
   const hasShouldComponentUpdate = classPath =>
-    ReactUtils.getReactCreateClassSpec(classPath)
-      .properties.every(property =>
-        property.key.name !== SHOULD_COMPONENT_UPDATE
-      );
+    ReactUtils.getReactCreateClassSpec(classPath).properties.every(
+      property => property.key.name !== SHOULD_COMPONENT_UPDATE
+    );
 
   // ---------------------------------------------------------------------------
   // Mixin related code
-  const isPureRenderMixin = node => (
-    node.type === 'Identifier' &&
-    node.name === PURE_RENDER_MIXIN
-  );
+  const isPureRenderMixin = node =>
+    node.type === 'Identifier' && node.name === PURE_RENDER_MIXIN;
 
   const hasPureRenderMixin = classPath => {
     const spec = ReactUtils.getReactCreateClassSpec(classPath);
@@ -81,9 +80,7 @@ function removePureRenderMixin(file, api, options) {
     j.property(
       'init',
       j.identifier('mixins'),
-      j.arrayExpression(
-        elements.filter(element => !isPureRenderMixin(element))
-      )
+      j.arrayExpression(elements.filter(element => !isPureRenderMixin(element)))
     );
 
   // ---------------------------------------------------------------------------
@@ -92,10 +89,7 @@ function removePureRenderMixin(file, api, options) {
     const length = properties.length;
     const lastProp = properties[length - 1];
     // I wouldn't dare insert at the bottom if the last function is render
-    if (
-      lastProp.key.type === 'Identifier' &&
-      lastProp.key.name === 'render'
-    ) {
+    if (lastProp.key.type === 'Identifier' && lastProp.key.name === 'render') {
       properties.splice(
         length - 1,
         1,
@@ -114,7 +108,7 @@ function removePureRenderMixin(file, api, options) {
       .map(property => {
         if (ReactUtils.isMixinProperty(property)) {
           const elements = property.value.elements;
-          return (elements.length !== 1) ? removeMixin(elements) : null;
+          return elements.length !== 1 ? removeMixin(elements) : null;
         }
         return property;
       })
@@ -130,9 +124,11 @@ function removePureRenderMixin(file, api, options) {
   // Remove it if only two or fewer are left:
   // var PureRenderMixin = React.addons.PureRenderMixin;
   const hasPureRenderIdentifiers = path =>
-    path.find(j.Identifier, {
-      name: PURE_RENDER_MIXIN,
-    }).size() > 2;
+    path
+      .find(j.Identifier, {
+        name: PURE_RENDER_MIXIN
+      })
+      .size() > 2;
 
   const deletePureRenderMixin = path => {
     if (hasPureRenderIdentifiers(path)) {
@@ -163,16 +159,13 @@ function removePureRenderMixin(file, api, options) {
     }
   };
 
-  if (
-    options['explicit-require'] === false ||
-    ReactUtils.hasReact(root)
-  ) {
-    const didTransform = ReactUtils
-      .findReactCreateClass(root)
-      .filter(hasPureRenderMixin)
-      .filter(hasShouldComponentUpdate)
-      .forEach(cleanupReactComponent)
-      .size() > 0;
+  if (options['explicit-require'] === false || ReactUtils.hasReact(root)) {
+    const didTransform =
+      ReactUtils.findReactCreateClass(root)
+        .filter(hasPureRenderMixin)
+        .filter(hasShouldComponentUpdate)
+        .forEach(cleanupReactComponent)
+        .size() > 0;
 
     if (didTransform) {
       deletePureRenderMixin(root);

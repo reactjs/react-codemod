@@ -2,67 +2,49 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
 'use strict';
 
-const isReactNativeImport = path => (
-  path.parent.node.source.value === 'react-native'
-);
+const isReactNativeImport = path =>
+  path.parent.node.source.value === 'react-native';
 
-const isReactNativeRequire = path => (
-  path.node.arguments.some(argument => argument.value === 'react-native')
-);
+const isReactNativeRequire = path =>
+  path.node.arguments.some(argument => argument.value === 'react-native');
 
-const isRootViewReference = path => (
+const isRootViewReference = path =>
   path.node.name === 'View' &&
-  (
-    path.parent.node.type !== 'MemberExpression' ||
-    path.parent.node.object === path.node
-  ) &&
-  (
-    path.node.type !== 'JSXIdentifier' ||
-    path.parent.node.type === 'JSXOpeningElement'
-  ) &&
-  (
-    path.parent.node.type !== 'ImportSpecifier' ||
-    path.parent.node.imported === path.node
-  ) &&
-  (
-    path.parent.node.type !== 'Property' ||
-    path.parent.node.key === path.node
-  )
-);
+  (path.parent.node.type !== 'MemberExpression' ||
+    path.parent.node.object === path.node) &&
+  (path.node.type !== 'JSXIdentifier' ||
+    path.parent.node.type === 'JSXOpeningElement') &&
+  (path.parent.node.type !== 'ImportSpecifier' ||
+    path.parent.node.imported === path.node) &&
+  (path.parent.node.type !== 'Property' || path.parent.node.key === path.node);
 
-const isViewImport = path => (
-  path.node.specifiers.some(specifier => (
-    specifier.imported &&
-    specifier.imported.name === 'View' ||
-    specifier.local &&
-    specifier.local.name === 'View'
-  ))
-);
+const isViewImport = path =>
+  path.node.specifiers.some(
+    specifier =>
+      (specifier.imported && specifier.imported.name === 'View') ||
+      (specifier.local && specifier.local.name === 'View')
+  );
 
-const isViewRequire = path => (
+const isViewRequire = path =>
   path.node.callee.type === 'Identifier' &&
   path.parent.node.type === 'VariableDeclarator' &&
-  (
-    path.parent.node.id.type === 'Identifier' &&
-    path.parent.node.id.name === 'View' ||
-    path.parent.node.id.type === 'ObjectPattern' &&
-    path.parent.node.id.properties.some(
-      property => property.value.name === 'View'
-    )
-  )
-);
+  ((path.parent.node.id.type === 'Identifier' &&
+    path.parent.node.id.name === 'View') ||
+    (path.parent.node.id.type === 'ObjectPattern' &&
+      path.parent.node.id.properties.some(
+        property => property.value.name === 'View'
+      )));
 
-const isViewPropTypes = path => (
+const isViewPropTypes = path =>
   path.node.name === 'propTypes' &&
   path.parent.node.type === 'MemberExpression' &&
-  path.parent.value.object.name === 'View'
-);
+  path.parent.value.object.name === 'View';
 
 // Note that this codemod may introduce an unnecessary newline before certain types of imports
 // This is not a problem with the codemod but with recast
@@ -77,9 +59,7 @@ module.exports = function(file, api, options) {
   let numMatchedPaths = 0;
 
   // Search for all View references
-  const viewReferenceCount = root
-    .find(j.Identifier)
-    .filter(isRootViewReference)
+  const viewReferenceCount = root.find(j.Identifier).filter(isRootViewReference)
     .length;
 
   // Replace View.propTypes with ViewPropTypes
@@ -89,45 +69,41 @@ module.exports = function(file, api, options) {
     .forEach(path => {
       numMatchedPaths++;
 
-      j(path.parent).replaceWith(
-        j.identifier('ViewPropTypes')
-      );
+      j(path.parent).replaceWith(j.identifier('ViewPropTypes'));
     });
 
   // Add ViewPropTypes import/require()
   if (numMatchedPaths > 0) {
-    const fileUsesImports = root
-      .find(j.CallExpression, {callee: {name: 'require'}})
-      .length === 0;
+    const fileUsesImports =
+      root.find(j.CallExpression, { callee: { name: 'require' } }).length === 0;
 
     // Determine which kind of import/require() we should create based on file contents
     let useHasteModules = false;
     if (fileUsesImports) {
-      useHasteModules = root
-        .find(j.ImportSpecifier)
-        .filter(isReactNativeImport)
-        .length === 0;
+      useHasteModules =
+        root.find(j.ImportSpecifier).filter(isReactNativeImport).length === 0;
     } else {
-      useHasteModules = root
-        .find(j.CallExpression, {callee: {name: 'require'}})
-        .filter(isReactNativeRequire)
-        .length === 0;
+      useHasteModules =
+        root
+          .find(j.CallExpression, { callee: { name: 'require' } })
+          .filter(isReactNativeRequire).length === 0;
     }
 
     // Create a require statement or an import, based on file convention
     let importOrRequireStatement;
     if (fileUsesImports) {
       const identifier = j.identifier('ViewPropTypes');
-      const variable = useHasteModules === true
+      const variable =
+        useHasteModules === true
           ? j.importDefaultSpecifier(identifier)
           : j.importSpecifier(identifier);
-      const source = useHasteModules === true
-          ? 'ViewPropTypes'
-          : 'react-native';
+      const source =
+        useHasteModules === true ? 'ViewPropTypes' : 'react-native';
 
       importOrRequireStatement = j.importDeclaration(
-          [variable], j.literal(source)
-        );
+        [variable],
+        j.literal(source)
+      );
     } else {
       if (useHasteModules === true) {
         importOrRequireStatement = j.template.statement`
@@ -143,7 +119,8 @@ module.exports = function(file, api, options) {
     // If the only View reference left is the import/require(), replace it
     // Else insert our new import/require() after it
     // Add one to avoid counting the import/require() statement itself
-    const replaceExistingImportOrRequireStatement = viewReferenceCount <= numMatchedPaths + 1;
+    const replaceExistingImportOrRequireStatement =
+      viewReferenceCount <= numMatchedPaths + 1;
 
     if (fileUsesImports) {
       root
@@ -189,7 +166,7 @@ module.exports = function(file, api, options) {
         });
     } else {
       root
-        .find(j.CallExpression, {callee: {name: 'require'}})
+        .find(j.CallExpression, { callee: { name: 'require' } })
         .filter(isViewRequire)
         .forEach(path => {
           // Differentiate between destructured and default require()
@@ -201,7 +178,8 @@ module.exports = function(file, api, options) {
               if (replaceExistingImportOrRequireStatement) {
                 // If this is the last reference to a destructured import, remove it
                 // We can't replace in this case b'c the target/source is different
-                const variableDeclarator = path.parent.parent.value.declarations[0];
+                const variableDeclarator =
+                  path.parent.parent.value.declarations[0];
                 variableDeclarator.id.properties = variableDeclarator.id.properties.filter(
                   property => property.value.name !== 'View'
                 );
@@ -236,7 +214,5 @@ module.exports = function(file, api, options) {
     }
   }
 
-  return numMatchedPaths > 0
-    ? root.toSource(printOptions)
-    : null;
+  return numMatchedPaths > 0 ? root.toSource(printOptions) : null;
 };

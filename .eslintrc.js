@@ -7,11 +7,8 @@ module.exports = {
     'react',
   ],
 
-  ecmaFeatures: {
-    modules: false
-  },
-
   rules: {
     'no-use-before-define': 2,
+    'max-len': 'off'
   },
 };

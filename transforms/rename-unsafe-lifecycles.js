@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -18,7 +18,7 @@ export default (file, api, options) => {
 
   const printOptions = options.printOptions || {
     quote: 'single',
-    trailingComma: true,
+    trailingComma: true
   };
 
   const root = j(file.source);
@@ -44,31 +44,19 @@ export default (file, api, options) => {
   };
 
   // Class methods
-  root
-    .find(j.MethodDefinition)
-    .forEach(renameDeprecatedApis);
+  root.find(j.MethodDefinition).forEach(renameDeprecatedApis);
 
-  // Class methods - typescript 
-  root
-    .find(j.ClassMethod)
-    .forEach(renameDeprecatedApis);
+  // Class methods - typescript
+  root.find(j.ClassMethod).forEach(renameDeprecatedApis);
 
   // Arrow functions
-  root
-    .find(j.ClassProperty)
-    .forEach(renameDeprecatedApis);
+  root.find(j.ClassProperty).forEach(renameDeprecatedApis);
 
   // createReactClass and mixins
-  root
-    .find(j.Property)
-    .forEach(renameDeprecatedApis);
+  root.find(j.Property).forEach(renameDeprecatedApis);
 
   // Function calls
-  root
-    .find(j.MemberExpression)
-    .forEach(renameDeprecatedCallExpressions);
+  root.find(j.MemberExpression).forEach(renameDeprecatedCallExpressions);
 
-  return hasModifications
-    ? root.toSource(printOptions)
-    : null;
+  return hasModifications ? root.toSource(printOptions) : null;
 };
