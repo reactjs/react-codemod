@@ -3,5 +3,5 @@ class Component extends React.Component {
 }
 
 class Component2 extends React.Component {
-    didClick = () => { };
+    onClick = () => { };
 }

@@ -9,7 +9,7 @@ class Component extends React.Component {
 class Component2 extends React.Component {
     constructor() {
         super();
-        this.didClick = this.didClick.bind(this);
+        this.onClick = this.onClick.bind(this);
     }
-    didClick() { }
+    onClick() { }
 }
