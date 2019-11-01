@@ -107,7 +107,9 @@ export default function transformer(file, api, options) {
 
     // Find the method() declaration and replace it with an arrow function
     var methodName = path.node.left.property.name;
-    var methods = root
+
+    const componentDecl = methodPath.parentPath;
+    var methods = j(componentDecl)
       .find(j.MethodDefinition)
       .filter(
         path =>
@@ -121,7 +123,7 @@ export default function transformer(file, api, options) {
       return;
     }
     methods.replaceWith(path => createArrowProperty(path.node));
-
+    
     // Remove the line
     // this.method = this.method.bind(this);
     j(path.parentPath).remove();
