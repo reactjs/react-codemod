@@ -220,9 +220,10 @@ function run() {
         path         Files or directory to transform. Can be a glob like src/**.test.js
 
     Options
-      --force        Bypass Git safety checks and forcibly run codemods
-      --dry          Dry run (no changes are made to files)
-      --print        Print transformed files to your terminal      
+      --force            Bypass Git safety checks and forcibly run codemods
+      --dry              Dry run (no changes are made to files)
+      --print            Print transformed files to your terminal
+      --explicit-require Transform only if React is imported in the file (default: true)
 
       --jscodeshift  (Advanced) Pass options directly to jscodeshift
     `
