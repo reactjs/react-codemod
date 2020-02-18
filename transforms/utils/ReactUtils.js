@@ -123,6 +123,20 @@ module.exports = function(j) {
       : undefined;
   };
 
+  const removeUnusedSuperClassImport = (path, file, superClassName) => {
+    if (path.find(j.Identifier, {
+      type: 'Identifier',
+      name: superClassName
+    }).length === 0) {
+      file.find(j.ImportSpecifier, {
+        type: 'ImportSpecifier',
+        imported: {
+          type: 'Identifier',
+          name: superClassName,
+        }
+      }).remove();
+    }
+  };
 
   const findReactES6ClassDeclarationByParent = (path, parentClassName) => {
     const componentImport = findReactComponentNameByParent(path, parentClassName);
@@ -282,6 +296,7 @@ module.exports = function(j) {
     hasModule,
     hasReact,
     isMixinProperty,
+    removeUnusedSuperClassImport,
 
     // "direct" methods
     findAllReactCreateClassCalls,

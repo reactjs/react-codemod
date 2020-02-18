@@ -282,6 +282,10 @@ module.exports = function(file, api, options) {
     return null;
   }
 
+  // Save the names of the deleted pure classes super class
+  // We need this to prune unused variables at the end.
+  const parentClassNames = pureClasses.nodes().map(node => node.superClass.name);
+
   pureClasses.replaceWith(p => {
     const name = p.node.id.name;
     const renderMethod = p.value.body.body.filter(isRenderMethod)[0];
@@ -317,11 +321,14 @@ module.exports = function(file, api, options) {
         ...buildStatics(name, statics)
       ];
     }
-  }).replaceWith(p => {
+  }).forEach(p => {
     // Check for combining default keyword with const declaration
     if (useArrows && isDefaultExport(p)) {
       safelyDefaultExportDeclaration(p);
     }
+  }).forEach((p, i) => {
+    const parentClassName = parentClassNames[i];
+    ReactUtils.removeUnusedSuperClassImport(j(p), f, parentClassName);
   });
 
   return f.toSource(printOptions);
