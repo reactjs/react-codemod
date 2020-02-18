@@ -202,6 +202,18 @@ module.exports = function(file, api, options) {
     return property && property.typeAnnotation.typeAnnotation;
   };
 
+  const isDefaultExport = path =>
+    path.parentPath && path.parentPath.value.type === 'ExportDefaultDeclaration';
+
+  const safelyDefaultExportDeclaration = (path) => {
+    const localName = path.value.declarations[0].id.name;
+    j(path.parent)
+      .replaceWith(_ => path.value)
+      .insertAfter(
+        j.exportDeclaration(true, { type: 'Identifier', name: localName })
+      );
+  };
+
   const build = useArrows => (name, body, typeAnnotation, destructure) => {
     const identifier = j.identifier(name);
     const propsIdentifier = buildIdentifierWithTypeAnnotation(
@@ -261,6 +273,7 @@ module.exports = function(file, api, options) {
       if (!isPure && !silenceWarnings) {
         reportSkipped(path);
       }
+
       return isPure;
     }
   );
@@ -303,6 +316,11 @@ module.exports = function(file, api, options) {
         ),
         ...buildStatics(name, statics)
       ];
+    }
+  }).replaceWith(p => {
+    // Check for combining default keyword with const declaration
+    if (useArrows && isDefaultExport(p)) {
+      safelyDefaultExportDeclaration(p);
     }
   });
 
