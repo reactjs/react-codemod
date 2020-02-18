@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "chalk": "^2.4.2",
+    "eslint": "^6.6.0",
     "execa": "^3.2.0",
     "globby": "^10.0.1",
     "inquirer": "^7.0.0",
