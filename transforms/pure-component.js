@@ -214,16 +214,17 @@ module.exports = function(file, api, options) {
       );
   };
 
-  const build = useArrows => (name, body, typeAnnotation, destructure) => {
+  const build = useArrows => (name, body, typeAnnotation, destructure, hasThisDotProps) => {
     const identifier = j.identifier(name);
     const propsIdentifier = buildIdentifierWithTypeAnnotation(
       'props',
       typeAnnotation
     );
-    const propsArg = [
+
+    const propsArg = hasThisDotProps ? [
       (destructure && destructureProps(j(body), typeAnnotation)) ||
         propsIdentifier
-    ];
+    ] : [];
     if (useArrows) {
       return j.variableDeclaration('const', [
         j.variableDeclarator(
@@ -298,6 +299,7 @@ module.exports = function(file, api, options) {
       console.warn(`Unable to destructure ${name} props.`);
     }
 
+    const hasThisDotProps = j(renderBody).find(j.MemberExpression, THIS_PROPS).length > 0;
     replaceThisProps(renderBody);
 
     if (useArrows) {
@@ -306,7 +308,8 @@ module.exports = function(file, api, options) {
           name,
           renderBody,
           propsTypeAnnotation,
-          destructure
+          destructure,
+          hasThisDotProps
         ),
         ...buildStatics(name, statics)
       ];
@@ -316,7 +319,8 @@ module.exports = function(file, api, options) {
           name,
           renderBody,
           propsTypeAnnotation,
-          destructure
+          destructure,
+          hasThisDotProps
         ),
         ...buildStatics(name, statics)
       ];

@@ -29,6 +29,10 @@ class ImpureWithRef extends React.Component {
   }
 }
 
+function PureWithoutProps() {
+  return <div />;
+}
+
 function PureWithTypes(props: { foo: string }) {
   return <div className={props.foo} />;
 }
@@ -54,14 +58,14 @@ class ImpureClassPropertyWithTypes extends React.Component {
 }
 
 function PureWithPropTypes(props) {
-  return <div />;
+  return <div>{props.foo}</div>;
 }
 
 PureWithPropTypes.propTypes = { foo: React.PropTypes.string };
 PureWithPropTypes.foo = 'bar';
 
 function PureWithPropTypes2(props: { foo: string }) {
-  return <div />;
+  return <div>{props.foo}</div>;
 }
 
 PureWithPropTypes2.propTypes = { foo: React.PropTypes.string };

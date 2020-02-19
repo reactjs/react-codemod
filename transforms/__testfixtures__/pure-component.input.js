@@ -31,6 +31,12 @@ class ImpureWithRef extends React.Component {
   }
 }
 
+class PureWithoutProps extends React.Component {
+  render() {
+    return <div />;
+  }
+}
+
 class PureWithTypes extends React.Component {
   props: { foo: string };
   render() {
@@ -65,7 +71,7 @@ class PureWithPropTypes extends React.Component {
   static propTypes = { foo: React.PropTypes.string };
   static foo = 'bar';
   render() {
-    return <div />;
+    return <div>{this.props.foo}</div>;
   }
 }
 
@@ -73,7 +79,7 @@ class PureWithPropTypes2 extends React.Component {
   props: { foo: string };
   static propTypes = { foo: React.PropTypes.string };
   render() {
-    return <div />;
+    return <div>{this.props.foo}</div>;
   }
 }
 
