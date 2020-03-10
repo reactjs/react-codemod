@@ -19,6 +19,10 @@ class Impure extends React.Component {
   }
 }
 
+const PureWithoutProps = () => {
+  return <div />;
+};
+
 const PureWithTypes = (props: { foo: string }) => {
   return <div className={props.foo} />;
 };
@@ -30,7 +34,7 @@ const PureWithTypes2 = (props: Props) => {
 };
 
 const PureWithPropTypes = props => {
-  return <div />;
+  return <div>{props.foo}</div>;
 };
 
 PureWithPropTypes.propTypes = { foo: React.PropTypes.string };

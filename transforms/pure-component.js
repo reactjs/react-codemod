@@ -202,16 +202,29 @@ module.exports = function(file, api, options) {
     return property && property.typeAnnotation.typeAnnotation;
   };
 
-  const build = useArrows => (name, body, typeAnnotation, destructure) => {
+  const isDefaultExport = path =>
+    path.parentPath && path.parentPath.value.type === 'ExportDefaultDeclaration';
+
+  const safelyDefaultExportDeclaration = (path) => {
+    const localName = path.value.declarations[0].id.name;
+    j(path.parent)
+      .replaceWith(_ => path.value)
+      .insertAfter(
+        j.exportDeclaration(true, { type: 'Identifier', name: localName })
+      );
+  };
+
+  const build = useArrows => (name, body, typeAnnotation, destructure, hasThisDotProps) => {
     const identifier = j.identifier(name);
     const propsIdentifier = buildIdentifierWithTypeAnnotation(
       'props',
       typeAnnotation
     );
-    const propsArg = [
+
+    const propsArg = hasThisDotProps ? [
       (destructure && destructureProps(j(body), typeAnnotation)) ||
         propsIdentifier
-    ];
+    ] : [];
     if (useArrows) {
       return j.variableDeclaration('const', [
         j.variableDeclarator(
@@ -261,6 +274,7 @@ module.exports = function(file, api, options) {
       if (!isPure && !silenceWarnings) {
         reportSkipped(path);
       }
+
       return isPure;
     }
   );
@@ -268,6 +282,10 @@ module.exports = function(file, api, options) {
   if (pureClasses.size() === 0) {
     return null;
   }
+
+  // Save the names of the deleted pure classes super class
+  // We need this to prune unused variables at the end.
+  const parentClassNames = pureClasses.nodes().map(node => node.superClass.name);
 
   pureClasses.replaceWith(p => {
     const name = p.node.id.name;
@@ -281,6 +299,7 @@ module.exports = function(file, api, options) {
       console.warn(`Unable to destructure ${name} props.`);
     }
 
+    const hasThisDotProps = j(renderBody).find(j.MemberExpression, THIS_PROPS).length > 0;
     replaceThisProps(renderBody);
 
     if (useArrows) {
@@ -289,7 +308,8 @@ module.exports = function(file, api, options) {
           name,
           renderBody,
           propsTypeAnnotation,
-          destructure
+          destructure,
+          hasThisDotProps
         ),
         ...buildStatics(name, statics)
       ];
@@ -299,11 +319,20 @@ module.exports = function(file, api, options) {
           name,
           renderBody,
           propsTypeAnnotation,
-          destructure
+          destructure,
+          hasThisDotProps
         ),
         ...buildStatics(name, statics)
       ];
     }
+  }).forEach(p => {
+    // Check for combining default keyword with const declaration
+    if (useArrows && isDefaultExport(p)) {
+      safelyDefaultExportDeclaration(p);
+    }
+  }).forEach((p, i) => {
+    const parentClassName = parentClassNames[i];
+    ReactUtils.removeUnusedSuperClassImport(j(p), f, parentClassName);
   });
 
   return f.toSource(printOptions);
