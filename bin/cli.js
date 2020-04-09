@@ -82,21 +82,17 @@ function runTransform({ files, flags, parser, transformer, answers }) {
   args = args.concat(['--transform', transformerPath]);
 
   if (transformer === 'class') {
-    args.push('--flow=' + answers.classFlow);
-    args.push('--remove-runtime-props=' + answers.classRemoveRuntimePropTypes);
-    args.push('--pure-component=' + answers.classPureComponent);
-    args.push('--mixin-module-name=' + answers.classMixinModuleName);
+    args.push('--flow=' + (flags.flow || answers.classFlow));
+    args.push('--remove-runtime-props=' + (flags.removeRuntimeProps || answers.classRemoveRuntimePropTypes));
+    args.push('--pure-component=' + (flags.pureComponent || answers.classPureComponent));
+    args.push('--mixin-module-name=' + (flags.mixinModuleName || answers.classMixinModuleName));
   }
   if (transformer === 'pure-render-mixin') {
-    args.push('--mixin-name=' + answers.pureRenderMixinMixinName);
+    args.push('--mixin-name=' + (flags.mixinName || answers.pureRenderMixinMixinName));
   }
   if (transformer === 'pure-component') {
-    if (answers.pureComponentUseArrows) {
-      args.push('--useArrows=true');
-    }
-    if (answers.pureComponentDestructuring) {
-      args.push('--destructuring=true');
-    }
+    args.push('--useArrows=' + (flags.useArrows || answers.pureComponentUseArrows));
+    args.push('--destructuring=' + (flags.destructuring || answers.pureComponentDestructuring));
   }
 
   if (flags.jscodeshift) {
@@ -285,7 +281,11 @@ function run() {
         type: 'confirm',
         name: 'classFlow',
         when: answers => {
-          return cli.input[0] === 'class' || answers.transformer === 'class';
+          return (
+            !cli.flags.flow && (
+              cli.input[0] === 'class' ||
+              answers.transformer === 'class'
+          ));
         },
         message: 'Generate Flow annotations from propTypes?',
         default: true
@@ -294,7 +294,11 @@ function run() {
         type: 'confirm',
         name: 'classRemoveRuntimePropTypes',
         when: answers => {
-          return answers.classFlow === true;
+          return (
+            !cli.flags.removeRuntimeProps && (
+              cli.input[0] === 'class' ||
+              answers.transformer === 'class'
+          ));
         },
         message: 'Remove runtime PropTypes?',
         default: false
@@ -303,7 +307,11 @@ function run() {
         type: 'confirm',
         name: 'classPureComponent',
         when: answers => {
-          return cli.input[0] === 'class' || answers.transformer === 'class';
+          return (
+            !cli.flags.pureComponent && (
+              cli.input[0] === 'class' ||
+              answers.transformer === 'class'
+          ));
         },
         message:
           'replace react-addons-pure-render-mixin with React.PureComponent?',
@@ -313,7 +321,11 @@ function run() {
         type: 'input',
         name: 'classMixinModuleName',
         when: answers => {
-          return answers.classPureComponent === true;
+          return (
+            !cli.flags.mixinModuleName && (
+              cli.input[0] === 'class' ||
+              answers.transformer === 'class'
+          ));
         },
         // validate: () =>
         message: 'What module exports this mixin?',
@@ -326,9 +338,10 @@ function run() {
         name: 'pureRenderMixinMixinName',
         when: answers => {
           return (
-            cli.input[0] === 'pure-render-mixin' ||
-            answers.transformer === 'pure-render-mixin'
-          );
+            !cli.flags.mixinName && (
+              cli.input[0] === 'pure-render-mixin' ||
+              answers.transformer === 'pure-render-mixin'
+          ));
         },
         message: 'What is the name of the mixin?',
         default: 'PureRenderMixin',
@@ -340,9 +353,10 @@ function run() {
         name: 'pureComponentUseArrows',
         when: answers => {
           return (
-            cli.input[0] === 'pure-component' ||
-            answers.transformer === 'pure-component'
-          );
+            !cli.flags.useArrows && (
+              cli.input[0] === 'pure-component' ||
+              answers.transformer === 'pure-component'
+          ));
         },
         message: 'Use arrow functions?',
         default: false
@@ -352,9 +366,10 @@ function run() {
         name: 'pureComponentDestructuring',
         when: answers => {
           return (
-            cli.input[0] === 'pure-component' ||
-            answers.transformer === 'pure-component'
-          );
+            !cli.flags.destructuring && (
+              cli.input[0] === 'pure-component' ||
+              answers.transformer === 'pure-component'
+          ));
         },
         message: 'Destructure props?',
         default: false
