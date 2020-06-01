@@ -143,6 +143,14 @@ guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e
 npx react-codemod sort-comp <path>
 ```
 
+#### `update-react-imports`
+
+[As of Babel 7.9.0](https://babeljs.io/blog/2020/03/16/7.9.0#a-new-jsx-transform-11154-https-githubcom-babel-babel-pull-11154), when using `runtime: automatic` in `@babel/preset-react` or `@babel/plugin-transform-react-jsx`, you will not need to explicitly import React for compiling jsx. This codemod removes the redundant import statements. It also converts  (`import React from 'react'`) to named imports (`import * as React from 'react`).
+
+```sh
+npx react-codemod update-react-imports <path>
+```
+
 ### Explanation of the new ES2015 class transform with property initializers
 1. Determine if mixins are convertible. We only transform a `createClass` call to an ES6 class component when:
   - There are no mixins on the class, or
