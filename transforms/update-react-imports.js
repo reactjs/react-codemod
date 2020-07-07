@@ -27,6 +27,7 @@ module.exports = function(file, api, options) {
     .filter(path => {
       return (
         path.value.specifiers.length > 0 &&
+        path.value.importKind === 'value' &&
         path.value.specifiers.some(
           specifier => specifier.local.name === 'React',
         )
@@ -34,7 +35,9 @@ module.exports = function(file, api, options) {
     });
 
   if (reactImportPath.size() > 1) {
-    throw Error('There should only be one React import. Please remove the duplicate import and try again.');
+    throw Error(
+      'There should only be one React import. Please remove the duplicate import and try again.',
+    );
   }
 
   if (reactImportPath.size() === 0) {
@@ -95,6 +98,9 @@ module.exports = function(file, api, options) {
         } else {
           j(reactPath).remove();
         }
+      } else {
+        // nothing is transformed so we can return
+        return null;
       }
     }
     break;

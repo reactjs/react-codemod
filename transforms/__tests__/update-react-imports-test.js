@@ -18,6 +18,7 @@ const tests = [
   'react-basic-default-export-jsx-element-react-variable',
   'react-basic-default-export-jsx-element',
   'react-basic-default-export',
+  'react-type-default-export',
 ];
 
 jest.mock('../update-react-imports', () => {
