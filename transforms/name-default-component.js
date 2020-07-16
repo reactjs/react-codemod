@@ -19,8 +19,6 @@ const camelCase = (value) => {
 
 const isValidIdentifier = (value) => /^[a-zA-ZÀ-ÿ][0-9a-zA-ZÀ-ÿ]+$/.test(value);
 
-const isArrowFunction = (node) => node.type === 'ArrowFunctionExpression';
-
 module.exports = (file, api, options) => {
   const j = api.jscodeshift;
   const printOptions = options.printOptions || {
@@ -46,12 +44,18 @@ module.exports = (file, api, options) => {
 
   const nameFunctionComponent = (path) => {
     const node = path.value;
-    const isUnnamedArrowFunction =
-      node.declaration &&
-      isArrowFunction(node.declaration) &&
-      returnsJSX(node.declaration.body);
 
-    if (!isUnnamedArrowFunction) {
+    if (!node.declaration) {
+      return;
+    }
+
+    const isArrowFunction =
+      node.declaration.type === 'ArrowFunctionExpression' &&
+      returnsJSX(node.declaration.body);
+    const isAnonymousFunction =
+      node.declaration.type === 'FunctionDeclaration' && !node.declaration.id;
+
+    if (!(isArrowFunction || isAnonymousFunction)) {
       return;
     }
 
@@ -73,13 +77,18 @@ module.exports = (file, api, options) => {
       name += 'Component';
     }
 
-    path.insertBefore(
-      j.variableDeclaration('const', [
-        j.variableDeclarator(j.identifier(name), node.declaration),
-      ])
-    );
+    if (isArrowFunction) {
+      path.insertBefore(
+        j.variableDeclaration('const', [
+          j.variableDeclarator(j.identifier(name), node.declaration),
+        ])
+      );
 
-    node.declaration = j.identifier(name);
+      node.declaration = j.identifier(name);
+    } else {
+      // Anonymous Function
+      node.declaration.id = j.identifier(name);
+    }
   };
 
   root.find(j.ExportDefaultDeclaration).forEach(nameFunctionComponent);
