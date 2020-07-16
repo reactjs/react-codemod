@@ -12,6 +12,10 @@ const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
 const tests = [
   'function-component',
+  'function-component-2',
+  'function-component-ignore',
+  '1-starts-with-number',
+  'special-ch@racter',
 ];
 
 describe('name-default-component', () => {
@@ -31,7 +35,7 @@ describe('name-default-component', () => {
       jest.resetModules();
     });
 
-    tests.forEach(test =>
+    tests.forEach((test) =>
       defineTest(
         __dirname,
         'name-default-component',
