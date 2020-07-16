@@ -14,6 +14,8 @@ const tests = [
   'function-component',
   'function-component-2',
   'function-component-ignore',
+  'existing-name',
+  'existing-name-ignore',
   '1-starts-with-number',
   'special-ch@racter',
 ];

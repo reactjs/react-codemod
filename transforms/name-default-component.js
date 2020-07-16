@@ -39,6 +39,11 @@ module.exports = (file, api, options) => {
             path.value.argument && path.value.argument.type === 'JSXElement'
         ));
 
+  const hasRootAsParent = (path) => {
+    const program = path.parentPath.parentPath.parentPath.parentPath.parentPath;
+    return program && program.value && program.value.type === 'Program';
+  };
+
   const nameFunctionComponent = (path) => {
     const node = path.value;
     const isUnnamedArrowFunction =
@@ -51,11 +56,21 @@ module.exports = (file, api, options) => {
     }
 
     const fileName = basename(file.path, extname(file.path));
-    const name = camelCase(fileName);
+    let name = camelCase(fileName);
 
-    // If the generated name looks off, don't set a name for this component
+    // If the generated name looks off, don't add a name
     if (!isValidIdentifier(name)) {
       return;
+    }
+
+    // Add `Component` to the end of the name if an identifier with the
+    // same name already exists
+    while (root.find(j.Identifier, { name }).some(hasRootAsParent)) {
+      // If the name is still duplicated then don't add a name
+      if (name.endsWith('Component')) {
+        return;
+      }
+      name += 'Component';
     }
 
     path.insertBefore(
