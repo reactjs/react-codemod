@@ -27,6 +27,8 @@ module.exports = (file, api, options) => {
   };
   const root = j(file.source);
 
+  let hasModifications;
+
   const returnsJSX = (node) =>
     node.type === 'JSXElement' ||
     (node.type === 'BlockStatement' &&
@@ -77,6 +79,8 @@ module.exports = (file, api, options) => {
       name += 'Component';
     }
 
+    hasModifications = true;
+
     if (isArrowFunction) {
       path.insertBefore(
         j.variableDeclaration('const', [
@@ -93,5 +97,5 @@ module.exports = (file, api, options) => {
 
   root.find(j.ExportDefaultDeclaration).forEach(nameFunctionComponent);
 
-  return root.toSource(printOptions);
+  return hasModifications ? root.toSource(printOptions) : null;
 };
