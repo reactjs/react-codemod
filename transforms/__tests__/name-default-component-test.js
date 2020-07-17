@@ -20,10 +20,36 @@ const tests = [
   'existing-name-ignore',
   '1-starts-with-number',
   'special-ch@racter',
-  'typescript/function-expression',
+  'typescript/function-expression', // Also works for Flow
 ];
 
 describe('name-default-component', () => {
+  describe('flow', () => {
+    beforeEach(() => {
+      jest.mock('../name-default-component', () => {
+        return Object.assign(
+          require.requireActual('../name-default-component'),
+          {
+            parser: 'flow',
+          }
+        );
+      });
+    });
+
+    afterEach(() => {
+      jest.resetModules();
+    });
+
+    tests.forEach((test) =>
+      defineTest(
+        __dirname,
+        'name-default-component',
+        null,
+        `name-default-component/${test}`
+      )
+    );
+  });
+
   describe('typescript', () => {
     beforeEach(() => {
       jest.mock('../name-default-component', () => {
