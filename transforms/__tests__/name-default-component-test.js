@@ -20,6 +20,7 @@ const tests = [
   'existing-name-ignore',
   '1-starts-with-number',
   'special-ch@racter',
+  'typescript/function-expression',
 ];
 
 describe('name-default-component', () => {
