@@ -2,13 +2,13 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
-'use strict';
+'use strict'
 
-module.exports = function(j) {
+module.exports = function (j) {
   const REACT_CREATE_CLASS_MEMBER_EXPRESSION = {
     type: 'MemberExpression',
     object: {
@@ -17,7 +17,7 @@ module.exports = function(j) {
     property: {
       name: 'createClass',
     },
-  };
+  }
 
   // ---------------------------------------------------------------------------
   // Checks if the file requires a certain module
@@ -33,68 +33,66 @@ module.exports = function(j) {
           type: 'Literal',
         },
       })
-      .filter(declarator => declarator.value.source.value === module)
-      .size() === 1;
+      .filter((declarator) => declarator.value.source.value === module)
+      .size() === 1
 
-  const hasReact = path => (
+  const hasReact = (path) =>
     hasModule(path, 'React') ||
     hasModule(path, 'react') ||
     hasModule(path, 'react/addons') ||
     hasModule(path, 'react-native')
-  );
 
   // ---------------------------------------------------------------------------
   // Finds all variable declarations that call React.createClass
-  const findReactCreateClassCallExpression = path =>
+  const findReactCreateClassCallExpression = (path) =>
     j(path).find(j.CallExpression, {
       callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,
-    });
+    })
 
-  const findReactCreateClass = path =>
+  const findReactCreateClass = (path) =>
     path
       .findVariableDeclarators()
-      .filter(decl => findReactCreateClassCallExpression(decl).size() > 0);
+      .filter((decl) => findReactCreateClassCallExpression(decl).size() > 0)
 
-  const findReactCreateClassExportDefault = path =>
+  const findReactCreateClassExportDefault = (path) =>
     path.find(j.ExportDeclaration, {
       default: true,
       declaration: {
         type: 'CallExpression',
         callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,
       },
-    });
+    })
 
-  const findReactCreateClassModuleExports = path =>
-    path
-      .find(j.AssignmentExpression, {
-        left: {
-          type: 'MemberExpression',
-          object: {
-            type: 'Identifier',
-            name: 'module',
-          },
-          property: {
-            type: 'Identifier',
-            name: 'exports',
-          },
+  const findReactCreateClassModuleExports = (path) =>
+    path.find(j.AssignmentExpression, {
+      left: {
+        type: 'MemberExpression',
+        object: {
+          type: 'Identifier',
+          name: 'module',
         },
-        right: {
-          type: 'CallExpression',
-          callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,
+        property: {
+          type: 'Identifier',
+          name: 'exports',
         },
-      });
+      },
+      right: {
+        type: 'CallExpression',
+        callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,
+      },
+    })
 
-  const getReactCreateClassSpec = classPath => {
-    const {value} = classPath;
-    const args = (value.init || value.right || value.declaration).arguments;
+  const getReactCreateClassSpec = (classPath) => {
+    const { value } = classPath
+    const args = (value.init || value.right || value.declaration).arguments
     if (args && args.length) {
-      const spec = args[0];
+      const spec = args[0]
       if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
-        return spec;
+        return spec
       }
     }
-    return null;
-  };
+    return null
+  }
 
   // ---------------------------------------------------------------------------
   // Finds alias for React.Component if used as named import.
@@ -106,7 +104,7 @@ module.exports = function(j) {
           type: 'Literal',
         },
       })
-      .filter(importDeclaration => hasReact(path));
+      .filter((importDeclaration) => hasReact(path))
 
     const componentImportSpecifier = reactImportDeclaration
       .find(j.ImportSpecifier, {
@@ -115,89 +113,100 @@ module.exports = function(j) {
           type: 'Identifier',
           name: parentClassName,
         },
-      }).at(0);
+      })
+      .at(0)
 
-    const paths = componentImportSpecifier.paths();
-    return paths.length
-      ? paths[0].value.local.name
-      : undefined;
-  };
+    const paths = componentImportSpecifier.paths()
+    return paths.length ? paths[0].value.local.name : undefined
+  }
 
   const removeUnusedSuperClassImport = (path, file, superClassName) => {
-    if (path.find(j.Identifier, {
-      type: 'Identifier',
-      name: superClassName
-    }).length === 0) {
-      file.find(j.ImportSpecifier, {
-        type: 'ImportSpecifier',
-        imported: {
-          type: 'Identifier',
-          name: superClassName,
-        }
-      }).remove();
+    if (
+      path.find(j.Identifier, {
+        type: 'Identifier',
+        name: superClassName,
+      }).length === 0
+    ) {
+      file
+        .find(j.ImportSpecifier, {
+          type: 'ImportSpecifier',
+          imported: {
+            type: 'Identifier',
+            name: superClassName,
+          },
+        })
+        .remove()
     }
-  };
+  }
 
   const findReactES6ClassDeclarationByParent = (path, parentClassName) => {
-    const componentImport = findReactComponentNameByParent(path, parentClassName);
+    const componentImport = findReactComponentNameByParent(
+      path,
+      parentClassName
+    )
 
     const selector = componentImport
       ? {
-        superClass: {
-          type: 'Identifier',
-          name: componentImport,
-        },
-      }
+          superClass: {
+            type: 'Identifier',
+            name: componentImport,
+          },
+        }
       : {
-        superClass: {
-          type: 'MemberExpression',
-          object: {
-            type: 'Identifier',
-            name: 'React',
+          superClass: {
+            type: 'MemberExpression',
+            object: {
+              type: 'Identifier',
+              name: 'React',
+            },
+            property: {
+              type: 'Identifier',
+              name: parentClassName,
+            },
           },
-          property: {
-            type: 'Identifier',
-            name: parentClassName,
-          },
-        },
-      };
+        }
 
-    return path
-      .find(j.ClassDeclaration, selector);
-  };
+    return path.find(j.ClassDeclaration, selector)
+  }
 
   // Finds all classes that extend React.Component
-  const findReactES6ClassDeclaration = path => {
-    let classDeclarations = findReactES6ClassDeclarationByParent(path, 'Component');
+  const findReactES6ClassDeclaration = (path) => {
+    let classDeclarations = findReactES6ClassDeclarationByParent(
+      path,
+      'Component'
+    )
     if (classDeclarations.size() === 0) {
-      classDeclarations = findReactES6ClassDeclarationByParent(path, 'PureComponent');
+      classDeclarations = findReactES6ClassDeclarationByParent(
+        path,
+        'PureComponent'
+      )
     }
-    return classDeclarations;
-  };
+    return classDeclarations
+  }
 
   // ---------------------------------------------------------------------------
   // Checks if the React class has mixins
-  const isMixinProperty = property => {
-    const key = property.key;
-    const value = property.value;
+  const isMixinProperty = (property) => {
+    const key = property.key
+    const value = property.value
     return (
       key.name === 'mixins' &&
       value.type === 'ArrayExpression' &&
       Array.isArray(value.elements) &&
       value.elements.length
-    );
-  };
+    )
+  }
 
-  const hasMixins = classPath => {
-    const spec = getReactCreateClassSpec(classPath);
-    return spec && spec.properties.some(isMixinProperty);
-  };
+  const hasMixins = (classPath) => {
+    const spec = getReactCreateClassSpec(classPath)
+    return spec && spec.properties.some(isMixinProperty)
+  }
 
   // ---------------------------------------------------------------------------
   // Others
-  const getClassExtendReactSpec = classPath => classPath.value.body;
+  const getClassExtendReactSpec = (classPath) => classPath.value.body
 
-  const createCreateReactClassCallExpression = properties =>
+  const createCreateReactClassCallExpression = (properties) =>
     j.callExpression(
       j.memberExpression(
         j.identifier('React'),
@@ -205,82 +214,90 @@ module.exports = function(j) {
         false
       ),
       [j.objectExpression(properties)]
-    );
+    )
 
-  const getComponentName =
-    classPath => classPath.node.id && classPath.node.id.name;
+  const getComponentName = (classPath) =>
+    classPath.node.id && classPath.node.id.name
 
   // ---------------------------------------------------------------------------
   // Direct methods! (see explanation below)
-  const findAllReactCreateClassCalls = path =>
+  const findAllReactCreateClassCalls = (path) =>
     path.find(j.CallExpression, {
       callee: REACT_CREATE_CLASS_MEMBER_EXPRESSION,
-    });
+    })
 
   // Mixin Stuff
   const containSameElements = (ls1, ls2) => {
     if (ls1.length !== ls2.length) {
-      return false;
+      return false
     }
 
     return (
       ls1.reduce((res, x) => res && ls2.indexOf(x) !== -1, true) &&
       ls2.reduce((res, x) => res && ls1.indexOf(x) !== -1, true)
-    );
-  };
+    )
+  }
 
-  const keyNameIsMixins = property => property.key.name === 'mixins';
+  const keyNameIsMixins = (property) => property.key.name === 'mixins'
 
   const isSpecificMixinsProperty = (property, mixinIdentifierNames) => {
-    const key = property.key;
-    const value = property.value;
+    const key = property.key
+    const value = property.value
 
     return (
       key.name === 'mixins' &&
       value.type === 'ArrayExpression' &&
       Array.isArray(value.elements) &&
-      value.elements.every(elem => elem.type === 'Identifier') &&
-      containSameElements(value.elements.map(elem => elem.name), mixinIdentifierNames)
-    );
-  };
+      value.elements.every((elem) => elem.type === 'Identifier') &&
+      containSameElements(
+        value.elements.map((elem) => elem.name),
+        mixinIdentifierNames
+      )
+    )
+  }
 
   // These following methods assume that the argument is
   // a `React.createClass` call expression. In other words,
   // they should only be used with `findAllReactCreateClassCalls`.
-  const directlyGetCreateClassSpec = classPath => {
+  const directlyGetCreateClassSpec = (classPath) => {
     if (!classPath || !classPath.value) {
-      return null;
+      return null
     }
-    const args = classPath.value.arguments;
+    const args = classPath.value.arguments
     if (args && args.length) {
-      const spec = args[0];
+      const spec = args[0]
       if (spec.type === 'ObjectExpression' && Array.isArray(spec.properties)) {
-        return spec;
+        return spec
       }
     }
-    return null;
-  };
+    return null
+  }
 
-  const directlyGetComponentName = classPath => {
-    let result = '';
+  const directlyGetComponentName = (classPath) => {
+    let result = ''
     if (
       classPath.parentPath.value &&
       classPath.parentPath.value.type === 'VariableDeclarator'
     ) {
-      result = classPath.parentPath.value.id.name;
+      result = classPath.parentPath.value.id.name
     }
-    return result;
-  };
+    return result
+  }
 
-  const directlyHasMixinsField = classPath => {
-    const spec = directlyGetCreateClassSpec(classPath);
-    return spec && spec.properties.some(keyNameIsMixins);
-  };
+  const directlyHasMixinsField = (classPath) => {
+    const spec = directlyGetCreateClassSpec(classPath)
+    return spec && spec.properties.some(keyNameIsMixins)
+  }
 
   const directlyHasSpecificMixins = (classPath, mixinIdentifierNames) => {
-    const spec = directlyGetCreateClassSpec(classPath);
-    return spec && spec.properties.some(prop => isSpecificMixinsProperty(prop, mixinIdentifierNames));
-  };
+    const spec = directlyGetCreateClassSpec(classPath)
+    return (
+      spec &&
+      spec.properties.some((prop) =>
+        isSpecificMixinsProperty(prop, mixinIdentifierNames)
+      )
+    )
+  }
 
   return {
     createCreateReactClassCallExpression,
@@ -304,5 +321,5 @@ module.exports = function(j) {
     directlyGetCreateClassSpec,
     directlyHasMixinsField,
     directlyHasSpecificMixins,
-  };
-};
+  }
+}
