@@ -1,6 +1,6 @@
 import type { Element, Component } from "react";
-import * as React from "react";
+import { createElement } from "react";
 
-React.createElement('div', {});
+createElement('div', {});
 
 <div>Hi</div>;

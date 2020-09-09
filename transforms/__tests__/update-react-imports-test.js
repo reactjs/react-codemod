@@ -19,6 +19,11 @@ const tests = [
   'react-basic-default-export-jsx-element',
   'react-basic-default-export',
   'react-type-default-export',
+  'react-not-removed',
+  'react-type-not-removed',
+  'variable-already-used',
+  'react-jsx-member-expression',
+  'react-already-used-named-export',
 ];
 
 jest.mock('../update-react-imports', () => {

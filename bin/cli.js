@@ -183,7 +183,7 @@ const TRANSFORMER_INQUIRER_CHOICES = [
     value: 'sort-comp'
   },
   {
-    name: 'update-react-imports: Removes redundant import statements from explicitly importing React to compile JSX and converts default imports to named imports',
+    name: 'update-react-imports: Removes redundant import statements from explicitly importing React to compile JSX and converts default imports to destructured named imports',
     value: 'update-react-imports',
   }
 ];
