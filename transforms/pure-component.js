@@ -188,7 +188,7 @@ module.exports = function(file, api, options) {
           isDuplicateDeclaration(a, false)
         );
         duplicateAssignments.remove();
-        return j.objectExpression(
+        return j.objectPattern(
           Array.from(propNames).map(createShorthandProperty(j, typeAnnotation))
         );
       }
