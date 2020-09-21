@@ -21,6 +21,7 @@
 
 export default function transformer(file, api, options) {
   const j = api.jscodeshift;
+  const doesNotUseArguments = require('./utils/doesNotUseArguments')(j);
 
   const printOptions = options.printOptions || {};
   var root = j(file.source);
@@ -114,16 +115,18 @@ export default function transformer(file, api, options) {
       .filter(
         path =>
           path.node.key.type === 'Identifier' &&
-          path.node.key.name === methodName
+          path.node.key.name === methodName &&
+          doesNotUseArguments(path, file.path)
       );
 
     // Do not remove the binding if there's no corresponding method to turn
-    // into an arrow function
+    // into an arrow function, or if the method uses `arguments` keyword inside
+    // it.
     if (methods.size() === 0) {
       return;
     }
     methods.replaceWith(path => createArrowProperty(path.node));
-    
+
     // Remove the line
     // this.method = this.method.bind(this);
     j(path.parentPath).remove();

@@ -15,6 +15,7 @@ module.exports = (file, api, options) => {
 
   require('./utils/array-polyfills');
   const ReactUtils = require('./utils/ReactUtils')(j);
+  const doesNotUseArguments = require('./utils/doesNotUseArguments')(j);
 
   const printOptions = options.printOptions || {
     quote: 'single',
@@ -230,26 +231,6 @@ module.exports = (file, api, options) => {
           '` and/or `' +
           GET_INITIAL_STATE_FIELD +
           '` in your React component and re-run this script.'
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const doesNotUseArguments = classPath => {
-    const hasArguments =
-      j(classPath)
-        .find(j.Identifier, { name: 'arguments' })
-        .size() > 0;
-    if (hasArguments) {
-      console.warn(
-        file.path +
-          ': `' +
-          ReactUtils.directlyGetComponentName(classPath) +
-          '` ' +
-          'was skipped because `arguments` was found in your functions. ' +
-          'Arrow functions do not expose an `arguments` object; ' +
-          'consider changing to use ES6 spread operator and re-run this script.'
       );
       return false;
     }
