@@ -71,6 +71,8 @@ module.exports = function(file, api, options) {
   }
 
   const reactPath = reactPaths.paths()[0];
+  // Reuse the node so that we can preserve quoting style.
+  const reactLiteral = reactPath.value.source;
 
   const isDefaultImport = reactPath.value.specifiers.some(
     specifier =>
@@ -276,12 +278,12 @@ module.exports = function(file, api, options) {
 
     if (regularImports.length > 0) {
       j(reactPath).insertAfter(
-        j.importDeclaration(regularImports, j.literal('react')),
+        j.importDeclaration(regularImports, reactLiteral),
       );
     }
     if (typeImports.length > 0) {
       j(reactPath).insertAfter(
-        j.importDeclaration(typeImports, j.literal('react'), 'type'),
+        j.importDeclaration(typeImports, reactLiteral, 'type'),
       );
     }
 
@@ -301,7 +303,7 @@ module.exports = function(file, api, options) {
         j(path).insertAfter(
           j.importDeclaration(
             [j.importDefaultSpecifier(j.identifier('React'))],
-            j.literal('react'),
+            reactLiteral,
             'type',
           ),
         );
@@ -326,7 +328,7 @@ module.exports = function(file, api, options) {
           j(reactPath).insertAfter(
             j.importDeclaration(
               [j.importNamespaceSpecifier(j.identifier('React'))],
-              j.literal('react'),
+              reactLiteral,
             ),
           );
         }
@@ -345,12 +347,12 @@ module.exports = function(file, api, options) {
           }
           if (regularImports.length > 0) {
             j(reactPath).insertAfter(
-              j.importDeclaration(regularImports, j.literal('react')),
+              j.importDeclaration(regularImports, reactLiteral),
             );
           }
           if (typeImports.length > 0) {
             j(reactPath).insertAfter(
-              j.importDeclaration(typeImports, j.literal('react'), 'type'),
+              j.importDeclaration(typeImports, reactLiteral, 'type'),
             );
           }
         }
