@@ -15,6 +15,7 @@ const tests = [
   'flow-default-and-type-specifier-import',
   'jsx-element',
   'jsx-fragment',
+  'leading-comment',
   'react-basic-default-export-jsx-element-react-variable',
   'react-basic-default-export-jsx-element',
   'react-basic-default-export',

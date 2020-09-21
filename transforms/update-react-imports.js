@@ -11,6 +11,15 @@ module.exports = function(file, api, options) {
   const printOptions = options.printOptions || {};
   const root = j(file.source);
 
+  // https://github.com/facebook/jscodeshift/blob/master/recipes/retain-first-comment.md
+  function getFirstNode() {
+    return root.find(j.Program).get('body', 0).node;
+  }
+
+  // Save the comments attached to the first node
+  const firstNode = getFirstNode();
+  const { comments } = firstNode;
+
   function isVariableDeclared(variable) {
     return (
       root
@@ -355,6 +364,12 @@ module.exports = function(file, api, options) {
       return null;
     }
   }
-  
+
+  // If the first node has been modified or deleted, reattach the comments
+  const firstNode2 = getFirstNode();
+  if (firstNode2 !== firstNode) {
+    firstNode2.comments = comments;
+  }
+
   return root.toSource(printOptions);
 };
