@@ -1,3 +1,3 @@
-import * as React from "react";
+import { createElement } from "react";
 
-React.createElement('div', 'la');
+createElement('div', 'la');
