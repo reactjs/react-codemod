@@ -15,6 +15,11 @@ const flowOnlyTests = [
   'react-type-default-export',
 ];
 
+const tsOnlyTests = [
+  'preserve-types-namespace',
+  'preserve-types-default',
+];
+
 const tests = [
   'default-and-multiple-specifiers-import-react-variable',
   'default-and-multiple-specifiers-import',
@@ -63,7 +68,7 @@ describe('typescript', () => {
     jest.resetModules();
   });
 
-  [...tests].forEach((test) => {
+  [...tests, ...tsOnlyTests].forEach((test) => {
     defineTest(
       __dirname,
       'update-react-imports',
