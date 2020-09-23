@@ -40,14 +40,16 @@ module.exports = function(file, api, options) {
   const reactImportPaths = root
     .find(j.ImportDeclaration, {
       type: 'ImportDeclaration',
-      source: {
-        type: 'Literal',
-      },
     })
     .filter(path => {
       return (
-        path.value.source.value === 'React' ||
-        path.value.source.value === 'react'
+        (
+          path.value.source.type === 'Literal' ||
+          path.value.source.type === 'StringLiteral'
+        ) && (
+          path.value.source.value === 'React' ||
+          path.value.source.value === 'react'
+        )
       );
     });
 

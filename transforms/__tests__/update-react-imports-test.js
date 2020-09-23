@@ -8,20 +8,28 @@
 
 'use strict';
 
+const flowOnlyTests = [
+  'flow-default-and-type-specifier-import-react-variable',
+  'flow-default-and-type-specifier-import',
+  'react-type-not-removed',
+  'react-type-default-export',
+];
+
+const tsOnlyTests = [
+  'preserve-types-namespace',
+  'preserve-types-default',
+];
+
 const tests = [
   'default-and-multiple-specifiers-import-react-variable',
   'default-and-multiple-specifiers-import',
-  'flow-default-and-type-specifier-import-react-variable',
-  'flow-default-and-type-specifier-import',
   'jsx-element',
   'jsx-fragment',
   'leading-comment',
   'react-basic-default-export-jsx-element-react-variable',
   'react-basic-default-export-jsx-element',
   'react-basic-default-export',
-  'react-type-default-export',
   'react-not-removed',
-  'react-type-not-removed',
   'variable-already-used',
   'react-jsx-member-expression',
   'react-already-used-named-export',
@@ -35,11 +43,37 @@ jest.mock('../update-react-imports', () => {
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
-tests.forEach((test) => {
+[...tests, ...flowOnlyTests].forEach((test) => {
   defineTest(
     __dirname,
     'update-react-imports',
     null,
     `update-react-imports/${test}`
   );
+});
+
+describe('typescript', () => {
+  beforeEach(() => {
+    jest.mock('../update-react-imports', () => {
+      return Object.assign(
+        require.requireActual('../update-react-imports'),
+        {
+          parser: 'tsx'
+        }
+      );
+    });
+  });
+
+  afterEach(() => {
+    jest.resetModules();
+  });
+
+  [...tests, ...tsOnlyTests].forEach((test) => {
+    defineTest(
+      __dirname,
+      'update-react-imports',
+      null,
+      `update-react-imports/typescript/${test}.tsx`
+    );
+  });
 });
