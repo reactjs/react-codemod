@@ -1,6 +1,6 @@
 {
   "name": "react-codemod",
-  "version": "5.4.1",
+  "version": "5.4.2",
   "description": "React codemod scripts",
   "license": "BSD-3-Clause",
   "repository": "reactjs/react-codemod",
