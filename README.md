@@ -147,6 +147,10 @@ npx react-codemod sort-comp <path>
 
 [As of Babel 7.9.0](https://babeljs.io/blog/2020/03/16/7.9.0#a-new-jsx-transform-11154-https-githubcom-babel-babel-pull-11154), when using `runtime: automatic` in `@babel/preset-react` or `@babel/plugin-transform-react-jsx`, you will not need to explicitly import React for compiling jsx. This codemod removes the redundant import statements. It also converts  (`import React from 'react'`) to named imports (`import * as React from 'react'`).
 
+The wizard will ask for 1 option - 
+
+* **Destructure named imports?**: Destructures named imports (import * as React from 'react') as well as default imports. Does not do this by default.  
+
 ```sh
 npx react-codemod update-react-imports <path>
 ```

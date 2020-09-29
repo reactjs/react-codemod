@@ -10,6 +10,7 @@ module.exports = function(file, api, options) {
   const j = api.jscodeshift;
   const printOptions = options.printOptions || {};
   const root = j(file.source);
+  const destructureNamedImports = options.destructureNamedImports;
 
   // https://github.com/facebook/jscodeshift/blob/master/recipes/retain-first-comment.md
   function getFirstNode() {
@@ -96,8 +97,8 @@ module.exports = function(file, api, options) {
   // local: imported
   const reactIdentifiers = {};
   const reactTypeIdentifiers = {};
-  let canDestructureReactVariable;
-  if (isReactImportUsed && isDefaultImport) {
+  let canDestructureReactVariable = false;
+  if (isReactImportUsed && (isDefaultImport || destructureNamedImports)) {
     // Checks to see if the react variable is used itself (rather than used to access its properties)
     canDestructureReactVariable =
       root

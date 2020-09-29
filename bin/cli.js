@@ -99,6 +99,12 @@ function runTransform({ files, flags, parser, transformer, answers }) {
     }
   }
 
+  if (transformer === 'update-react-imports') {
+    if (answers.destructureNamedImports) {
+      args.push('--destructureNamedImports=true');
+    }
+  }
+
   if (flags.jscodeshift) {
     args = args.concat(flags.jscodeshift);
   }
@@ -361,6 +367,18 @@ function run() {
           );
         },
         message: 'Destructure props?',
+        default: false
+      },
+      {
+        type: 'confirm',
+        name: 'destructureNamedImports',
+        when: answers => {
+          return (
+            cli.input[0] === 'update-react-imports' ||
+            answers.transformer === 'update-react-imports'
+          );
+        },
+        message: 'Destructure named imports?',
         default: false
       }
     ])
