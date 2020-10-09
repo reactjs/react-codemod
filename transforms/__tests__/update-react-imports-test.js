@@ -35,6 +35,12 @@ const tests = [
   'react-already-used-named-export',
 ];
 
+const destructureNamedImportTests = [
+  'destructure-named-imports',
+  'destructure-named-imports-variable-used',
+  'destructure-named-imports-react-not-removed',
+];
+
 jest.mock('../update-react-imports', () => {
   return Object.assign(require.requireActual('../update-react-imports'), {
     parser: 'flow',
@@ -76,4 +82,13 @@ describe('typescript', () => {
       `update-react-imports/typescript/${test}.tsx`
     );
   });
+});
+
+destructureNamedImportTests.forEach((test) => {
+  defineTest(
+    __dirname,
+    'update-react-imports',
+    {destructureNamedImports: true},
+    `update-react-imports/${test}`
+  );
 });
