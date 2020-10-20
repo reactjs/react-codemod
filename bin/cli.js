@@ -2,7 +2,7 @@
  * Copyright 2015-present, Facebook, Inc.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree. 
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
@@ -72,7 +72,7 @@ function runTransform({ files, flags, parser, transformer, answers }) {
   args.push('--ignore-pattern=**/node_modules/**');
 
   args.push('--parser', parser);
-  
+
   if (parser === 'tsx') {
     args.push('--extensions=tsx,ts,jsx,js');
   } else {
@@ -100,8 +100,8 @@ function runTransform({ files, flags, parser, transformer, answers }) {
   }
 
   if (transformer === 'update-react-imports') {
-    if (answers.destructureNamedImports) {
-      args.push('--destructureNamedImports=true');
+    if (answers.destructureNamespaceImports) {
+      args.push('--destructureNamespaceImports=true');
     }
   }
 
@@ -226,7 +226,7 @@ function run() {
     Usage
       $ npx react-codemod <transform> <path> <...options>
 
-        transform    One of the choices from https://github.com/reactjs/react-codemod 
+        transform    One of the choices from https://github.com/reactjs/react-codemod
         path         Files or directory to transform. Can be a glob like src/**.test.js
 
     Options
@@ -371,14 +371,14 @@ function run() {
       },
       {
         type: 'confirm',
-        name: 'destructureNamedImports',
+        name: 'destructureNamespaceImports',
         when: answers => {
           return (
             cli.input[0] === 'update-react-imports' ||
             answers.transformer === 'update-react-imports'
           );
         },
-        message: 'Destructure named imports?',
+        message: 'Destructure namespace imports (import *) too?',
         default: false
       }
     ])

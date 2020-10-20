@@ -6,11 +6,11 @@ APIs.
 
 ### Usage
 `npx react-codemod <transform> <path> [...options]`
-   * `transform` - name of transform, see available transforms below. 
+   * `transform` - name of transform, see available transforms below.
    * `path` - files or directory to transform
    * use the `--dry` option for a dry-run and use `--print` to print the output for comparison
 
-This will start an interactive wizard, and then run the specified transform. 
+This will start an interactive wizard, and then run the specified transform.
 
 ### Included Transforms
 
@@ -55,10 +55,10 @@ npx react-codemod manual-bind-to-arrow <path>
 Converts ES6 classes that only have a render method, only have safe properties
 (statics and props), and do not have refs to Functional Components.
 
-The wizard will ask for 2 options - 
+The wizard will ask for 2 options -
 
-* **Use arrow functions?**: converts to arrow function. Converts to `function` by default.  
-* **Destructure props?**: will destructure props in the argument where it is safe to do so.  
+* **Use arrow functions?**: converts to arrow function. Converts to `function` by default.
+* **Destructure props?**: will destructure props in the argument where it is safe to do so.
 
 ```sh
 npx react-codemod pure-component <path>
@@ -118,7 +118,7 @@ npx react-codemod react-to-react-dom <path>
 
 #### `React-DOM-to-react-dom-factories`
 
-Converts calls like `React.DOM.div(...)` to `React.createElement('div', ...)`. 
+Converts calls like `React.DOM.div(...)` to `React.createElement('div', ...)`.
 
 ```sh
 npx react-codemod React-DOM-to-react-dom-factories <path>
@@ -145,11 +145,11 @@ npx react-codemod sort-comp <path>
 
 #### `update-react-imports`
 
-[As of Babel 7.9.0](https://babeljs.io/blog/2020/03/16/7.9.0#a-new-jsx-transform-11154-https-githubcom-babel-babel-pull-11154), when using `runtime: automatic` in `@babel/preset-react` or `@babel/plugin-transform-react-jsx`, you will not need to explicitly import React for compiling jsx. This codemod removes the redundant import statements. It also converts  (`import React from 'react'`) to named imports (`import * as React from 'react'`).
+[As of Babel 7.9.0](https://babeljs.io/blog/2020/03/16/7.9.0#a-new-jsx-transform-11154-https-githubcom-babel-babel-pull-11154), when using `runtime: automatic` in `@babel/preset-react` or `@babel/plugin-transform-react-jsx`, you will not need to explicitly import React for compiling jsx. This codemod removes the redundant import statements. It also converts default imports (`import React from 'react'`) to named imports (e.g. `import { useState } from 'react'`).
 
-The wizard will ask for 1 option - 
+The wizard will ask for 1 option -
 
-* **Destructure named imports?**: Destructures named imports (import * as React from 'react') as well as default imports. Does not do this by default.  
+* **Destructure namespace imports as well?**: If chosen, *namespace* imports like `import * as React` will *also* be converted. By default, it's false, so only default imports (`import React`) are converted.
 
 ```sh
 npx react-codemod update-react-imports <path>
@@ -207,7 +207,7 @@ To pass more options directly to jscodeshift, use `--jscodeshift="..."`. For exa
 npx react-codemod --jscodeshift="--run-in-band --verbose=2"
 ```
 
-See all available options [here](https://github.com/facebook/jscodeshift#usage-cli). 
+See all available options [here](https://github.com/facebook/jscodeshift#usage-cli).
 
 ### Recast Options
 
@@ -220,7 +220,7 @@ npx react-codemod <transform> <path> --jscodeshift="--printOptions='{\"quote\":\
 
 #### `explicit-require=false`
 
-If you're not explicitly importing React in your files (eg: if you're loading React with a script tag), you should add `--explicit-require=false`. 
+If you're not explicitly importing React in your files (eg: if you're loading React with a script tag), you should add `--explicit-require=false`.
 
 ### Support and Contributing
 

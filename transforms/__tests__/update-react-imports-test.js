@@ -88,7 +88,7 @@ destructureNamedImportTests.forEach((test) => {
   defineTest(
     __dirname,
     'update-react-imports',
-    {destructureNamedImports: true},
+    {destructureNamespaceImports: true},
     `update-react-imports/${test}`
   );
 });
