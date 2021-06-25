@@ -17,7 +17,7 @@ const chalk = require('chalk');
 const isGitClean = require('is-git-clean');
 
 const transformerDirectory = path.join(__dirname, '../', 'transforms');
-const jscodeshiftExecutable = require.resolve('.bin/jscodeshift');
+const jscodeshiftExecutable = require.resolve('jscodeshift/bin/jscodeshift');
 
 function checkGitStatus(force) {
   let clean = false;
