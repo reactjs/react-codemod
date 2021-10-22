@@ -70,4 +70,8 @@ function PureWithPropTypes2(props: { foo: string }) {
 
 PureWithPropTypes2.propTypes = { foo: React.PropTypes.string };
 
+function PureWithPropTypes3(props: Props) {
+  return <div>{props.foo}</div>;
+}
+
 var A = props => <div className={props.foo} />;

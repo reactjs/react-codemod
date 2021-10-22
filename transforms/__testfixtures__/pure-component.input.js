@@ -83,4 +83,10 @@ class PureWithPropTypes2 extends React.Component {
   }
 }
 
+class PureWithPropTypes3 extends React.Component<Props> {
+  render() {
+    return <div>{this.props.foo}</div>;
+  }
+}
+
 var A = props => <div className={props.foo} />;

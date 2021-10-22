@@ -292,6 +292,7 @@ module.exports = function(file, api, options) {
     const renderMethod = p.value.body.body.filter(isRenderMethod)[0];
     const renderBody = renderMethod.value.body;
     const propsTypeAnnotation = findPropsTypeAnnotation(p.value.body.body);
+    const superTypeAnnotation = p.node.superTypeParameters && p.node.superTypeParameters.params[0]
     const statics = p.value.body.body.filter(isStaticProperty);
     const destructure = destructuringEnabled && canDestructure(j(renderMethod));
 
@@ -307,7 +308,7 @@ module.exports = function(file, api, options) {
         buildPureComponentArrowFunction(
           name,
           renderBody,
-          propsTypeAnnotation,
+          propsTypeAnnotation || superTypeAnnotation,
           destructure,
           hasThisDotProps
         ),
@@ -318,7 +319,7 @@ module.exports = function(file, api, options) {
         buildPureComponentFunction(
           name,
           renderBody,
-          propsTypeAnnotation,
+          propsTypeAnnotation || superTypeAnnotation,
           destructure,
           hasThisDotProps
         ),
