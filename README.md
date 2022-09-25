@@ -143,6 +143,76 @@ guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e
 npx react-codemod sort-comp <path>
 ```
 
+#### `string-refs`
+
+WARNING: Only apply this codemod if you've fixed all warnings like this:
+
+```
+Warning: Component "div" contains the string ref "inner". Support for string refs will be removed in a future major release. We recommend using useRef() or createRef() instead. 
+```
+
+This codemod will convert deprecated string refs to callback refs.
+
+Input:
+
+```jsx
+import * as React from "react";
+
+class ParentComponent extends React.Component {
+  render() {
+    return <div ref="refComponent" />;
+  }
+}
+```
+
+Output:
+
+```jsx
+import * as React from "react";
+
+class ParentComponent extends React.Component {
+  render() {
+    return (
+      <div
+        ref={(current) => {
+          this.refs["refComponent"] = current;
+        }}
+      />
+    );
+  }
+}
+```
+
+Note that this only works for string literals.
+Referring to the ref with a variable will not trigger the transform:
+Input:
+
+```jsx
+import * as React from "react";
+
+const refName = "refComponent";
+
+class ParentComponent extends React.Component {
+  render() {
+    return <div ref={refName} />;
+  }
+}
+```
+
+Output (nothing changed):
+
+```jsx
+import * as React from "react";
+
+const refName = "refComponent";
+
+class ParentComponent extends React.Component {
+  render() {
+    return <div ref={refName} />;
+  }
+}
+```
+
 #### `update-react-imports`
 
 [As of Babel 7.9.0](https://babeljs.io/blog/2020/03/16/7.9.0#a-new-jsx-transform-11154-https-githubcom-babel-babel-pull-11154), when using `runtime: automatic` in `@babel/preset-react` or `@babel/plugin-transform-react-jsx`, you will not need to explicitly import React for compiling jsx. This codemod removes the redundant import statements. It also converts default imports (`import React from 'react'`) to named imports (e.g. `import { useState } from 'react'`).
