@@ -40,56 +40,11 @@ export default (file, api, options) => {
         // Maybe JSCodeShift has such a helper as well?
         const currentIdentifierName = "current";
         valuePath.replace(
-          // {(current) => {}}
+          // {(current) => { this.refs[valuePath.node.value] = current }}
           j.jsxExpressionContainer(
             j.arrowFunctionExpression(
               [j.identifier(currentIdentifierName)],
               j.blockStatement([
-                // if (process.env.NODE_ENV !== 'production')
-                j.ifStatement(
-                  j.binaryExpression(
-                    "!==",
-                    j.memberExpression(
-                      j.memberExpression(
-                        j.identifier("process"),
-                        j.identifier("env")
-                      ),
-                      j.identifier("NODE_ENV")
-                    ),
-                    j.stringLiteral("production")
-                  ),
-                  j.blockStatement([
-                    // if (Object.isSealed(this.refs))
-                    j.ifStatement(
-                      j.callExpression(
-                        j.memberExpression(
-                          j.identifier("Object"),
-                          j.identifier("isSealed")
-                        ),
-                        [
-                          j.memberExpression(
-                            j.thisExpression(),
-                            j.identifier("refs")
-                          ),
-                        ]
-                      ),
-                      j.blockStatement([
-                        // this.refs = {}
-                        j.expressionStatement(
-                          j.assignmentExpression(
-                            "=",
-                            j.memberExpression(
-                              j.thisExpression(),
-                              j.identifier("refs")
-                            ),
-                            j.objectExpression([])
-                          )
-                        ),
-                      ])
-                    ),
-                  ])
-                ),
-                // this.refs[valuePath.node.value] = current
                 j.expressionStatement(
                   j.assignmentExpression(
                     "=",
