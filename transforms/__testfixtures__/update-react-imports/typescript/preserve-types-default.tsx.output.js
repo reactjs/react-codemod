@@ -1,5 +1,5 @@
-import * as React from 'react';
+import { FunctionComponent } from 'react';
 
-const App: React.FunctionComponent<{ message: string }> = ({ message }) => (
+const App: FunctionComponent<{ message: string }> = ({ message }) => (
   <div>{message}</div>
 );
