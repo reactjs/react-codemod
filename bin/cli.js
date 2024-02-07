@@ -295,39 +295,40 @@ function run() {
         type: 'confirm',
         name: 'classFlow',
         when: answers => {
-          return cli.input[0] === 'class' || answers.transformer === 'class';
+          console.log(typeof cli.flags.classFlow, cli.flags.classFlow);
+          return (cli.input[0] === 'class' || answers.transformer === 'class') && !cli.flags.classFlow;
         },
         message: 'Generate Flow annotations from propTypes?',
-        default: true
+        default: 'classFlow' in cli.flags ? Boolean(cli.flags.classFlow) : true,
       },
       {
         type: 'confirm',
         name: 'classRemoveRuntimePropTypes',
         when: answers => {
-          return answers.classFlow === true;
+          return answers.classFlow === true && !cli.flags.classRemoveRuntimePropTypes;
         },
         message: 'Remove runtime PropTypes?',
-        default: false
+        default: 'classRemoveRuntimePropTypes' in cli.flags ? Boolean(cli.flags.classRemoveRuntimePropTypes) : false
       },
       {
         type: 'confirm',
         name: 'classPureComponent',
         when: answers => {
-          return cli.input[0] === 'class' || answers.transformer === 'class';
+          return (cli.input[0] === 'class' || answers.transformer === 'class') && !cli.flags.classPureComponent;
         },
         message:
           'replace react-addons-pure-render-mixin with React.PureComponent?',
-        default: true
+        default: 'classPureComponent' in cli.flags ? Boolean(cli.flags.classPureComponent) : true,
       },
       {
         type: 'input',
         name: 'classMixinModuleName',
         when: answers => {
-          return answers.classPureComponent === true;
+          return answers.classPureComponent === true && !cli.flags.classMixinModuleName;
         },
         // validate: () =>
         message: 'What module exports this mixin?',
-        default: 'react-addons-pure-render-mixin',
+        default: 'classMixinModuleName' in cli.flags ? cli.flags.classMixinModuleName : 'react-addons-pure-render-mixin',
         filter: x => x.trim()
       },
       // if transformer === 'pure-render-mixin'
