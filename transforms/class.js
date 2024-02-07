@@ -176,8 +176,15 @@ module.exports = (file, api, options) => {
               path.parentPath &&
               path.parentPath.value &&
               path.parentPath.value.object &&
-              path.parentPath.value.object.name &&
-              path.parentPath.value.object.name === 'history'
+              (
+                // First check if history is the top level
+                path.parentPath.value.object.name &&
+                path.parentPath.value.object.name === 'history' ||
+
+                // Or is it part of a memberexpression?
+                path.parentPath.value.object.property &&
+                path.parentPath.value.object.property.name === 'history'
+              )
             ) {
               correctContext = false;
             }
