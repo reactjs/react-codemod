@@ -11,8 +11,46 @@ APIs.
    * use the `--dry` option for a dry-run and use `--print` to print the output for comparison
 
 This will start an interactive wizard, and then run the specified transform.
+#### Running with `codemod` CLI
+`npx codemod <transform> --target <path> [...options]`
+   * `transform` - name of transform, see available transforms below.
+   * `path` - directory to transform
+
+Check [codemod docs](https://docs.codemod.com/deploying-codemods/cli]) for the full list of available commands.
 
 ### Included Transforms
+
+#### `remove-context-provider`
+
+Converts `Context.Provider` JSX opening and closing elements into `Context`.
+
+```sh
+npx react-codemod remove-context-provider <path>
+```
+
+#### `remove-forward-ref`
+
+Removes usages of `forwardRef`.
+
+```sh
+npx react-codemod remove-forward-ref <path>
+```
+
+#### `remove-memoization-hooks`
+
+Removes usages of `useCallback`, `useMemo` and `memo`.
+
+```sh
+npx react-codemod remove-memoization-hooks <path>
+```
+
+#### `use-context-hook`
+
+Replaces usages of `React.useContext(...)` with `React.use(...)`.
+
+```sh
+npx react-codemod use-context-hook <path>
+```
 
 #### `create-element-to-jsx`
 
