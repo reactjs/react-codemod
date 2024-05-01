@@ -12,11 +12,11 @@ APIs.
 
 This will start an interactive wizard, and then run the specified transform.
 #### Running with `codemod` CLI
-`npx codemod <transform> --target <path> [...options]`
+`npx codemod <framework>/<version>/<transform> --target <path> [...options]`
    * `transform` - name of transform, see available transforms below.
    * `path` - directory to transform
 
-Check [codemod docs](https://docs.codemod.com/deploying-codemods/cli]) for the full list of available commands.
+Check [codemod docs](https://go.codemod.com/cli-docs]) for the full list of available commands.
 
 ### Included Transforms
 
@@ -24,32 +24,64 @@ Check [codemod docs](https://docs.codemod.com/deploying-codemods/cli]) for the f
 
 Converts `Context.Provider` JSX opening and closing elements into `Context`.
 
+Run with `react-codemod` CLI for basic experience:
+
 ```sh
 npx react-codemod remove-context-provider <path>
+```
+
+or use `codemod` CLI for better experience and support:
+
+```sh
+npx codemod react/19/remove-context-provider --target <path>
 ```
 
 #### `remove-forward-ref`
 
 Removes usages of `forwardRef`.
 
+Run with `react-codemod` CLI for basic experience:
+
 ```sh
 npx react-codemod remove-forward-ref <path>
+```
+
+or use `codemod` CLI for better experience and support:
+
+```sh
+npx codemod react/19/remove-forward-ref --target <path>
 ```
 
 #### `remove-memoization-hooks`
 
 Removes usages of `useCallback`, `useMemo` and `memo`.
 
+Run with `react-codemod` CLI for basic experience:
+
 ```sh
 npx react-codemod remove-memoization-hooks <path>
+```
+
+or use `codemod` CLI for better experience and support:
+
+```sh
+npx codemod react/19/remove-memoization-hooks --target <path>
 ```
 
 #### `use-context-hook`
 
 Replaces usages of `React.useContext(...)` with `React.use(...)`.
 
+Run with `react-codemod` CLI for basic experience:
+
 ```sh
 npx react-codemod use-context-hook <path>
+```
+
+or use `codemod` CLI for better experience and support:
+
+```sh
+npx codemod react/19/use-context-hook --target <path>
 ```
 
 #### `create-element-to-jsx`
