@@ -227,6 +227,11 @@ const TRANSFORMER_INQUIRER_CHOICES = [
       'replace-act-import: Updates `act` import',
     value: 'replace-act-import'
   },
+  {
+    name:
+      'replace-string-ref: Replaces deprecated string ref with callback ref',
+    value: 'replace-string-ref'
+  },
 ];
 
 const PARSER_INQUIRER_CHOICES = [
