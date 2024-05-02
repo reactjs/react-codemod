@@ -84,6 +84,54 @@ or use `codemod` CLI for better experience and support:
 npx codemod react/19/use-context-hook --target <path>
 ```
 
+#### `replace-act-import`
+
+Updates `act` import path from `react-dom/test-utils` to `react`.
+
+Run with `react-codemod` CLI for basic experience:
+
+```sh
+npx react-codemod replace-act-import <path>
+```
+
+or use `codemod` CLI for better experience and support:
+
+```sh
+npx codemod react/19/replace-act-import --target <path>
+```
+
+#### `replace-string-ref`
+
+Replaces deprecated string refs with callback refs.
+
+Run with `react-codemod` CLI for basic experience:
+
+```sh
+npx react-codemod replace-string-ref <path>
+```
+
+or use `codemod` CLI for better experience and support:
+
+```sh
+npx codemod react/19/replace-string-ref --target <path>
+```
+
+#### `replace-use-form-state`
+
+Replaces usages of useFormState() to use useActionState().
+
+Run with `react-codemod` CLI for basic experience:
+
+```sh
+npx react-codemod replace-use-form-state <path>
+```
+
+or use `codemod` CLI for better experience and support:
+
+```sh
+npx codemod react/19/replace-use-form-state --target <path>
+```
+
 #### `create-element-to-jsx`
 
 Converts calls to `React.createElement` into JSX elements.
