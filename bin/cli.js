@@ -217,6 +217,11 @@ const TRANSFORMER_INQUIRER_CHOICES = [
       'use-context-hook: Replaces useContext with React.use',
     value: 'use-context-hook'
   },
+  {
+    name:
+      'replace-use-form-state: Replaces useFormState with useActionState',
+    value: 'replace-use-form-state'
+  },
 ];
 
 const PARSER_INQUIRER_CHOICES = [

@@ -8,6 +8,7 @@ export default function transform(
   const j = api.jscodeshift;
   const root = j(file.source);
 
+  let isDirty = false;
   // Get default import from react-dom
   const defaultImportName = root
     .find(j.ImportDeclaration, {
@@ -45,9 +46,11 @@ export default function transform(
     actAccessExpressions.forEach((path) => {
       j(path)
         .find(j.Identifier, { name: 'useFormState' })
-        .paths()
         .at(0)
-        ?.replace(j.identifier('useActionState'));
+        ?.replaceWith(() => {
+          isDirty = true;
+          return j.identifier('useActionState');
+        });
     });
   }
 
@@ -59,7 +62,7 @@ export default function transform(
   const reactDOMImportPath = reactDOMImportCollection.paths().at(0);
 
   if (!reactDOMImportPath) {
-    return root.toSource();
+    return isDirty ? root.toSource() : undefined;
   }
 
   const specifier = reactDOMImportPath.node.specifiers?.find(
@@ -67,7 +70,7 @@ export default function transform(
   );
 
   if (!specifier || !j.ImportSpecifier.check(specifier)) {
-    return root.toSource();
+    return isDirty ? root.toSource() : undefined;
   }
 
   const usedName = specifier.local?.name ?? specifier.imported.name;
@@ -75,21 +78,21 @@ export default function transform(
   // Replace import name
   reactDOMImportCollection
     .find(j.ImportSpecifier, { imported: { name: 'useFormState' } })
-    .forEach((path) => {
-      path.replace(
-        j.importSpecifier(
-          j.identifier('useActionState'),
-          j.identifier(usedName),
-        ),
+    .replaceWith(() => {
+      isDirty = true;
+      return j.importSpecifier(
+        j.identifier('useActionState'),
+        j.identifier(usedName),
       );
     });
 
   // Means it's not aliased, so we also change identifier names, not only import
   if (specifier?.local?.name === 'useFormState') {
-    root.find(j.Identifier, { name: 'useFormState' }).forEach((path) => {
-      path.replace(j.identifier('useActionState'));
+    root.find(j.Identifier, { name: 'useFormState' }).replaceWith(() => {
+      isDirty = true;
+      return j.identifier('useActionState');
     });
   }
 
-  return root.toSource();
+  return isDirty ? root.toSource() : undefined;
 }
