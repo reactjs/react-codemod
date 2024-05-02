@@ -222,6 +222,11 @@ const TRANSFORMER_INQUIRER_CHOICES = [
       'replace-use-form-state: Replaces useFormState with useActionState',
     value: 'replace-use-form-state'
   },
+  {
+    name:
+      'replace-act-import: Updates `act` import',
+    value: 'replace-act-import'
+  },
 ];
 
 const PARSER_INQUIRER_CHOICES = [
