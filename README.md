@@ -1,22 +1,28 @@
 ## react-codemod [![Build Status](https://travis-ci.org/reactjs/react-codemod.svg)](https://travis-ci.org/reactjs/react-codemod)
 
-This repository contains a collection of codemod scripts for use with
-[JSCodeshift](https://github.com/facebook/jscodeshift) that help update React
-APIs.
+This repository contains a collection of codemods to help update React apps.
 
 ### Usage
+There are two supported ways to run React codemods:
+- `codemod`: enhanced codemod support from [codemod.com](https://codemod.com) available via CLI or the [VSCode Extension](https://go.codemod.com/vsce).
+- `react-codemod`: basic codemod support using [JSCodeshift](https://github.com/facebook/jscodeshift).
+
+The `codemod.com` team maintains many of the codemods listed here, and all codemods are free and Open Source whether you use the `codemod` command or `react-codemod`. 
+
+#### Running with `codemod` CLI
+`npx codemod <framework>/<version>/<transform> --target <path> [...options]`
+* `transform` - name of transform, see available transforms below.
+* `path` - directory to transform
+
+Check [codemod docs](https://go.codemod.com/cli-docs]) for the full list of available commands.
+
+#### Running with `react-codemod`
 `npx react-codemod <transform> <path> [...options]`
    * `transform` - name of transform, see available transforms below.
    * `path` - files or directory to transform
    * use the `--dry` option for a dry-run and use `--print` to print the output for comparison
 
 This will start an interactive wizard, and then run the specified transform.
-#### Running with `codemod` CLI
-`npx codemod <framework>/<version>/<transform> --target <path> [...options]`
-   * `transform` - name of transform, see available transforms below.
-   * `path` - directory to transform
-
-Check [codemod docs](https://go.codemod.com/cli-docs]) for the full list of available commands.
 
 ### Included Transforms
 
@@ -24,112 +30,101 @@ Check [codemod docs](https://go.codemod.com/cli-docs]) for the full list of avai
 
 Converts `Context.Provider` JSX opening and closing elements into `Context`.
 
-Run with `react-codemod` CLI for basic experience:
-
-```sh
-npx react-codemod remove-context-provider <path>
-```
-
-or use `codemod` CLI for better experience and support:
-
+`codemod`:
 ```sh
 npx codemod react/19/remove-context-provider --target <path>
+```
+
+`react-codemod`:
+```sh
+npx react-codemod remove-context-provider <path>
 ```
 
 #### `remove-forward-ref`
 
 Removes usages of `forwardRef`.
 
-Run with `react-codemod` CLI for basic experience:
-
-```sh
-npx react-codemod remove-forward-ref <path>
-```
-
-or use `codemod` CLI for better experience and support:
-
+`codemod`:
 ```sh
 npx codemod react/19/remove-forward-ref --target <path>
+```
+
+`react-codemod`:
+```sh
+npx react-codemod remove-forward-ref <path>
 ```
 
 #### `remove-memoization-hooks`
 
 Removes usages of `useCallback`, `useMemo` and `memo`.
 
-Run with `react-codemod` CLI for basic experience:
-
-```sh
-npx react-codemod remove-memoization-hooks <path>
-```
-
-or use `codemod` CLI for better experience and support:
+`codemod`:
 
 ```sh
 npx codemod react/19/remove-memoization-hooks --target <path>
+```
+
+`react-codemod`:
+```sh
+npx react-codemod remove-memoization-hooks <path>
 ```
 
 #### `use-context-hook`
 
 Replaces usages of `React.useContext(...)` with `React.use(...)`.
 
-Run with `react-codemod` CLI for basic experience:
-
-```sh
-npx react-codemod use-context-hook <path>
-```
-
-or use `codemod` CLI for better experience and support:
+`codemod`:
 
 ```sh
 npx codemod react/19/use-context-hook --target <path>
+```
+
+`react-codemod`:
+
+```sh
+npx react-codemod use-context-hook <path>
 ```
 
 #### `replace-act-import`
 
 Updates `act` import path from `react-dom/test-utils` to `react`.
 
-Run with `react-codemod` CLI for basic experience:
-
-```sh
-npx react-codemod replace-act-import <path>
-```
-
-or use `codemod` CLI for better experience and support:
-
+`codemod`:
 ```sh
 npx codemod react/19/replace-act-import --target <path>
+```
+
+`react-codemod`:
+```sh
+npx react-codemod replace-act-import <path>
 ```
 
 #### `replace-string-ref`
 
 Replaces deprecated string refs with callback refs.
 
-Run with `react-codemod` CLI for basic experience:
-
-```sh
-npx react-codemod replace-string-ref <path>
-```
-
-or use `codemod` CLI for better experience and support:
-
+`codemod`:
 ```sh
 npx codemod react/19/replace-string-ref --target <path>
+```
+
+`react-codemod`:
+```sh
+npx react-codemod replace-string-ref <path>
 ```
 
 #### `replace-use-form-state`
 
 Replaces usages of useFormState() to use useActionState().
 
-Run with `react-codemod` CLI for basic experience:
-
-```sh
-npx react-codemod replace-use-form-state <path>
-```
-
-or use `codemod` CLI for better experience and support:
-
+`codemod`:
 ```sh
 npx codemod react/19/replace-use-form-state --target <path>
+```
+
+`react-codemod`:
+```sh
+npx react-codemod replace-use-form-state <path>
 ```
 
 #### `create-element-to-jsx`
@@ -313,10 +308,8 @@ npx react-codemod update-react-imports <path>
   - Adds a `require` or `import` statement for `create-react-class`. The import style is inferred from the import style of the `react` import. The default module name can be overridden with the `--create-class-module-name` option.
   - Prunes the `react` import if there are no more references to it.
 
-#### Usage
-```bash
-npx react-codemod class <path>
-```
+
+## `react-codemod` options 
 
 ### jscodeshift options
 
@@ -336,11 +329,15 @@ through jscodeshift's `printOptions` command line argument
 npx react-codemod <transform> <path> --jscodeshift="--printOptions='{\"quote\":\"double\"}'"
 ```
 
-#### `explicit-require=false`
+### `explicit-require=false`
 
 If you're not explicitly importing React in your files (eg: if you're loading React with a script tag), you should add `--explicit-require=false`.
 
-### Support and Contributing
+## `codemod` options
+
+Check [codemod docs](https://go.codemod.com/cli-docs]) for the full list of available options.
+
+## Support and Contributing
 
 The scripts in this repository are provided in the hope that they are useful,
 but they are not officially maintained, and we generally will not fix
@@ -350,7 +347,6 @@ rely on community contributions to fix any issues discovered or make any
 improvements. If you want to contribute, you're welcome to submit a pull
 request.
 
-### License
-
+## License
 
 react-codemod is [MIT licensed](./LICENSE).
