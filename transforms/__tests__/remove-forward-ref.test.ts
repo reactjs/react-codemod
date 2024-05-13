@@ -7,12 +7,15 @@ const jsTests = [
   'forward-ref-import',
   'forward-ref-import-2',
   'props-identifier', 
-  'props-object-pattern'
+  'props-object-pattern', 
+  'callee-is-member-expression'
 ];
 
 const tsTests = [
   'type-arguments', 
   'type-arguments-custom-names', 
+  'type-arguments-type-literals', 
+  'props-type-literal'
 ];
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;

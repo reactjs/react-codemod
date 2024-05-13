@@ -40,34 +40,43 @@ export default function transform(
     });
 
   // Get useContext import name
-  const useContextImport = root
+  let useContextImportLocalName: string | null = null;
+
+  root
     .find(j.ImportDeclaration, {
       source: { value: 'react' },
-      specifiers: [
-        { type: 'ImportSpecifier', imported: { name: 'useContext' } },
-      ],
     })
-    .paths()
-    .at(0)
-    ?.node.specifiers?.at(0)?.local?.name;
+    .forEach((path) => {
+      const useContextSpecifier = path.node.specifiers
+        ?.filter(
+          (specifier) =>
+            j.ImportSpecifier.check(specifier) &&
+            specifier.imported.name === 'useContext',
+        )
+        .at(0);
 
-  if (useContextImport) {
-    // For usages like `import { useContext } from 'react'; useContext(ThemeContext)`
-    root.find(j.Identifier, { name: useContextImport }).forEach((path) => {
-      // If parent is a member expression, we don't want that change, we handle React.useContext separately
-      if (path.parentPath.node.type === 'MemberExpression') {
-        return;
-      }
-
-      // In all other cases, replace usages of imported useContext with use
-      if (path.node.type === 'Identifier') {
-        const newIdentifier = j.identifier.from({ name: 'use' });
-
-        path.replace(newIdentifier);
-
-        isDirty = true;
-      }
+      useContextImportLocalName = useContextSpecifier?.local?.name ?? null;
     });
+
+  if (useContextImportLocalName) {
+    // For usages like `import { useContext } from 'react'; useContext(ThemeContext)`
+    root
+      .find(j.Identifier, { name: useContextImportLocalName })
+      .forEach((path) => {
+        // If parent is a member expression, we don't want that change, we handle React.useContext separately
+        if (path.parentPath.node.type === 'MemberExpression') {
+          return;
+        }
+
+        // In all other cases, replace usages of imported useContext with use
+        if (path.node.type === 'Identifier') {
+          const newIdentifier = j.identifier.from({ name: 'use' });
+
+          path.replace(newIdentifier);
+
+          isDirty = true;
+        }
+      });
   }
 
   return isDirty ? root.toSource() : undefined;
