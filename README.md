@@ -132,13 +132,11 @@ npx react-codemod replace-use-form-state <path>
 Replaces usages of ReactDom.render() with createRoot(node).render().
 
 `react-codemod`:
-
 ```sh
 npx react-codemod replace-reactdom-render <path>
 ```
 
 `codemod`:
-
 ```sh
 npx codemod react/19/replace-reactdom-render --target <path>
 ```
@@ -147,6 +145,12 @@ npx codemod react/19/replace-reactdom-render --target <path>
 
 Converts calls to `React.createElement` into JSX elements.
 
+`codemod`: 
+```sh
+npx codemod react/create-element-to-jsx --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod create-element-to-jsx <path>
 ```
@@ -155,6 +159,12 @@ npx react-codemod create-element-to-jsx <path>
 
 Renames the experimental `unstable_handleError` lifecycle hook to `componentDidCatch`.
 
+`codemod`: 
+```sh
+npx codemod react/error-boundaries --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod error-boundaries <path>
 ```
@@ -167,6 +177,12 @@ only look at code inside of `React.createClass` calls and only update calls on
 the component instance or its refs. You can use this script to update most calls
 to `getDOMNode` and then manually go through the remaining calls.
 
+`codemod`: 
+```sh
+npx codemod react/findDOMNode --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod findDOMNode <path>
 ```
@@ -175,6 +191,12 @@ npx react-codemod findDOMNode <path>
 
 Converts manual function bindings in a class (e.g., `this.f = this.f.bind(this)`) to arrow property initializer functions (e.g., `f = () => {}`).
 
+`codemod`: 
+```sh
+npx codemod react/manual-bind-to-arrow --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod manual-bind-to-arrow <path>
 ```
@@ -189,6 +211,12 @@ The wizard will ask for 2 options -
 * **Use arrow functions?**: converts to arrow function. Converts to `function` by default.
 * **Destructure props?**: will destructure props in the argument where it is safe to do so.
 
+`codemod`: 
+```sh
+npx codemod react/pure-component --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod pure-component <path>
 ```
@@ -200,6 +228,12 @@ class transform can pick up the React component and turn it into an ES2015
 class. NOTE: This currently only works if you are using the master version
 (>0.13.1) of React as it is using `React.addons.shallowCompare`
 
+`codemod`: 
+```sh
+npx codemod react/pure-render-mixin --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod pure-render-mixin <path>
 ```
@@ -213,6 +247,12 @@ npx react-codemod pure-render-mixin <path>
 
 Replaces `React.PropTypes` references with `prop-types` and adds the appropriate `import` or `require` statement. This codemod is intended for React 15.5+.
 
+`codemod`: 
+```sh
+npx codemod react/React-PropTypes-to-prop-types --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod React-PropTypes-to-prop-types <path>
 ```
@@ -223,6 +263,12 @@ npx react-codemod React-PropTypes-to-prop-types <path>
 
 Adds `UNSAFE_` prefix for deprecated lifecycle hooks. (For more information about this codemod, see [React RFC #6](https://github.com/reactjs/rfcs/pull/6))
 
+`codemod`: 
+```sh
+npx codemod react/rename-unsafe-lifecycles --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod rename-unsafe-lifecycles <path>
 ```
@@ -235,6 +281,12 @@ replaces the appropriate property accesses using `require('react-dom')`. It does
 not support ES6 modules or other non-CommonJS systems. We recommend performing
 the `findDOMNode` conversion first.
 
+`codemod`: 
+```sh
+npx codemod react/react-to-react-dom --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod react-to-react-dom <path>
 ```
@@ -249,6 +301,12 @@ npx react-codemod react-to-react-dom <path>
 
 Converts calls like `React.DOM.div(...)` to `React.createElement('div', ...)`.
 
+`codemod`: 
+```sh
+npx codemod react/React-DOM-to-react-dom-factories --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod React-DOM-to-react-dom-factories <path>
 ```
@@ -257,6 +315,12 @@ npx react-codemod React-DOM-to-react-dom-factories <path>
 
 Replaces `View.propTypes` references with `ViewPropTypes` and adds the appropriate `import` or `require` statement. This codemod is intended for ReactNative 44+.
 
+`codemod`: 
+```sh
+npx codemod react/ReactNative-View-propTypes --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod ReactNative-View-propTypes <path>
 ```
@@ -268,6 +332,7 @@ Reorders React component methods to match the [ESLint](http://eslint.org/)
 rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md). (Defaults to ordering of the [Airbnb style
 guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e9b2748b9e/packages/eslint-config-airbnb/rules/react.js#L122-L134).
 
+`react-codemod`:
 ```sh
 npx react-codemod sort-comp <path>
 ```
@@ -280,6 +345,12 @@ The wizard will ask for 1 option -
 
 * **Destructure namespace imports as well?**: If chosen, *namespace* imports like `import * as React` will *also* be converted. By default, it's false, so only default imports (`import React`) are converted.
 
+`codemod`: 
+```sh
+npx codemod react/update-react-imports --target <path>
+```
+
+`react-codemod`:
 ```sh
 npx react-codemod update-react-imports <path>
 ```
