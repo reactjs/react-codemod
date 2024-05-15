@@ -232,6 +232,11 @@ const TRANSFORMER_INQUIRER_CHOICES = [
       'replace-string-ref: Replaces deprecated string ref with callback ref',
     value: 'replace-string-ref'
   },
+  {
+    name:
+      'replace-reactdom-render: Replaces deprecated ReactDom.render',
+    value: 'replace-reactdom-render'
+  },
 ];
 
 const PARSER_INQUIRER_CHOICES = [

@@ -1,17 +1,24 @@
 
 'use strict';
 
-const tests = [
+const tsTests = [
   'use-context',
   'use-context-2', 
-  'any-use-context'
+  'any-use-context', 
 ];
+
+const jsTests = [
+  'use-context',
+  'use-context-2', 
+  'any-use-context', 
+  'mixed-import'
+]
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
 describe('use-context-hook', () => {
 
-  tests.forEach(test =>
+  jsTests.forEach(test =>
     defineTest(
       __dirname,
       'use-context-hook',
@@ -38,7 +45,7 @@ describe('use-context-hook', () => {
       jest.resetModules();
     });
 
-    tests.forEach(test => {
+    tsTests.forEach(test => {
       defineTest(
         __dirname,
         'use-context-hook',

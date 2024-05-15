@@ -6,14 +6,15 @@ import type {
   FunctionExpression,
   Identifier,
   JSCodeshift,
+  TSTypeLiteral,
   TSTypeReference,
 } from 'jscodeshift';
 
 // Props & { ref: React.RefObject<Ref>}
 const buildPropsAndRefIntersectionTypeAnnotation = (
   j: JSCodeshift,
-  propType: TSTypeReference,
-  refType: TSTypeReference,
+  propType: TSTypeReference | TSTypeLiteral,
+  refType: TSTypeReference | TSTypeLiteral | null,
 ) =>
   j.tsTypeAnnotation(
     j.tsIntersectionType([
@@ -27,7 +28,9 @@ const buildPropsAndRefIntersectionTypeAnnotation = (
                 j.identifier('React'),
                 j.identifier('RefObject'),
               ),
-              typeParameters: j.tsTypeParameterInstantiation([refType]),
+              typeParameters: j.tsTypeParameterInstantiation([
+                refType === null ? j.tsUnknownKeyword() : refType,
+              ]),
             }),
           ),
         }),
@@ -53,7 +56,6 @@ const buildRefAndPropsObjectPattern = (
 // React.ForwardedRef<HTMLButtonElement> => HTMLButtonElement
 const getRefTypeFromRefArg = (j: JSCodeshift, refArg: Identifier) => {
   const typeReference = refArg.typeAnnotation?.typeAnnotation;
-
   if (
     !j.TSTypeReference.check(typeReference) ||
     !j.TSQualifiedName.check(typeReference.typeName)
@@ -92,6 +94,13 @@ const getForwardRefRenderFunction = (
   return renderFunction;
 };
 
+const isLiteralOrReference = (
+  j: JSCodeshift,
+  type: unknown,
+): type is TSTypeReference | TSTypeLiteral => {
+  return j.TSTypeReference.check(type) || j.TSTypeLiteral.check(type);
+};
+
 export default function transform(file: FileInfo, api: API) {
   const j = api.jscodeshift;
 
@@ -99,12 +108,56 @@ export default function transform(file: FileInfo, api: API) {
 
   let isDirty = false;
 
+  let reactForwardRefImportLocalName: string | null = null;
+  let reactDefaultImportName: string | null = null;
+
   root
-    .find(j.CallExpression, {
-      callee: {
-        type: 'Identifier',
-        name: 'forwardRef',
-      },
+    .find(j.ImportDeclaration, {
+      source: { value: 'react' },
+    })
+    .forEach((path) => {
+      path.value.specifiers?.forEach((specifier) => {
+        // named import
+        if (
+          j.ImportSpecifier.check(specifier) &&
+          specifier.imported.name === 'forwardRef'
+        ) {
+          reactForwardRefImportLocalName = specifier.local?.name ?? null;
+        }
+
+        // default and wildcard import
+        if (
+          j.ImportDefaultSpecifier.check(specifier) ||
+          j.ImportNamespaceSpecifier.check(specifier)
+        ) {
+          reactDefaultImportName = specifier.local?.name ?? null;
+        }
+      });
+    });
+
+  root
+    .find(j.CallExpression)
+    .filter((path) => {
+      const { callee } = path.value;
+
+      if (
+        j.Identifier.check(callee) &&
+        callee.name === reactForwardRefImportLocalName
+      ) {
+        return true;
+      }
+
+      if (
+        j.MemberExpression.check(callee) &&
+        j.Identifier.check(callee.object) &&
+        callee.object.name === reactDefaultImportName &&
+        j.Identifier.check(callee.property) &&
+        callee.property.name === 'forwardRef'
+      ) {
+        return true;
+      }
+
+      return false;
     })
     .replaceWith((callExpressionPath) => {
       const originalCallExpression = callExpressionPath.value;
@@ -135,7 +188,6 @@ export default function transform(file: FileInfo, api: API) {
       const refArgName = refArg.name;
 
       const propsArgTypeReference = propsArg.typeAnnotation?.typeAnnotation;
-
       // remove refArg
       renderFunction.params.splice(1, 1);
 
@@ -168,8 +220,7 @@ export default function transform(file: FileInfo, api: API) {
        */
 
       if (
-        j.TSTypeReference.check(propsArgTypeReference) &&
-        j.TSTypeReference.check(refArgTypeReference) &&
+        isLiteralOrReference(j, propsArgTypeReference) &&
         renderFunction.params?.[0] &&
         'typeAnnotation' in renderFunction.params[0]
       ) {
@@ -199,7 +250,7 @@ export default function transform(file: FileInfo, api: API) {
 
         if (
           j.TSTypeReference.check(refType) &&
-          j.TSTypeReference.check(propType)
+          isLiteralOrReference(j, propType)
         ) {
           renderFunction.params[0].typeAnnotation =
             buildPropsAndRefIntersectionTypeAnnotation(j, propType, refType);
@@ -231,7 +282,7 @@ export default function transform(file: FileInfo, api: API) {
         const specifiersWithoutForwardRef =
           specifiers?.filter(
             (s) =>
-              j.ImportSpecifier.check(s) && s.imported.name !== 'forwardRef',
+              !j.ImportSpecifier.check(s) || s.imported.name !== 'forwardRef',
           ) ?? [];
 
         if (specifiersWithoutForwardRef.length === 0) {

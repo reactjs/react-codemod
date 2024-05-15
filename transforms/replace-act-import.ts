@@ -116,5 +116,27 @@ export default function transform(
       }
     });
 
+  /**
+   * handle re-exports:
+   * export * from 'react-dom/test-utils';
+   */
+  root.find(j.ExportAllDeclaration).forEach((path) => {
+    if (path.node.source.value === 'react-dom/test-utils') {
+      const newExportDeclaration = j.exportNamedDeclaration.from({
+        declaration: null,
+        specifiers: [
+          j.exportSpecifier.from({
+            local: j.identifier('act'),
+            exported: j.identifier('act'),
+          }),
+        ],
+        source: j.literal('react'),
+      });
+
+      // add export { act } from "react";
+      path.insertAfter(newExportDeclaration);
+    }
+  });
+
   return root.toSource();
 }

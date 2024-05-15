@@ -127,6 +127,22 @@ npx codemod react/19/replace-use-form-state --target <path>
 npx react-codemod replace-use-form-state <path>
 ```
 
+#### `replace-reactdom-render`
+
+Replaces usages of ReactDom.render() with createRoot(node).render().
+
+Run with `react-codemod` CLI for basic experience:
+
+```sh
+npx react-codemod replace-reactdom-render <path>
+```
+
+or use `codemod` CLI for better experience and support:
+
+```sh
+npx codemod react/19/replace-reactdom-render --target <path>
+```
+
 #### `create-element-to-jsx`
 
 Converts calls to `React.createElement` into JSX elements.

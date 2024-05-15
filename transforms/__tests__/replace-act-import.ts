@@ -8,7 +8,8 @@ const tests = [
   'named-import', 
   'other-import', 
   'wildcard-import',
-  'wildcard-import-2'
+  'wildcard-import-2', 
+  're-export'
 ];
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;

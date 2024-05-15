@@ -93,36 +93,22 @@ export default function transform(
     });
 
   classComponentCollection
-    .find(j.JSXElement, {
-      openingElement: {
-        attributes: [
-          {
-            type: 'JSXAttribute',
-            name: {
-              type: 'JSXIdentifier',
-              name: 'ref',
-            },
-          },
-        ],
+    .find(j.JSXAttribute, {
+      name: {
+        type: 'JSXIdentifier',
+        name: 'ref',
       },
     })
     .forEach((path) => {
-      path.value.openingElement.attributes =
-        path.value.openingElement.attributes?.map((attribute) => {
-          if (
-            j.JSXAttribute.check(attribute) &&
-            attribute.name.name === 'ref' &&
-            j.StringLiteral.check(attribute.value) || j.Literal.check(attribute.value)
-          ) {
-            isDirty = true;
+      const attributeValue = path.value.value;
+      if (!j.StringLiteral.check(attributeValue)) {
+        return;
+      }
 
-            return buildCallbackRef(j, attribute.value.value);
-          }
+      isDirty = true;
 
-          return attribute;
-        });
+      path.replace(buildCallbackRef(j, attributeValue.value));
     });
-
 
   return isDirty ? root.toSource() : undefined;
 }
