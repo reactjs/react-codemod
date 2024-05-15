@@ -131,13 +131,13 @@ npx react-codemod replace-use-form-state <path>
 
 Replaces usages of ReactDom.render() with createRoot(node).render().
 
-Run with `react-codemod` CLI for basic experience:
+`react-codemod`:
 
 ```sh
 npx react-codemod replace-reactdom-render <path>
 ```
 
-or use `codemod` CLI for better experience and support:
+`codemod`:
 
 ```sh
 npx codemod react/19/replace-reactdom-render --target <path>
