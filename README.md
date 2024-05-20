@@ -6,7 +6,7 @@ All codemods, whether you use the `codemod` CLI command or `react-codemod`, are 
 
 ### Usage
 
-We recommend using the [`codemod`](go.codemod.com/react-codemod) command for improved experience and support.
+We recommend using the [`codemod`](https://go.codemod.com/github) command for an enhanced experience and better support.
 
 `npx codemod <framework>/<version>/<transform> --target <path> [...options]`
 * `transform` - name of transform, see available transforms below.
@@ -16,7 +16,9 @@ Check [codemod docs](https://go.codemod.com/cli-docs) for the full list of avail
 
 For the legacy `react-codemod` command, see [LEGACY.md](https://github.com/reactjs/react-codemod/LEGACY.md).
 
-## Available Codemods 
+## Available Codemods
+
+All React codemods are also available in the [Codemod Registry](https://go.codemod.com/react-codemods).
 
 #### `remove-context-provider`
 
@@ -206,7 +208,7 @@ npx codemod react/update-react-imports --target <path>
 
 ## Support and Contributing
 
-The scripts in this repository are maintained by the React team in collaboration with the [codemod.com](https://codemod.com) team.
+The scripts in this repository are maintained by the React team in collaboration with the [Codemod.com](https://codemod.com) team.
 
 If you want to contribute, you're welcome to submit a pull request.
 
