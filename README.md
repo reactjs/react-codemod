@@ -14,7 +14,7 @@ We recommend using the [`codemod`](https://go.codemod.com/github) command for an
 
 Check [codemod docs](https://go.codemod.com/cli-docs) for the full list of available commands.
 
-For the legacy `react-codemod` command, see [LEGACY.md](https://github.com/reactjs/react-codemod/LEGACY.md).
+For the legacy `react-codemod` command, see [LEGACY.md](https://github.com/reactjs/react-codemod/blob/master/LEGACY.md).
 
 ## Available Codemods
 
