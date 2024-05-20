@@ -206,13 +206,9 @@ npx codemod react/update-react-imports --target <path>
 
 ## Support and Contributing
 
-The scripts in this repository are provided in the hope that they are useful,
-but they are not officially maintained, and we generally will not fix
-community-reported issues. They are a collection of scripts that were previously
-used internally within Facebook or were contributed by the community, and we
-rely on community contributions to fix any issues discovered or make any
-improvements. If you want to contribute, you're welcome to submit a pull
-request.
+The scripts in this repository are maintained by the React team in collaboration with the [codemods.com](https://codemods.com) team.
+
+If you want to contribute, you're welcome to submit a pull request.
 
 ## License
 
