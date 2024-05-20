@@ -49,8 +49,13 @@ function checkGitStatus(force) {
   }
 }
 
+function resolveTransformer(transformerDirectory, transformer) {
+  return globby.sync(`${transformerDirectory}/${transformer}.{js,ts}`)[0] || null;
+}
+
 function runTransform({ files, flags, parser, transformer, answers }) {
-  const transformerPath = path.join(transformerDirectory, `${transformer}.js`);
+
+  const transformerPath = resolveTransformer(transformerDirectory, transformer);
 
   let args = [];
 
@@ -191,7 +196,42 @@ const TRANSFORMER_INQUIRER_CHOICES = [
   {
     name: 'update-react-imports: Removes redundant import statements from explicitly importing React to compile JSX and converts default imports to destructured named imports',
     value: 'update-react-imports',
-  }
+  },
+  {
+    name:
+      'remove-context-provider: Replaces Context.Provider with Context',
+    value: 'remove-context-provider'
+  },
+  {
+    name:
+      'remove-forward-ref: Removes forwardRef form functional components and passes ref as prop',
+    value: 'remove-forward-ref'
+  },
+  {
+    name:
+      'use-context-hook: Replaces useContext with React.use',
+    value: 'use-context-hook'
+  },
+  {
+    name:
+      'replace-use-form-state: Replaces useFormState with useActionState',
+    value: 'replace-use-form-state'
+  },
+  {
+    name:
+      'replace-act-import: Updates `act` import',
+    value: 'replace-act-import'
+  },
+  {
+    name:
+      'replace-string-ref: Replaces deprecated string ref with callback ref',
+    value: 'replace-string-ref'
+  },
+  {
+    name:
+      'replace-reactdom-render: Replaces deprecated ReactDom.render',
+    value: 'replace-reactdom-render'
+  },
 ];
 
 const PARSER_INQUIRER_CHOICES = [

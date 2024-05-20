@@ -96,20 +96,20 @@ describe('runTransform', () => {
     fs.lstatSync(jscodeshiftExecutable);
   });
 
-  it('runs jscodeshift for the given transformer', () => {
+  it('runs jscodeshift for the given existing transformer', () => {
     execaReturnValue = { error: null };
     console.log = jest.fn();
     runTransform({
       files: 'src',
       flags: {},
       parser: 'flow',
-      transformer: 'rename-unsafe-xyz'
+      transformer: 'rename-unsafe-lifecycles'
     });
     expect(console.log).toBeCalledWith(
       // eslint-disable-next-line max-len
       `Executing command: jscodeshift --verbose=2 --ignore-pattern=**/node_modules/** --parser flow --extensions=jsx,js --transform ${path.join(
         transformerDirectory,
-        'rename-unsafe-xyz.js'
+        'rename-unsafe-lifecycles.js'
       )} src`
     );
   });
@@ -183,5 +183,22 @@ describe('runTransform', () => {
         transformers: ['tape']
       });
     }).toThrowError(transformerError);
+  });
+
+  it('should correctly resolve typescript transform files', () => {
+    execaReturnValue = { error: null };
+    console.log = jest.fn();
+    runTransform({
+      files: 'src',
+      flags: {}, 
+      parser: 'flow',
+      transformer: 'remove-context-provider'
+    });
+    expect(console.log).toBeCalledWith(
+      `Executing command: jscodeshift --verbose=2 --ignore-pattern=**/node_modules/** --parser flow --extensions=jsx,js --transform ${path.join(
+        transformerDirectory,
+        'remove-context-provider.ts'
+      )} src`
+    );
   });
 });

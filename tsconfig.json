@@ -1,0 +1,6 @@
+{
+    "compilerOptions": {
+      "moduleDetection": "force", 
+      "target": "ES2015"
+    }
+  }  
