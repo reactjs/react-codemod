@@ -206,7 +206,7 @@ npx codemod react/update-react-imports --target <path>
 
 ## Support and Contributing
 
-The scripts in this repository are maintained by the React team in collaboration with the [codemods.com](https://codemods.com) team.
+The scripts in this repository are maintained by the React team in collaboration with the [codemod.com](https://codemod.com) team.
 
 If you want to contribute, you're welcome to submit a pull request.
 
