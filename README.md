@@ -54,21 +54,6 @@ npx codemod react/19/remove-forward-ref --target <path>
 npx react-codemod remove-forward-ref <path>
 ```
 
-#### `remove-memoization-hooks`
-
-Removes usages of `useCallback`, `useMemo` and `memo`.
-
-`codemod`:
-
-```sh
-npx codemod react/19/remove-memoization-hooks --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod remove-memoization-hooks <path>
-```
-
 #### `use-context-hook`
 
 Replaces usages of `React.useContext(...)` with `React.use(...)`.

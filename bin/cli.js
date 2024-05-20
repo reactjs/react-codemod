@@ -209,11 +209,6 @@ const TRANSFORMER_INQUIRER_CHOICES = [
   },
   {
     name:
-      'remove-memoization-hooks: Removes memo, useCallback, useMemo',
-    value: 'remove-memoization-hooks'
-  },
-  {
-    name:
       'use-context-hook: Replaces useContext with React.use',
     value: 'use-context-hook'
   },
