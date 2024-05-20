@@ -12,7 +12,7 @@ We recommend using the [`codemod`](go.codemod.com/react-codemod) command for imp
 * `transform` - name of transform, see available transforms below.
 * `path` - directory to transform
 
-Check [codemod docs](https://go.codemod.com/cli-docs]) for the full list of available commands.
+Check [codemod docs](https://go.codemod.com/cli-docs) for the full list of available commands.
 
 For the legacy `react-codemod` command, see [LEGACY.md](https://github.com/reactjs/react-codemod/LEGACY.md).
 
