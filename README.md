@@ -1,127 +1,75 @@
-## react-codemod [![Build Status](https://travis-ci.org/reactjs/react-codemod.svg)](https://travis-ci.org/reactjs/react-codemod)
+## React Codemods [![Build Status](https://travis-ci.org/reactjs/react-codemod.svg)](https://travis-ci.org/reactjs/react-codemod)
 
 This repository contains a collection of codemods to help update React apps.
 
+All codemods, whether you use the `codemod` CLI command or `react-codemod`, are free and open source, with the source code available in this repository.
+
 ### Usage
-There are two supported ways to run React codemods:
-- `codemod`: enhanced codemod support from [codemod.com](https://codemod.com) available via CLI or the [VSCode Extension](https://go.codemod.com/vsce).
-- `react-codemod`: basic codemod support using [JSCodeshift](https://github.com/facebook/jscodeshift).
 
-The `codemod.com` team maintains many of the codemods listed here, and all codemods are free and Open Source whether you use the `codemod` command or `react-codemod`. 
+We recommend using the [`codemod`](go.codemod.com/react-codemod) command for improved experience and support.
 
-#### Running with `codemod` CLI
 `npx codemod <framework>/<version>/<transform> --target <path> [...options]`
 * `transform` - name of transform, see available transforms below.
 * `path` - directory to transform
 
 Check [codemod docs](https://go.codemod.com/cli-docs]) for the full list of available commands.
 
-#### Running with `react-codemod`
-`npx react-codemod <transform> <path> [...options]`
-   * `transform` - name of transform, see available transforms below.
-   * `path` - files or directory to transform
-   * use the `--dry` option for a dry-run and use `--print` to print the output for comparison
+For the legacy `react-codemod` command, see [LEGACY.md](https://github.com/reactjs/react-codemod/LEGACY.md).
 
-This will start an interactive wizard, and then run the specified transform.
-
-### Included Transforms
+## Available Codemods 
 
 #### `remove-context-provider`
 
 Converts `Context.Provider` JSX opening and closing elements into `Context`.
 
-`codemod`:
 ```sh
 npx codemod react/19/remove-context-provider --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod remove-context-provider <path>
 ```
 
 #### `remove-forward-ref`
 
 Removes usages of `forwardRef`.
 
-`codemod`:
 ```sh
 npx codemod react/19/remove-forward-ref --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod remove-forward-ref <path>
 ```
 
 #### `use-context-hook`
 
 Replaces usages of `React.useContext(...)` with `React.use(...)`.
 
-`codemod`:
-
 ```sh
 npx codemod react/19/use-context-hook --target <path>
-```
-
-`react-codemod`:
-
-```sh
-npx react-codemod use-context-hook <path>
 ```
 
 #### `replace-act-import`
 
 Updates `act` import path from `react-dom/test-utils` to `react`.
 
-`codemod`:
 ```sh
 npx codemod react/19/replace-act-import --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod replace-act-import <path>
 ```
 
 #### `replace-string-ref`
 
 Replaces deprecated string refs with callback refs.
 
-`codemod`:
 ```sh
 npx codemod react/19/replace-string-ref --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod replace-string-ref <path>
 ```
 
 #### `replace-use-form-state`
 
 Replaces usages of useFormState() to use useActionState().
 
-`codemod`:
 ```sh
 npx codemod react/19/replace-use-form-state --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod replace-use-form-state <path>
 ```
 
 #### `replace-reactdom-render`
 
 Replaces usages of ReactDom.render() with createRoot(node).render().
 
-`react-codemod`:
-```sh
-npx react-codemod replace-reactdom-render <path>
-```
-
-`codemod`:
 ```sh
 npx codemod react/19/replace-reactdom-render --target <path>
 ```
@@ -130,28 +78,16 @@ npx codemod react/19/replace-reactdom-render --target <path>
 
 Converts calls to `React.createElement` into JSX elements.
 
-`codemod`: 
 ```sh
 npx codemod react/create-element-to-jsx --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod create-element-to-jsx <path>
 ```
 
 #### `error-boundaries`
 
 Renames the experimental `unstable_handleError` lifecycle hook to `componentDidCatch`.
 
-`codemod`: 
 ```sh
 npx codemod react/error-boundaries --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod error-boundaries <path>
 ```
 
 #### `findDOMNode`
@@ -162,28 +98,16 @@ only look at code inside of `React.createClass` calls and only update calls on
 the component instance or its refs. You can use this script to update most calls
 to `getDOMNode` and then manually go through the remaining calls.
 
-`codemod`: 
 ```sh
 npx codemod react/findDOMNode --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod findDOMNode <path>
 ```
 
 #### `manual-bind-to-arrow`
 
 Converts manual function bindings in a class (e.g., `this.f = this.f.bind(this)`) to arrow property initializer functions (e.g., `f = () => {}`).
 
-`codemod`: 
 ```sh
 npx codemod react/manual-bind-to-arrow --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod manual-bind-to-arrow <path>
 ```
 
 #### `pure-component`
@@ -196,14 +120,8 @@ The wizard will ask for 2 options -
 * **Use arrow functions?**: converts to arrow function. Converts to `function` by default.
 * **Destructure props?**: will destructure props in the argument where it is safe to do so.
 
-`codemod`: 
 ```sh
 npx codemod react/pure-component --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod pure-component <path>
 ```
 
 #### `pure-render-mixin`
@@ -213,17 +131,11 @@ class transform can pick up the React component and turn it into an ES2015
 class. NOTE: This currently only works if you are using the master version
 (>0.13.1) of React as it is using `React.addons.shallowCompare`
 
-`codemod`: 
 ```sh
 npx codemod react/pure-render-mixin --target <path>
 ```
 
-`react-codemod`:
-```sh
-npx react-codemod pure-render-mixin <path>
-```
-
- * The wizard will ask to optionally override `mixin-name`, and look for it
+  * The wizard will ask to optionally override `mixin-name`, and look for it
    instead of `PureRenderMixin`. Note that it is not possible to use a
    namespaced name for the mixin. `mixins: [React.addons.PureRenderMixin]` will
    not currently work.
@@ -232,14 +144,8 @@ npx react-codemod pure-render-mixin <path>
 
 Replaces `React.PropTypes` references with `prop-types` and adds the appropriate `import` or `require` statement. This codemod is intended for React 15.5+.
 
-`codemod`: 
 ```sh
 npx codemod react/React-PropTypes-to-prop-types --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod React-PropTypes-to-prop-types <path>
 ```
 
   * In addition to running the above codemod you will also need to install the `prop-types` NPM package.
@@ -248,14 +154,8 @@ npx react-codemod React-PropTypes-to-prop-types <path>
 
 Adds `UNSAFE_` prefix for deprecated lifecycle hooks. (For more information about this codemod, see [React RFC #6](https://github.com/reactjs/rfcs/pull/6))
 
-`codemod`: 
 ```sh
 npx codemod react/rename-unsafe-lifecycles --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod rename-unsafe-lifecycles <path>
 ```
 
 #### `react-to-react-dom`
@@ -266,14 +166,8 @@ replaces the appropriate property accesses using `require('react-dom')`. It does
 not support ES6 modules or other non-CommonJS systems. We recommend performing
 the `findDOMNode` conversion first.
 
-`codemod`: 
 ```sh
 npx codemod react/react-to-react-dom --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod react-to-react-dom <path>
 ```
 
   * After running the automated codemod, you may want to run a regex-based
@@ -286,40 +180,16 @@ npx react-codemod react-to-react-dom <path>
 
 Converts calls like `React.DOM.div(...)` to `React.createElement('div', ...)`.
 
-`codemod`: 
 ```sh
 npx codemod react/React-DOM-to-react-dom-factories --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod React-DOM-to-react-dom-factories <path>
 ```
 
 #### `ReactNative-View-propTypes`
 
 Replaces `View.propTypes` references with `ViewPropTypes` and adds the appropriate `import` or `require` statement. This codemod is intended for ReactNative 44+.
 
-`codemod`: 
 ```sh
 npx codemod react/ReactNative-View-propTypes --target <path>
-```
-
-`react-codemod`:
-```sh
-npx react-codemod ReactNative-View-propTypes <path>
-```
-
-#### `sort-comp`
-
-Reorders React component methods to match the [ESLint](http://eslint.org/)
-[react/sort-comp
-rule](https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md). (Defaults to ordering of the [Airbnb style
-guide](https://github.com/airbnb/javascript/blob/7684892951ef663e1c4e62ad57d662e9b2748b9e/packages/eslint-config-airbnb/rules/react.js#L122-L134).
-
-`react-codemod`:
-```sh
-npx react-codemod sort-comp <path>
 ```
 
 #### `update-react-imports`
@@ -330,84 +200,9 @@ The wizard will ask for 1 option -
 
 * **Destructure namespace imports as well?**: If chosen, *namespace* imports like `import * as React` will *also* be converted. By default, it's false, so only default imports (`import React`) are converted.
 
-`codemod`: 
 ```sh
 npx codemod react/update-react-imports --target <path>
 ```
-
-`react-codemod`:
-```sh
-npx react-codemod update-react-imports <path>
-```
-
-### Explanation of the new ES2015 class transform with property initializers
-1. Determine if mixins are convertible. We only transform a `createClass` call to an ES6 class component when:
-  - There are no mixins on the class, or
-  - `options['pure-component']` is true, the `mixins` property is an array and it _only_ contains pure render mixin (the specific module name can be specified using `options['mixin-module-name']`, which defaults to `react-addons-pure-render-mixin`)
-2. Ignore components that:
-  - Call deprecated APIs. This is very defensive, if the script finds any identifiers called `isMounted`, `getDOMNode`, `replaceProps`, `replaceState` or `setProps` it will skip the component
-  - Explicitly call `this.getInitialState()` and/or `this.getDefaultProps()` since an ES6 class component will no longer have these methods
-  - Use `arguments` in methods since arrow functions don't have `arguments`. Also please notice that `arguments` should be [very carefully used](https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments) and it's generally better to switch to spread (`...args`) instead
-  - Have inconvertible `getInitialState()`. Specifically if you have variable declarations like `var props = ...` and the right hand side is not `this.props` then we can't inline the state initialization in the `constructor` due to variable shadowing issues
-  - Have non-primitive right hand side values (like `foo: getStuff()`) in the class spec
-3. Transform it to an ES6 class component
-  1. Replace `var A = React.createClass(spec)` with `class A extends React.Component {spec}`. If a component uses pure render mixin and passes the mixins test (as described above), it will extend `React.PureComponent` instead
-    - Remove the `require`/`import` statement that imports pure render mixin when it's no longer being referenced
-  2. Pull out all statics defined on `statics` plus the few special cased statics like `childContextTypes`, `contextTypes`, `displayName`, `getDefaultProps()`, and `propTypes` and transform them to `static` properties (`static propTypes = {...};`)
-    - If `getDefaultProps()` is simple (i.e. it only contains a return statement that returns something) it will be converted to a simple assignment (`static defaultProps = ...;`). Otherwise an IIFE (immediately-invoked function expression) will be created (`static defaultProps = function() { ... }();`). Note that this means that the function will be executed only a single time per app-lifetime. In practice this hasn't caused any issues — `getDefaultProps` should not contain any side-effects
-  3. Transform `getInitialState()`
-    - If there's no `getInitialState()` or the `getInitialState()` function is simple (i.e., it only contains a return statement that returns something) then we don't need a constructor; `state` will be lifted to a property initializer (`state = ...;`)
-      - However, if the RHS of `return` contains references to `this` other than `this.props` and/or `this.context`, we can't be sure about what you'll need from `this`. We need to ensure that our property initializers' evaluation order is safe, so we defer `state`'s initialization by moving it all the way down until all other property initializers have been initialized
-    - If `getInitialState()` is not simple, we create a `constructor` and convert `getInitialState()` to an assignment to `this.state`
-      - `constructor` always have `props` as the first parameter
-      - We only put `context` as the second parameter when (one of) the following things happen in `getInitialState()`:
-        - It accesses `this.context`, or
-        - There's a direct method call `this.x()`, or
-        - `this` is referenced alone
-      - Rewrite accesses to `this.props` to `props` and accesses to `this.context` to `context` since the values will be passed as `constructor` arguments
-        - Remove _simple_ variable declarations like `var props = this.props;` and `var context = this.context`
-      - Rewrite top-level return statements (`return {...};`) to `this.state = {...}`
-        - Add `return;` after the assignment when the return statement is part of a control flow statement (not a direct child of `getInitialState()`'s body) and not in an inner function declaration
-  4. Transform all non-lifecycle methods and fields to class property initializers (like `onClick = () => {};`). All your Flow annotations will be preserved
-    - It's actually not necessary to transform all methods to arrow functions (i.e., to bind them), but this behavior is the same as `createClass()` and we can make sure that we won't accidentally break stuff
-4. Generate Flow annotations from `propTypes` and put it on the class (this only happens when there's `/* @flow */` in your code and `options['flow']` is `true`)
-  - Flow actually understands `propTypes` in `createClass` calls but not ES6 class components. Here the transformation logic is identical to [how](https://github.com/facebook/flow/blob/master/src/typing/statement.ml#L3526) Flow treats `propTypes`
-  - Notice that Flow treats an optional propType as non-nullable
-    - For example, `foo: React.PropTypes.number` is valid when you pass `{}`, `{foo: null}`, or `{foo: undefined}` as props at **runtime**. However, when Flow infers type from a `createClass` call, only `{}` and `{foo: undefined}` are valid; `{foo: null}` is not. Thus the equivalent type annotation in Flow is actually `{foo?: number}`. The question mark on the left hand side indicates `{}` and `{foo: undefined}` are fine, but when `foo` is present it must be a `number`
-  - For `propTypes` fields that can't be recognized by Flow, `$FlowFixMe` will be used
-5. `React.createClass` is no longer present in React 16. So, if a `createClass` call cannot be converted to a plain class, the script will fallback to using the `create-react-class` package.
-  - Replaces `React.createClass` with `ReactCreateClass`.
-  - Adds a `require` or `import` statement for `create-react-class`. The import style is inferred from the import style of the `react` import. The default module name can be overridden with the `--create-class-module-name` option.
-  - Prunes the `react` import if there are no more references to it.
-
-
-## `react-codemod` options 
-
-### jscodeshift options
-
-To pass more options directly to jscodeshift, use `--jscodeshift="..."`. For example:
-```sh
-npx react-codemod --jscodeshift="--run-in-band --verbose=2"
-```
-
-See all available options [here](https://github.com/facebook/jscodeshift#usage-cli).
-
-### Recast Options
-
-Options to [recast](https://github.com/benjamn/recast)'s printer can be provided
-through jscodeshift's `printOptions` command line argument
-
-```sh
-npx react-codemod <transform> <path> --jscodeshift="--printOptions='{\"quote\":\"double\"}'"
-```
-
-### `explicit-require=false`
-
-If you're not explicitly importing React in your files (eg: if you're loading React with a script tag), you should add `--explicit-require=false`.
-
-## `codemod` options
-
-Check [codemod docs](https://go.codemod.com/cli-docs]) for the full list of available options.
 
 ## Support and Contributing
 
