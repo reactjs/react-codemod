@@ -31,6 +31,7 @@ module.exports = function(file, api, options) {
           path =>
             path.parent.value.type !== 'MemberExpression' &&
             path.parent.value.type !== 'QualifiedTypeIdentifier' &&
+            path.parent.value.type !== 'TSQualifiedName' &&
             path.parent.value.type !== 'JSXMemberExpression',
         )
         .size() > 0
@@ -119,6 +120,12 @@ module.exports = function(file, api, options) {
               path.parent.value.qualification.name === 'React'
             ) &&
             !(
+              (
+                path.parent.value.type === 'TSQualifiedName' &&
+                path.parent.value.left.name === 'React'
+              )
+            ) &&
+            !(
               path.parent.value.type === 'JSXMemberExpression' &&
               path.parent.value.object.name === 'React'
             ),
@@ -153,6 +160,30 @@ module.exports = function(file, api, options) {
               canDestructureReactVariable = false;
             }
           }
+
+          if (isVariableDeclared(id)) {
+            canDestructureReactVariable = false;
+          }
+        });
+
+      root
+        .find(j.TSQualifiedName, {
+          left: {
+            type: 'Identifier',
+            name: 'React',
+          },
+        })
+        .forEach(path => {
+          const id = path.value.right.name;
+          reactIdentifiers[id] = id;
+          // We don't tend to use type imports
+          // Comment line above out and uncomment this to use type imports
+          // Also ignoring typeof imports?
+          // reactTypeIdentifiers[id] = id
+
+          // if (reactIdentifiers[id]) {
+          //   canDestructureReactVariable = false
+          // }
 
           if (isVariableDeclared(id)) {
             canDestructureReactVariable = false;
@@ -212,6 +243,19 @@ module.exports = function(file, api, options) {
       })
       .forEach(path => {
         const id = path.value.id.name;
+
+        j(path).replaceWith(j.identifier(id));
+      });
+
+    root
+      .find(j.TSQualifiedName, {
+        left: {
+          type: 'Identifier',
+          name: 'React',
+        },
+      })
+      .forEach(path => {
+        const id = path.value.right.name;
 
         j(path).replaceWith(j.identifier(id));
       });
