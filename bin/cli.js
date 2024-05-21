@@ -194,6 +194,11 @@ const TRANSFORMER_INQUIRER_CHOICES = [
     value: 'sort-comp'
   },
   {
+    name:
+      'string-refs: Converts deprecated string refs to callback refs.',
+    value: 'string-refs'
+  },
+  {
     name: 'update-react-imports: Removes redundant import statements from explicitly importing React to compile JSX and converts default imports to destructured named imports',
     value: 'update-react-imports',
   },
