@@ -17,7 +17,7 @@ const chalk = require('chalk');
 const isGitClean = require('is-git-clean');
 
 const transformerDirectory = path.join(__dirname, '../', 'transforms');
-const jscodeshiftExecutable = require.resolve('.bin/jscodeshift');
+const jscodeshiftExecutable = require.resolve('jscodeshift/bin/jscodeshift.js');
 
 function checkGitStatus(force) {
   let clean = false;
@@ -118,7 +118,7 @@ function runTransform({ files, flags, parser, transformer, answers }) {
 
   console.log(`Executing command: jscodeshift ${args.join(' ')}`);
 
-  const result = execa.sync(jscodeshiftExecutable, args, {
+  const result = execa.sync('node', [jscodeshiftExecutable, ...args], {
     stdio: 'inherit',
     stripEof: false
   });
