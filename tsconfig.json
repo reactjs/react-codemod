@@ -1,6 +1,9 @@
 {
-    "compilerOptions": {
-      "moduleDetection": "force", 
-      "target": "ES2015"
-    }
-  }  
+  "compilerOptions": {
+    "moduleDetection": "force", 
+    "target": "ES2015"
+  },
+  "references": [
+    { "path": "./tsconfig.codemod.json" }
+  ]
+}  

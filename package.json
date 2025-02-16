@@ -11,6 +11,8 @@
     "jscodeshift": "jscodeshift"
   },
   "dependencies": {
+    "@codemod.com/codemod-utils": "^1.0.0",
+    "@types/jscodeshift": "^0.12.0",
     "chalk": "^2.4.2",
     "eslint": "^6.6.0",
     "execa": "^3.2.0",
@@ -22,7 +24,10 @@
   },
   "jest": {
     "globals": {
-      "baseDir": "../"
+      "baseDir": "../",
+      "ts-jest": {
+        "tsconfig": "./tsconfig.codemod.json"
+      }
     },
     "testEnvironment": "node",
     "roots": [
@@ -32,13 +37,20 @@
     "transform": {
       "^.+\\.jsx?$": "babel-jest",
       "^.+\\.tsx?$": "ts-jest"
-    }
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!@codemod\\.com/codemod-utils)/.+\\.js$"
+    ],
+    "moduleFileExtensions": ["js", "ts", "tsx", "jsx"],
+    "extensionsToTreatAsEsm": [".ts", ".tsx", ".js", ".jsx"]
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
+    "@jest/globals": "^29.7.0",
     "@types/jest": "^24.9.0",
+    "@types/node": "^22.12.0",
     "@typescript-eslint/parser": "^7.8.0",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.9.0",
