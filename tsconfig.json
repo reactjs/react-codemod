@@ -1,6 +1,11 @@
 {
-    "compilerOptions": {
-      "moduleDetection": "force", 
-      "target": "ES2015"
-    }
-  }  
+  "compilerOptions": {
+    "moduleDetection": "force", 
+    "target": "ES2015",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+  },
+  "references": [
+    { "path": "./tsconfig.codemod.json" }
+  ]
+}  
