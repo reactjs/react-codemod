@@ -9,7 +9,7 @@
 'use strict';
 
 jest.mock('../pure-component', () => {
-  return Object.assign(require.requireActual('../pure-component'), {
+  return Object.assign(jest.requireActual('../pure-component'), {
     parser: 'flow'
   });
 });

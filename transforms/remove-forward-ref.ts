@@ -8,46 +8,47 @@ import type {
   JSCodeshift,
   TSTypeLiteral,
   TSTypeReference,
-} from 'jscodeshift';
+  TSTypeParameterInstantiation,
+} from "jscodeshift";
 
 // Props & { ref: React.RefObject<Ref>}
 const buildPropsAndRefIntersectionTypeAnnotation = (
   j: JSCodeshift,
   propType: TSTypeReference | TSTypeLiteral,
-  refType: TSTypeReference | TSTypeLiteral | null,
+  refType: TSTypeReference | TSTypeLiteral | null
 ) =>
   j.tsTypeAnnotation(
     j.tsIntersectionType([
       propType,
       j.tsTypeLiteral([
         j.tsPropertySignature.from({
-          key: j.identifier('ref'),
+          key: j.identifier("ref"),
           typeAnnotation: j.tsTypeAnnotation(
             j.tsTypeReference.from({
               typeName: j.tsQualifiedName(
-                j.identifier('React'),
-                j.identifier('RefObject'),
+                j.identifier("React"),
+                j.identifier("RefObject")
               ),
               typeParameters: j.tsTypeParameterInstantiation([
                 refType === null ? j.tsUnknownKeyword() : refType,
               ]),
-            }),
+            })
           ),
         }),
       ]),
-    ]),
+    ])
   );
 
 // { ref: refName, ...propsName }
 const buildRefAndPropsObjectPattern = (
   j: JSCodeshift,
   refArgName: string,
-  propArgName: string,
+  propArgName: string
 ) =>
   j.objectPattern([
     j.objectProperty.from({
       shorthand: true,
-      key: j.identifier('ref'),
+      key: j.identifier("ref"),
       value: j.identifier(refArgName),
     }),
     j.restProperty(j.identifier(propArgName)),
@@ -65,7 +66,7 @@ const getRefTypeFromRefArg = (j: JSCodeshift, refArg: Identifier) => {
 
   const { right } = typeReference.typeName;
 
-  if (!j.Identifier.check(right) || right.name === 'forwardedRef') {
+  if (!j.Identifier.check(right) || right.name === "forwardedRef") {
     return null;
   }
 
@@ -80,7 +81,7 @@ const getRefTypeFromRefArg = (j: JSCodeshift, refArg: Identifier) => {
 
 const getForwardRefRenderFunction = (
   j: JSCodeshift,
-  callExpression: CallExpression,
+  callExpression: CallExpression
 ): FunctionExpression | ArrowFunctionExpression | null => {
   const [renderFunction] = callExpression.arguments;
 
@@ -96,7 +97,7 @@ const getForwardRefRenderFunction = (
 
 const isLiteralOrReference = (
   j: JSCodeshift,
-  type: unknown,
+  type: unknown
 ): type is TSTypeReference | TSTypeLiteral => {
   return j.TSTypeReference.check(type) || j.TSTypeLiteral.check(type);
 };
@@ -113,14 +114,14 @@ export default function transform(file: FileInfo, api: API) {
 
   root
     .find(j.ImportDeclaration, {
-      source: { value: 'react' },
+      source: { value: "react" },
     })
     .forEach((path) => {
       path.value.specifiers?.forEach((specifier) => {
         // named import
         if (
           j.ImportSpecifier.check(specifier) &&
-          specifier.imported.name === 'forwardRef'
+          specifier.imported.name === "forwardRef"
         ) {
           reactForwardRefImportLocalName = specifier.local?.name ?? null;
         }
@@ -152,7 +153,7 @@ export default function transform(file: FileInfo, api: API) {
         j.Identifier.check(callee.object) &&
         callee.object.name === reactDefaultImportName &&
         j.Identifier.check(callee.property) &&
-        callee.property.name === 'forwardRef'
+        callee.property.name === "forwardRef"
       ) {
         return true;
       }
@@ -164,11 +165,11 @@ export default function transform(file: FileInfo, api: API) {
 
       const renderFunction = getForwardRefRenderFunction(
         j,
-        callExpressionPath.node,
+        callExpressionPath.node
       );
 
       if (renderFunction === null) {
-        console.warn('Could not detect render function.');
+        console.warn("Could not detect render function.");
 
         return originalCallExpression;
       }
@@ -179,7 +180,7 @@ export default function transform(file: FileInfo, api: API) {
         !j.Identifier.check(refArg) ||
         !(j.Identifier.check(propsArg) || j.ObjectPattern.check(propsArg))
       ) {
-        console.warn('Could not detect ref or props arguments.');
+        console.warn("Could not detect ref or props arguments.");
 
         return originalCallExpression;
       }
@@ -196,9 +197,9 @@ export default function transform(file: FileInfo, api: API) {
         propsArg.properties.unshift(
           j.objectProperty.from({
             shorthand: true,
-            key: j.identifier('ref'),
+            key: j.identifier("ref"),
             value: j.identifier(refArgName),
-          }),
+          })
         );
 
         isDirty = true;
@@ -209,7 +210,7 @@ export default function transform(file: FileInfo, api: API) {
         renderFunction.params[0] = buildRefAndPropsObjectPattern(
           j,
           refArg.name,
-          propsArg.name,
+          propsArg.name
         );
 
         isDirty = true;
@@ -222,13 +223,13 @@ export default function transform(file: FileInfo, api: API) {
       if (
         isLiteralOrReference(j, propsArgTypeReference) &&
         renderFunction.params?.[0] &&
-        'typeAnnotation' in renderFunction.params[0]
+        "typeAnnotation" in renderFunction.params[0]
       ) {
         renderFunction.params[0].typeAnnotation =
           buildPropsAndRefIntersectionTypeAnnotation(
             j,
             propsArgTypeReference,
-            refArgTypeReference,
+            refArgTypeReference
           );
         isDirty = true;
       }
@@ -237,14 +238,18 @@ export default function transform(file: FileInfo, api: API) {
        * Transform ts types: forwardRef type arguments are used
        */
 
-      const typeParameters = callExpressionPath.node.typeParameters;
+      const typeParameters = (
+        callExpressionPath.node as CallExpression & {
+          typeParameters?: TSTypeParameterInstantiation;
+        }
+      ).typeParameters;
 
       // if typeParameters are used in forwardRef generic, reuse them to annotate props type
       // forwardRef<Ref, Props>((props) => { ... }) ====> (props: Props & { ref: React.RefObject<Ref> }) => { ... }
       if (
         j.TSTypeParameterInstantiation.check(typeParameters) &&
         renderFunction.params?.[0] &&
-        'typeAnnotation' in renderFunction.params[0]
+        "typeAnnotation" in renderFunction.params[0]
       ) {
         const [refType, propType] = typeParameters.params;
 
@@ -269,20 +274,20 @@ export default function transform(file: FileInfo, api: API) {
     root
       .find(j.ImportDeclaration, {
         source: {
-          value: 'react',
+          value: "react",
         },
       })
       .forEach((importDeclarationPath) => {
         const { specifiers, importKind } = importDeclarationPath.node;
 
-        if (importKind !== 'value') {
+        if (importKind !== "value") {
           return;
         }
 
         const specifiersWithoutForwardRef =
           specifiers?.filter(
             (s) =>
-              !j.ImportSpecifier.check(s) || s.imported.name !== 'forwardRef',
+              !j.ImportSpecifier.check(s) || s.imported.name !== "forwardRef"
           ) ?? [];
 
         if (specifiersWithoutForwardRef.length === 0) {

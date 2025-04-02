@@ -3,7 +3,6 @@ function App() {
 
   return (
     <Context.Provider value={theme}>
-    <Page />
     </Context.Provider>
   );
 }

@@ -1,11 +1,3 @@
-/**
- * Copyright 2015-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 'use strict';
 
 const DEPRECATED_APIS = Object.create(null);
@@ -51,6 +43,9 @@ export default (file, api, options) => {
 
   // Arrow functions
   root.find(j.ClassProperty).forEach(renameDeprecatedApis);
+
+  // TypeScript class fields
+  root.find(j.PropertyDefinition).forEach(renameDeprecatedApis);
 
   // createReactClass and mixins
   root.find(j.Property).forEach(renameDeprecatedApis);

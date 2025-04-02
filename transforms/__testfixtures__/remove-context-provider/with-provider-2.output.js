@@ -3,7 +3,6 @@ function App() {
 
   return (
     <Context value={theme}>
-    <Page />
     </Context>
   );
 }

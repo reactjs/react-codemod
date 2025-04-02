@@ -1,0 +1,40 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "moduleResolution": "node",
+    "module": "NodeNext",
+    "target": "ES2015",
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "useDefineForClassFields": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "incremental": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "allowJs": true,
+    "outDir": "./dist",
+    "rootDir": "./transforms",
+    "moduleDetection": "auto"
+  },
+  "include": [
+    "./transforms/**/*.codemod.ts",
+    "./transforms/**/*.codemod.js",
+    "./transforms/**/*.codemod.tsx",
+    "./transforms/**/*.codemod.jsx"
+  ],
+  "exclude": ["node_modules", "./dist/**/*"],
+  "ts-node": {
+    "transpileOnly": true
+  }
+}

@@ -1,43 +1,27 @@
+"use strict";
 
-'use strict';
-
-const tsTests = [
-  'use-context',
-  'use-context-2', 
-  'any-use-context', 
-];
+const tsTests = ["use-context", "use-context-2", "any-use-context"];
 
 const jsTests = [
-  'use-context',
-  'use-context-2', 
-  'any-use-context', 
-  'mixed-import'
-]
+  "use-context",
+  "use-context-2",
+  "any-use-context",
+  "mixed-import",
+];
 
-const defineTest = require('jscodeshift/dist/testUtils').defineTest;
+const defineTest = require("jscodeshift/dist/testUtils").defineTest;
 
-describe('use-context-hook', () => {
-
-  jsTests.forEach(test =>
-    defineTest(
-      __dirname,
-      'use-context-hook',
-      null,
-      `use-context-hook/${ test }`
-    )
+describe("use-context-hook", () => {
+  jsTests.forEach((test) =>
+    defineTest(__dirname, "use-context-hook", null, `use-context-hook/${test}`)
   );
 
-
-  describe('typescript', () => {
-
+  describe("typescript", () => {
     beforeEach(() => {
-      jest.mock('../use-context-hook', () => {
-        return Object.assign(
-          require.requireActual('../use-context-hook'),
-          {
-            parser: 'tsx'
-          }
-        );
+      jest.mock("../use-context-hook", () => {
+        return Object.assign(jest.requireActual("../use-context-hook"), {
+          parser: "tsx",
+        });
       });
     });
 
@@ -45,14 +29,13 @@ describe('use-context-hook', () => {
       jest.resetModules();
     });
 
-    tsTests.forEach(test => {
+    tsTests.forEach((test) => {
       defineTest(
         __dirname,
-        'use-context-hook',
+        "use-context-hook",
         null,
-        `use-context-hook/typescript/${ test }`
+        `use-context-hook/typescript/${test}`
       );
     });
-    
   });
 });

@@ -9,7 +9,7 @@
 'use strict';
 
 jest.mock('../create-element-to-jsx', () => {
-  return Object.assign(require.requireActual('../create-element-to-jsx'), {
+  return Object.assign(jest.requireActual('../create-element-to-jsx'), {
     parser: 'flow'
   });
 });

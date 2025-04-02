@@ -9,7 +9,7 @@
 'use strict';
 
 jest.mock('../ReactNative-View-propTypes', () => {
-  return Object.assign(require.requireActual('../ReactNative-View-propTypes'), {
+  return Object.assign(jest.requireActual('../ReactNative-View-propTypes'), {
     parser: 'flow'
   });
 });

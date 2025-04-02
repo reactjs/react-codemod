@@ -2,8 +2,8 @@ function App({ url }: { url: string }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   return (
-    <Context value={theme}>
+    <ThemeContext value={theme}>
       <Page />
-    </Context>
+    </ThemeContext>
   );
 }

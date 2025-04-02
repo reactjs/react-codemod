@@ -9,7 +9,7 @@
 'use strict';
 
 jest.mock('../manual-bind-to-arrow', () => {
-  return Object.assign(require.requireActual('../manual-bind-to-arrow'), {
+  return Object.assign(jest.requireActual('../manual-bind-to-arrow'), {
     parser: 'flow'
   });
 });

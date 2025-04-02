@@ -1,36 +1,25 @@
+"use strict";
 
-'use strict';
+const tests = ["with-provider", "with-provider-2", "no-provider"];
 
-const tests = [
-  'with-provider',
-  'with-provider-2',
-  'no-provider',
-];
+const defineTest = require("jscodeshift/dist/testUtils").defineTest;
 
-const defineTest = require('jscodeshift/dist/testUtils').defineTest;
-
-describe('remove-context-provider', () => {
-
-  tests.forEach(test =>
+describe("remove-context-provider", () => {
+  tests.forEach((test) =>
     defineTest(
       __dirname,
-      'remove-context-provider',
+      "remove-context-provider",
       null,
-      `remove-context-provider/${ test }`
+      `remove-context-provider/${test}`
     )
   );
 
-
-  describe('typescript', () => {
-
+  describe("typescript", () => {
     beforeEach(() => {
-      jest.mock('../remove-context-provider', () => {
-        return Object.assign(
-          require.requireActual('../remove-context-provider'),
-          {
-            parser: 'tsx'
-          }
-        );
+      jest.mock("../remove-context-provider", () => {
+        return Object.assign(jest.requireActual("../remove-context-provider"), {
+          parser: "tsx",
+        });
       });
     });
 
@@ -38,14 +27,13 @@ describe('remove-context-provider', () => {
       jest.resetModules();
     });
 
-    tests.forEach(test => {
+    tests.forEach((test) => {
       defineTest(
         __dirname,
-        'remove-context-provider',
+        "remove-context-provider",
         null,
-        `remove-context-provider/typescript/${ test }`
+        `remove-context-provider/typescript/${test}`
       );
     });
-    
   });
 });

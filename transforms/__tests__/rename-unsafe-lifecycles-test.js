@@ -26,7 +26,7 @@ describe('rename-unsafe-lifecycles', () => {
     beforeEach(() => {
       jest.mock('../rename-unsafe-lifecycles', () => {
         return Object.assign(
-          require.requireActual('../rename-unsafe-lifecycles'),
+          jest.requireActual('../rename-unsafe-lifecycles'),
           {
             parser: 'flow'
           }
@@ -52,7 +52,7 @@ describe('rename-unsafe-lifecycles', () => {
     beforeEach(() => {
       jest.mock('../rename-unsafe-lifecycles', () => {
         return Object.assign(
-          require.requireActual('../rename-unsafe-lifecycles'),
+          jest.requireActual('../rename-unsafe-lifecycles'),
           {
             parser: 'tsx'
           }

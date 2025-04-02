@@ -42,14 +42,14 @@ const destructureNamedImportTests = [
 ];
 
 jest.mock('../update-react-imports', () => {
-  return Object.assign(require.requireActual('../update-react-imports'), {
+  return Object.assign(jest.requireActual('../update-react-imports'), {
     parser: 'flow',
   });
 });
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;
 
-[...tests, ...flowOnlyTests].forEach((test) => {
+tests.forEach((test) => {
   defineTest(
     __dirname,
     'update-react-imports',
@@ -58,11 +58,22 @@ const defineTest = require('jscodeshift/dist/testUtils').defineTest;
   );
 });
 
+
+destructureNamedImportTests.forEach((test) => {
+  defineTest(
+    __dirname,
+    'update-react-imports',
+    {destructureNamespaceImports: true},
+    `update-react-imports/${test}`
+  );
+});
+
+
 describe('typescript', () => {
   beforeEach(() => {
     jest.mock('../update-react-imports', () => {
       return Object.assign(
-        require.requireActual('../update-react-imports'),
+        jest.requireActual('../update-react-imports'),
         {
           parser: 'tsx'
         }
@@ -74,21 +85,12 @@ describe('typescript', () => {
     jest.resetModules();
   });
 
-  [...tests, ...tsOnlyTests].forEach((test) => {
+  tsOnlyTests.forEach((test) => {
     defineTest(
       __dirname,
       'update-react-imports',
       null,
-      `update-react-imports/typescript/${test}.tsx`
+      `update-react-imports/typescript/${test}`
     );
   });
-});
-
-destructureNamedImportTests.forEach((test) => {
-  defineTest(
-    __dirname,
-    'update-react-imports',
-    {destructureNamespaceImports: true},
-    `update-react-imports/${test}`
-  );
 });
