@@ -22,6 +22,7 @@ const buildPropsAndRefIntersectionTypeAnnotation = (
       j.tsTypeLiteral([
         j.tsPropertySignature.from({
           key: j.identifier('ref'),
+          optional: true,
           typeAnnotation: j.tsTypeAnnotation(
             j.tsTypeReference.from({
               typeName: j.tsQualifiedName(
