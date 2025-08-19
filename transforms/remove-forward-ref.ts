@@ -6,14 +6,17 @@ import type {
   FunctionExpression,
   Identifier,
   JSCodeshift,
+  TSIntersectionType,
+  TSType,
   TSTypeLiteral,
   TSTypeReference,
+  TSUnionType,
 } from 'jscodeshift';
 
 // Props & { ref: React.RefObject<Ref>}
 const buildPropsAndRefIntersectionTypeAnnotation = (
   j: JSCodeshift,
-  propType: TSTypeReference | TSTypeLiteral,
+  propType: TSType,
   refType: TSTypeReference | TSTypeLiteral | null,
 ) =>
   j.tsTypeAnnotation(
@@ -94,11 +97,14 @@ const getForwardRefRenderFunction = (
   return renderFunction;
 };
 
-const isLiteralOrReference = (
+const isSupportedType = (
   j: JSCodeshift,
   type: unknown,
-): type is TSTypeReference | TSTypeLiteral => {
-  return j.TSTypeReference.check(type) || j.TSTypeLiteral.check(type);
+): type is TSType => {
+  return j.TSTypeReference.check(type) || 
+         j.TSTypeLiteral.check(type) ||
+         j.TSIntersectionType.check(type) ||
+         j.TSUnionType.check(type);
 };
 
 export default function transform(file: FileInfo, api: API) {
@@ -220,7 +226,7 @@ export default function transform(file: FileInfo, api: API) {
        */
 
       if (
-        isLiteralOrReference(j, propsArgTypeReference) &&
+        isSupportedType(j, propsArgTypeReference) &&
         renderFunction.params?.[0] &&
         'typeAnnotation' in renderFunction.params[0]
       ) {
@@ -250,7 +256,7 @@ export default function transform(file: FileInfo, api: API) {
 
         if (
           j.TSTypeReference.check(refType) &&
-          isLiteralOrReference(j, propType)
+          isSupportedType(j, propType)
         ) {
           renderFunction.params[0].typeAnnotation =
             buildPropsAndRefIntersectionTypeAnnotation(j, propType, refType);
