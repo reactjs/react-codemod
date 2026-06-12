@@ -1,8 +1,22 @@
 ## React Codemods [![Build Status](https://travis-ci.org/reactjs/react-codemod.svg)](https://travis-ci.org/reactjs/react-codemod)
 
-This repository contains a collection of codemods to help update React apps.
+> [!IMPORTANT]
+> The codemods in this repository are no longer maintained. The maintained
+> React codemods now live in
+> [codemod/react-codemod](https://github.com/codemod/react-codemod) and are
+> published in the [Codemod Registry](https://go.codemod.com/react-codemods).
+>
+> The new codemods are implemented with JSSG and include many bug fixes, improved
+> performance, better JavaScript/TypeScript/JSX handling, and ongoing maintenance.
 
-All codemods, whether you use the `codemod` CLI command or `react-codemod`, are free and open source, with the source code available in this repository.
+This repository still contains older codemod implementations to help update
+React apps. The list below documents the codemods that live here. Except for
+intentionally deprecated React patterns such as `class`, these codemods are
+superseded by the maintained JSSG codemods from
+[codemod/react-codemod](https://github.com/codemod/react-codemod).
+
+The maintained JSSG codemods and the legacy source in this repository are free
+and open source.
 
 ### Usage
 
