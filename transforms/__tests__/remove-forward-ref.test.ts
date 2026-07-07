@@ -12,10 +12,16 @@ const jsTests = [
 ];
 
 const tsTests = [
-  'type-arguments', 
-  'type-arguments-custom-names', 
-  'type-arguments-type-literals', 
-  'props-type-literal'
+  'type-arguments',
+  'type-arguments-custom-names',
+  'type-arguments-type-literals',
+  'type-arguments-union-ref',
+  'type-arguments-union-props',
+  'type-arguments-union-of-intersections',
+  'type-arguments-intersection-props',
+  'props-type-literal',
+  'ref-arg-named-import',
+  'ref-arg-union-type'
 ];
 
 const defineTest = require('jscodeshift/dist/testUtils').defineTest;

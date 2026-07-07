@@ -6,27 +6,34 @@ import type {
   FunctionExpression,
   Identifier,
   JSCodeshift,
-  TSTypeLiteral,
-  TSTypeReference,
+  TSType,
 } from 'jscodeshift';
 
-// Props & { ref: React.RefObject<Ref>}
+// union and conditional types bind looser than an intersection, so they
+// need to be parenthesized when used as an intersection member
+const parenthesizeForIntersection = (j: JSCodeshift, type: TSType) =>
+  j.TSUnionType.check(type) || j.TSConditionalType.check(type)
+    ? j.tsParenthesizedType(type)
+    : type;
+
+// Props & { ref?: React.Ref<Ref> }
 const buildPropsAndRefIntersectionTypeAnnotation = (
   j: JSCodeshift,
-  propType: TSTypeReference | TSTypeLiteral,
-  refType: TSTypeReference | TSTypeLiteral | null,
+  propType: TSType,
+  refType: TSType | null,
 ) =>
   j.tsTypeAnnotation(
     j.tsIntersectionType([
-      propType,
+      parenthesizeForIntersection(j, propType),
       j.tsTypeLiteral([
         j.tsPropertySignature.from({
           key: j.identifier('ref'),
+          optional: true,
           typeAnnotation: j.tsTypeAnnotation(
             j.tsTypeReference.from({
               typeName: j.tsQualifiedName(
                 j.identifier('React'),
-                j.identifier('RefObject'),
+                j.identifier('Ref'),
               ),
               typeParameters: j.tsTypeParameterInstantiation([
                 refType === null ? j.tsUnknownKeyword() : refType,
@@ -53,25 +60,39 @@ const buildRefAndPropsObjectPattern = (
     j.restProperty(j.identifier(propArgName)),
   ]);
 
+const REF_WRAPPER_TYPE_NAMES = [
+  'ForwardedRef',
+  'Ref',
+  'LegacyRef',
+  'MutableRefObject',
+  'RefObject',
+];
+
 // React.ForwardedRef<HTMLButtonElement> => HTMLButtonElement
+// ForwardedRef<HTMLButtonElement> => HTMLButtonElement
 const getRefTypeFromRefArg = (j: JSCodeshift, refArg: Identifier) => {
   const typeReference = refArg.typeAnnotation?.typeAnnotation;
-  if (
-    !j.TSTypeReference.check(typeReference) ||
-    !j.TSQualifiedName.check(typeReference.typeName)
-  ) {
+  if (!j.TSTypeReference.check(typeReference)) {
     return null;
   }
 
-  const { right } = typeReference.typeName;
+  const { typeName } = typeReference;
 
-  if (!j.Identifier.check(right) || right.name === 'forwardedRef') {
+  const wrapperName = j.TSQualifiedName.check(typeName)
+    ? j.Identifier.check(typeName.right)
+      ? typeName.right.name
+      : null
+    : j.Identifier.check(typeName)
+      ? typeName.name
+      : null;
+
+  if (wrapperName === null || !REF_WRAPPER_TYPE_NAMES.includes(wrapperName)) {
     return null;
   }
 
   const [firstTypeParameter] = typeReference.typeParameters?.params ?? [];
 
-  if (!j.TSTypeReference.check(firstTypeParameter)) {
+  if (!j.TSType.check(firstTypeParameter)) {
     return null;
   }
 
@@ -94,11 +115,8 @@ const getForwardRefRenderFunction = (
   return renderFunction;
 };
 
-const isLiteralOrReference = (
-  j: JSCodeshift,
-  type: unknown,
-): type is TSTypeReference | TSTypeLiteral => {
-  return j.TSTypeReference.check(type) || j.TSTypeLiteral.check(type);
+const isTSType = (j: JSCodeshift, type: unknown): type is TSType => {
+  return j.TSType.check(type);
 };
 
 export default function transform(file: FileInfo, api: API) {
@@ -220,7 +238,7 @@ export default function transform(file: FileInfo, api: API) {
        */
 
       if (
-        isLiteralOrReference(j, propsArgTypeReference) &&
+        isTSType(j, propsArgTypeReference) &&
         renderFunction.params?.[0] &&
         'typeAnnotation' in renderFunction.params[0]
       ) {
@@ -240,7 +258,7 @@ export default function transform(file: FileInfo, api: API) {
       const typeParameters = callExpressionPath.node.typeParameters;
 
       // if typeParameters are used in forwardRef generic, reuse them to annotate props type
-      // forwardRef<Ref, Props>((props) => { ... }) ====> (props: Props & { ref: React.RefObject<Ref> }) => { ... }
+      // forwardRef<Ref, Props>((props) => { ... }) ====> (props: Props & { ref?: React.Ref<Ref> }) => { ... }
       if (
         j.TSTypeParameterInstantiation.check(typeParameters) &&
         renderFunction.params?.[0] &&
@@ -248,10 +266,7 @@ export default function transform(file: FileInfo, api: API) {
       ) {
         const [refType, propType] = typeParameters.params;
 
-        if (
-          j.TSTypeReference.check(refType) &&
-          isLiteralOrReference(j, propType)
-        ) {
+        if (isTSType(j, refType) && isTSType(j, propType)) {
           renderFunction.params[0].typeAnnotation =
             buildPropsAndRefIntersectionTypeAnnotation(j, propType, refType);
 

@@ -5,7 +5,7 @@ const MyInput = (
     ref,
     ...props
   }: Props & {
-    ref: React.RefObject<HTMLInputElement>
+    ref?: React.Ref<HTMLInputElement>
   }
 ) => {
   return null;
